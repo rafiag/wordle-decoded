@@ -7,14 +7,27 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 import logging
 from typing import Optional
 
+import os
+from dotenv import load_dotenv
+
+# Load env if present
+load_dotenv()
+
 # Configure logger
 logger = logging.getLogger(__name__)
 
-# Constants
-FRUSTRATION_THRESHOLD = -0.2
-MIN_GAME_ID = 1
-MAX_GAME_ID = 2000
-WORDLE_START_DATE = datetime(2021, 6, 19)
+# Constants from environment or defaults
+FRUSTRATION_THRESHOLD = float(os.getenv("FRUSTRATION_THRESHOLD", "-0.2"))
+MIN_GAME_ID = int(os.getenv("MIN_GAME_ID", "1"))
+MAX_GAME_ID = int(os.getenv("MAX_GAME_ID", "2000"))
+
+# Wordle start date configuration
+wordle_start_str = os.getenv("WORDLE_START_DATE", "2021-06-19")
+try:
+    WORDLE_START_DATE = datetime.strptime(wordle_start_str, "%Y-%m-%d")
+except ValueError:
+    logger.error(f"Invalid WORDLE_START_DATE format: {wordle_start_str}. Using default.")
+    WORDLE_START_DATE = datetime(2021, 6, 19)
 
 # Initialize NLTK
 try:

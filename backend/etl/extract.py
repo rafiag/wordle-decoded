@@ -2,10 +2,18 @@ import pandas as pd
 from pathlib import Path
 import logging
 
+import os
+from dotenv import load_dotenv
+
+# Load env if present
+load_dotenv()
+
 # Configure logger
 logger = logging.getLogger(__name__)
 
-RAW_DATA_DIR = Path("data/raw")
+# Use environment variables for data directories
+BASE_DIR = Path(os.getenv("DATA_DIR", "data"))
+RAW_DATA_DIR = Path(os.getenv("RAW_DATA_DIR", str(BASE_DIR / "raw")))
 
 def validate_games_csv(df: pd.DataFrame) -> None:
     """
