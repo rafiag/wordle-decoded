@@ -26,20 +26,23 @@
 - **Interactivity:** Click to filter/drill down, hover tooltips (keyboard navigation in Phase 2)
 - **Phase 1 (MVP):**
   1. Database & data pipeline foundation ✅
-  2. Dashboard application foundation
-  3. Word difficulty analysis
-  4. Guess distribution visualizations
-  5. Pattern-based performance analysis
-  6. NYT Effect analysis
-  7. Outlier/viral day detection
+  2. Dashboard application foundation ✅
+  3. Word difficulty analysis (Feature 1.3) ✅
+  4. Guess distribution visualizations (Feature 1.4) ✅
+  5. Sentiment analysis engine & charts (Feature 1.9) ✅
+  6. Pattern-based performance analysis (Feature 1.5)
+  7. NYT Effect analysis (Feature 1.6)
+  8. Outlier/viral day detection (Feature 1.7)
 - **Phase 2:** Polish interactions, animations, UX/UI enhancements, keyboard navigation, performance optimization
 - **Development Environment:** Docker Compose
 
 ### Key Commands
 - **Run application:** `docker compose up`
 - **Stop application:** `docker compose down`
+- **Build/Rebuild:** `docker compose build`
 - **Run tests:** `docker compose exec backend pytest` (backend), `docker compose exec frontend npm test` (frontend)
 - **Data pipeline:** `docker compose exec backend python scripts/run_etl.py`
+- **Database Shell:** `docker compose exec db psql -U wordle_user -d wordle_db`
 
 ---
 
@@ -277,6 +280,8 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 **Data Methodology:**
 - Normalize emoji patterns to standardized format (handle variants)
 - Calculate word difficulty: frequency_score + letter_pattern_complexity
+- Sentiment Analysis: VADER-based compound scores for tweet text
+- Frustration Index: Percentage of tweets below sentiment threshold
 - Detect outliers using Z-score based analysis of tweet volume vs expected
 - Pre-compute aggregations for fast dashboard loading
 

@@ -6,8 +6,9 @@
 - **Language:** Python 3.11+
 - **Framework:** TBD (FastAPI, Flask, or Django - to be decided based on requirements)
 - **Data Processing:** Pandas, NumPy
-- **NLP/Linguistics:** NLTK (word frequency data)
-- **Google Trends:** pytrends library
+- **NLP/Linguistics:** NLTK (word frequency data, sentiment analysis)
+- **Statistical Analysis:** SciPy (for NYT Effect statistical tests)
+- **Google Trends:** pytrends library (Phase 2 - deferred from Phase 1)
 - **Testing:** pytest, pytest-cov
 - **Code Quality:** black, flake8, mypy
 
@@ -61,9 +62,11 @@
 - **Purpose:** Assign commonality/rarity scores to 5-letter words
 - **Processing:** Pre-compute frequency scores for all valid Wordle words
 
-#### 4. Google Trends Data
+#### 4. Google Trends Data *(Phase 2 Enhancement)*
 **Source:** pytrends library
-- **Queries:**
+- **Status:** Deferred to Phase 2 for outlier detection enhancement
+- **Phase 1 Approach:** Use tweet volume + sentiment for viral day detection
+- **Queries (Phase 2):**
   - "Wordle hint"
   - "Wordle answer"
   - "Wordle [date]"
@@ -76,8 +79,8 @@
 #### ETL Pipeline
 1. **Extract:**
    - Download and validate Kaggle datasets
-   - Fetch Google Trends data (respecting rate limits)
    - Load NLTK word frequency data
+   - *(Phase 2)* Fetch Google Trends data (respecting rate limits)
 
 2. **Transform:**
    - Clean and normalize tweet patterns
@@ -93,8 +96,8 @@
 
 #### Data Refresh Strategy
 - **Static Data:** Kaggle datasets (update manually or schedule periodic checks)
-- **Google Trends:** Cache results, refresh weekly or on-demand
 - **Computed Metrics:** Pre-compute during build/deployment
+- **Phase 2:** Google Trends caching (refresh weekly or on-demand)
 
 ---
 
@@ -478,53 +481,55 @@ nyt_analysis (
 #### Technical Approach
 **Outlier Detection Algorithm:**
 ```python
-expected_tweets = f(difficulty_score, day_of_week, trend)
-residual = actual_tweets - expected_tweets
-if abs(residual) > threshold:
+# Z-score based detection
+expected_tweets = f(day_of_week, historical_baseline)
+z_score = (actual_tweets - mean_tweets) / std_tweets
+if abs(z_score) > threshold:  # e.g., Z > 2.5
     flag_as_outlier()
 ```
 
 **Outlier Categories:**
-- High tweet volume (viral)
-- Low tweet volume (unusual)
-- High Google search interest
-- Unusually high difficulty
-- Unusually low difficulty
+- **High Volume + Negative Sentiment:** Frustrating/controversial puzzle
+- **High Volume + Positive Sentiment:** Viral fun moment
+- **Low Volume:** Holiday effect or data gap
+- **Sentiment Extreme:** Unusually positive or negative community mood
 
 **Contextual Data:**
+- Tweet volume Z-scores
+- Sentiment data (from Phase 1.1 sentiment table)
 - Holidays/special dates
-- Day of week effects
-- Seasonal trends
+- Day of week normalization
 
 **Database Schema:**
 ```sql
 outliers (
     date DATE,
     word TEXT,
-    outlier_type TEXT,
-    expected_value FLOAT,
-    actual_value FLOAT,
-    residual FLOAT,
+    outlier_type TEXT,  -- 'viral_frustration', 'viral_fun', 'quiet_day', 'sentiment_extreme'
+    tweet_volume INT,
+    expected_volume FLOAT,
+    z_score FLOAT,
+    sentiment_score FLOAT,  -- From sentiment table
     context TEXT
 )
 
-google_trends (
-    date DATE,
-    search_interest INT,
-    query TEXT
-)
+-- Note: Leverages existing sentiment table from Phase 1.1
+-- No Google Trends integration in Phase 1 (deferred to Phase 2)
 ```
 
 **API Endpoints:**
-- `GET /api/outliers` - List all outlier days
-- `GET /api/outliers/{date}` - Detailed outlier analysis
-- `GET /api/trends/correlation` - Search interest vs. difficulty
+- `GET /api/outliers` - List all outlier days with categories
+- `GET /api/outliers/{date}` - Detailed outlier analysis with sentiment context
+- `GET /api/outliers/volume-sentiment` - Volume vs. sentiment scatter plot data
 
 **Visualizations:**
-- Timeline with outliers highlighted
-- Scatter plot: expected vs. actual tweets
-- Trend correlation chart (searches vs. performance)
-- Outlier detail cards with context
+- Timeline with outliers highlighted (color-coded by category)
+- Scatter plot: tweet volume vs. sentiment
+- Outlier detail cards with context (volume, sentiment, word difficulty)
+
+**Phase 2 Enhancement:**
+- Google Trends integration for search behavior analysis
+- Correlation between search interest and tweet volume
 
 ---
 
@@ -793,10 +798,12 @@ tweet_sentiment (
 
 ## API Rate Limits & External Services
 
-### Google Trends (pytrends)
-- **Rate Limit:** ~50 requests per hour (unofficial, may vary)
-- **Strategy:** Cache aggressively, batch requests, implement exponential backoff
-- **Fallback:** Serve cached/stale data if rate limited
+### Google Trends (pytrends) *(Phase 2)*
+- **Phase 1 Status:** Not used - outlier detection uses tweet volume + sentiment only
+- **Phase 2 Integration:**
+  - **Rate Limit:** ~50 requests per hour (unofficial, may vary)
+  - **Strategy:** Cache aggressively, batch requests, implement exponential backoff
+  - **Fallback:** Serve cached/stale data if rate limited
 
 ### Kaggle Datasets
 - **Update Frequency:** Manual or scheduled (check weekly)

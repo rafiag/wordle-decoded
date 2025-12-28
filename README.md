@@ -2,7 +2,7 @@
 
 Interactive dashboard exploring Wordle puzzle difficulty through player data, linguistic analysis, and search trends. Uncover what makes puzzles easy or hard.
 
-[![GitHub](https://img.shields.io/badge/github-wordle--decoded-blue?logo=github)](https://github.com/yourusername/wordle-decoded)
+[![GitHub](https://img.shields.io/badge/github-wordle--decoded-blue?logo=github)](https://github.com/rafiag/wordle-decoded)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
@@ -99,7 +99,7 @@ Then visit: `http://localhost:3000`
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/wordle-decoded.git
+   git clone https://github.com/rafiag/wordle-decoded.git
    cd wordle-decoded
    ```
 
@@ -148,21 +148,21 @@ docker compose exec backend python scripts/run_etl.py
 wordle-decoded/
 ├── backend/              # FastAPI backend application
 │   ├── api/             # API endpoints and routes
-│   ├── etl/             # Data extraction, transformation, loading
-│   ├── models/          # Database models and schemas
-│   ├── services/        # Business logic and calculations
-│   └── tests/           # Backend test suite
+│   ├── db/              # Database schema and session management
+│   ├── etl/             # Data extraction, transformation, and processing
+│   └── tests/           # Backend unit and integration tests
 ├── frontend/            # React frontend application
 │   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── services/    # API client and data fetching
-│   │   ├── utils/       # Helper functions
-│   │   └── styles/      # CSS and styling
-│   └── tests/           # Frontend test suite
-├── data/                # Raw and processed data files
-├── docs/                # Project documentation
-│   ├── FEATURE-PLAN.md  # User-facing feature roadmap
-│   └── TECHNICAL-SPEC.md # Developer implementation guide
+│   │   ├── components/  # Reusable UI components
+│   │   ├── pages/       # Dashboard page views (Difficulty, Sentiment, etc.)
+│   │   ├── services/    # API client and TanStack Query logic
+│   │   ├── hooks/       # Custom React hooks
+│   │   └── styles/      # Global CSS and styling
+│   └── public/          # Static assets
+├── data/                # SQLite database and raw/processed data
+├── docs/                # Comprehensive project documentation
+├── scripts/             # Root-level utility and ETL scripts
+├── tests/               # Global integration tests
 ├── CLAUDE.md            # AI assistant project guide
 ├── docker-compose.yml   # Container orchestration
 └── README.md           # This file
@@ -221,17 +221,17 @@ This is a portfolio project, but suggestions and feedback are welcome:
 
 **Completed:**
 - ✅ Project structure and documentation
-- ✅ Development environment setup
-- ✅ Database schema and data pipeline (Phase 1.1)
-- ✅ Dashboard application foundation (Phase 1.2)
-- ✅ Word difficulty analysis (Feature 1.3)
-- ✅ Guess distribution visualizations (Feature 1.4)
-- ✅ Sentiment analysis engine & charts (Feature 1.9)
+- ✅ Development environment setup (Docker Compose)
+- ✅ Database schema and hybrid PostgreSQL/SQLite data pipeline (Phase 1.1)
+- ✅ Dashboard application foundation with React 19 + Vite 7 (Phase 1.2)
+- ✅ Word difficulty analysis with interactive scoring (Feature 1.3)
+- ✅ Guess distribution visualizations and trends (Feature 1.4)
+- ✅ Sentiment analysis engine & frustration index charts (Feature 1.9)
 
 **Next Up:**
 - ⏳ Pattern-based performance analysis (Feature 1.5)
 - ⏳ NYT Effect analysis (Feature 1.6)
-- ⏳ Outlier detection feature (Feature 1.7)
+- ⏳ Outlier detection engine (Feature 1.7)
 
 See [Feature Plan](docs/FEATURE-PLAN.md) for detailed roadmap.
 

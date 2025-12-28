@@ -149,24 +149,27 @@ Data-driven answer to one of the most debated Wordle questions. No more argument
 ### 1.7 Outlier & Viral Day Detection **(Status: NOT STARTED)**
 
 **What It Does:**
-Identifies days when something unusual happened - puzzle went viral, search interest spiked, or tweet volume was abnormally high or low.
+Identifies days when tweet activity was unusually high or low, revealing viral moments, controversial puzzles, and quiet periods in Wordle's history.
 
 **What You'll See:**
-- **Timeline with Highlights:** Days flagged as outliers stand out visually
-- **Outlier Categories:** Tweet volume spikes, Google search surges, difficulty anomalies
-- **Context Cards:** Each outlier explained ("Holiday: Thanksgiving" or "Controversial word: SWILL")
-- **Correlation Charts:** How search interest relates to difficulty and tweet volume
+- **Timeline with Highlights:** Days flagged as outliers stand out visually, color-coded by category
+- **Outlier Categories:** Viral frustration (high volume + negative sentiment), viral fun (high volume + positive sentiment), quiet days, sentiment extremes
+- **Context Cards:** Each outlier explained with tweet volume, community mood, and word difficulty
+- **Volume vs Sentiment Chart:** Scatter plot showing relationship between engagement and community mood
 
 **What You'll Experience:**
 - Click any outlier day for detailed analysis
-- Filter by outlier type (viral days, quiet days, search spikes, etc.)
-- See scatter plots comparing expected vs. actual tweet volume
-- Discover interesting stories behind unusual days
+- Filter by outlier type (viral frustration, viral fun, quiet days, sentiment extremes)
+- See which days had abnormally high or low tweet participation
+- Discover stories behind unusual days (frustrating words, fun moments, holidays)
 
-For example: "January 12, 2022: Tweet volume 340% above expected. Google searches for 'Wordle answer' spiked to 95/100. Word was 'PROXY' (difficulty 8.7/10) - unusually hard for a Wednesday."
+For example: "January 12, 2022: Tweet volume 340% above expected (Z-score: 3.4). Community sentiment: Frustrated (-0.42). Word: PROXY (difficulty 8.7/10) - unusually hard word sparked massive discussion."
 
 **Why It Matters:**
-Discover the fascinating stories behind Wordle's viral moments. See which words caused the internet to explode with frustration, and understand what makes a puzzle "go viral" beyond just difficulty.
+Discover the fascinating stories behind Wordle's viral moments. See which words caused the internet to explode with frustration versus celebration, and understand what makes a puzzle "go viral" beyond just difficulty.
+
+**Phase 2 Enhancement:**
+Google Trends integration will add search behavior data to distinguish "help-seeking" (high search volume) from "celebrating" (low search volume) viral moments.
 
 ---
 
