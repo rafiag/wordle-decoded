@@ -12,8 +12,7 @@ description: Generate a comprehensive git commit message and commit recent chang
         - `- Implemented X feature`
         - `- Fixed Y bug in Z file`
         - `- Updated documentation for A`
-5. **Propose Commit**: Present the generated commit message to the user for approval.
-6. **Execute Commit**: After user approval:
+5. **Execute Commit**: Execute commit:
     - Stage the files: `git add .` (or specific files if requested).
     - Commit with the message: `git commit -m "<message>"`.
-7. **Verify**: Run `git log -n 1` to confirm the commit was successful.
+6. **Verify**: Run `git log -n 1` to confirm the commit was successful.
