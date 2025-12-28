@@ -435,7 +435,7 @@ pattern_statistics (
 
 ---
 
-### Feature 4: NYT Effect Analysis
+### Feature 4: NYT Effect Analysis **(Status: BACKEND COMPLETE 🚧)**
 
 #### Technical Approach
 **Critical Date:** February 10, 2022

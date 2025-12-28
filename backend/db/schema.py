@@ -97,3 +97,24 @@ class Outlier(Base):
     context = Column(Text) # e.g. "Thanksgiving Holiday"
     
     word = relationship("Word", back_populates="outliers")
+
+class PatternStatistic(Base):
+    __tablename__ = "pattern_statistics"
+    
+    pattern = Column(String, primary_key=True, index=True)
+    count = Column(Integer, default=0)
+    success_count = Column(Integer, default=0) # Number of times this pattern eventually led to a win
+    avg_guesses = Column(Float, default=0.0) # Avg guesses for games containing this pattern
+    rank = Column(Integer, nullable=True) # Overall frequency rank
+
+class PatternTransition(Base):
+    """
+    Tracks probability of pattern B following pattern A
+    e.g. 🟩⬜⬜🟨⬜ -> 🟩🟩🟩🟩🟩
+    """
+    __tablename__ = "pattern_transitions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    source_pattern = Column(String, index=True) 
+    next_pattern = Column(String)
+    count = Column(Integer, default=0)

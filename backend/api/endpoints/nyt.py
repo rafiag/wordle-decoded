@@ -1,0 +1,34 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+
+from backend.db.database import get_db
+from backend.services.nyt_service import NYTService
+from backend.api.schemas import NYTEffectResponse, NYTTimelinePoint
+
+router = APIRouter()
+
+@router.get("/summary", response_model=NYTEffectResponse)
+def get_nyt_summary(db: Session = Depends(get_db)):
+    """
+    Returns the comprehensive before/after comparison including statistical tests.
+    """
+    service = NYTService(db)
+    
+    summary = service.get_comparison_summary()
+    tests = service.run_statistical_tests()
+    
+    return NYTEffectResponse(
+        summary=summary,
+        tests=tests
+    )
+
+@router.get("/timeline", response_model=List[NYTTimelinePoint])
+def get_nyt_timeline(db: Session = Depends(get_db)):
+    """
+    Returns daily metrics tagged with Pre-NYT / Post-NYT status for timeline visualization.
+    """
+    service = NYTService(db)
+    timeline = service.get_timeline()
+    
+    return timeline

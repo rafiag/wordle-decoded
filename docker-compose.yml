@@ -25,7 +25,7 @@ services:
       - .:/app
       - ./data:/app/data
     environment:
-      - DATABASE_URL=${DATABASE_URL:-}
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/wordle
       - ENV=${ENV:-development}
     ports:
       - "8000:8000"

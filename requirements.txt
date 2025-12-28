@@ -8,3 +8,5 @@ pytest
 pytrends
 nltk
 psycopg2-binary
+scipy
+alembic

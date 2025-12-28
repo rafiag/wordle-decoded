@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from backend.db.database import SessionLocal, engine, Base
-from backend.db.schema import Word, Distribution, TweetSentiment
+from backend.db.schema import Word, Distribution, TweetSentiment, PatternStatistic, PatternTransition
 import pandas as pd
 import logging
 import traceback
@@ -129,6 +129,38 @@ def load_tweets_data(df: pd.DataFrame):
         
     except Exception as e:
         logger.error(f"Error loading tweet data: {e}")
+        logger.debug(traceback.format_exc())
+        db.rollback()
+    finally:
+        db.close()
+
+def load_patterns_data(stats_df: pd.DataFrame, transitions_df: pd.DataFrame):
+    """
+    Loads pattern stats and transitions.
+    Strategy: Truncate tables and reload (Full Refresh).
+    """
+    logger.info(f"load_patterns_data called with {len(stats_df)} stats and {len(transitions_df)} transitions")
+    
+    db: Session = SessionLocal()
+    try:
+        logger.info("Truncating pattern tables...")
+        db.query(PatternTransition).delete()
+        db.query(PatternStatistic).delete()
+        db.flush()
+        
+        if not stats_df.empty:
+            logger.info("Inserting Pattern Statistics...")
+            db.bulk_insert_mappings(PatternStatistic, stats_df.to_dict(orient='records'))
+            
+        if not transitions_df.empty:
+            logger.info("Inserting Pattern Transitions...")
+            db.bulk_insert_mappings(PatternTransition, transitions_df.to_dict(orient='records'))
+            
+        db.commit()
+        logger.info("Pattern data load complete.")
+        
+    except Exception as e:
+        logger.error(f"Error loading pattern data: {e}")
         logger.debug(traceback.format_exc())
         db.rollback()
     finally:

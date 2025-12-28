@@ -168,3 +168,96 @@ Retrieve correlation data between tweet sentiment and puzzle performance.
   }
 }
 ```
+
+---
+
+## 4. NYT Effect Analysis Endpoints (Feature 1.6)
+
+### `GET /nyt/summary`
+Retrieve a comprehensive statistical comparison of Wordle performance before and after the New York Times acquisition (February 10, 2022).
+
+**Usage:**
+- Before/After KPI Cards (Avg Guesses, Difficulty)
+- Statistical Significance Badges
+
+**Parameters:**
+*None*
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "summary": {
+    "before": {
+      "avg_guesses": 3.92,
+      "avg_difficulty": 4.5,
+      "avg_success_rate": 0.98,
+      "total_games": 230,
+      "variance_guesses": 0.15
+    },
+    "after": {
+      "avg_guesses": 4.08,
+      "avg_difficulty": 5.2,
+      "avg_success_rate": 0.96,
+      "total_games": 85,
+      "variance_guesses": 0.22
+    },
+    "diff_guesses": 0.16,
+    "diff_difficulty": 0.7
+  },
+  "tests": {
+    "t_test_means": {
+      "test_name": "Welch's t-test",
+      "statistic": -2.45,
+      "p_value": 0.015,
+      "significant": true,
+      "interpretation": "Statistically significant difference in average guess count."
+    },
+    "mann_whitney": {
+      "test_name": "Mann-Whitney U",
+      "statistic": 1450.0,
+      "p_value": 0.03,
+      "significant": true,
+      "interpretation": "Distributions are significantly different."
+    },
+    "levene_variance": {
+      "test_name": "Levene's Test",
+      "statistic": 4.12,
+      "p_value": 0.04,
+      "significant": true,
+      "interpretation": "Variance (consistency) significantly changed."
+    }
+  }
+}
+```
+
+---
+
+### `GET /nyt/timeline`
+Retrieve daily performance metrics tagged with their era ("Pre-NYT" or "Post-NYT") for comparative timeline visualization.
+
+**Usage:**
+- Timeline Chart with acquisition date annotation
+- Trend analysis
+
+**Parameters:**
+*None*
+
+**Expected Response (`200 OK`):**
+```json
+[
+  {
+    "date": "2021-12-31",
+    "word": "REBUS",
+    "era": "Pre-NYT",
+    "avg_guesses": 3.75,
+    "difficulty": 6
+  },
+  {
+    "date": "2022-02-15",
+    "word": "ULTRA",
+    "era": "Post-NYT",
+    "avg_guesses": 4.1,
+    "difficulty": 4
+  }
+]
+```
