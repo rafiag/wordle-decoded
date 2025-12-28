@@ -79,6 +79,8 @@ frontend/.cache/
 .env.test.local
 .env.production.local
 .env*.local
+# Keep .env.example in version control
+!.env.example
 
 # IDEs and Editors
 .vscode/
@@ -95,7 +97,6 @@ Thumbs.db
 # .mcp.json
 
 # Docker
-.dockerignore
 docker-compose.override.yml
 
 # Database

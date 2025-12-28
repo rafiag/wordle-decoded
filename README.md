@@ -101,17 +101,24 @@ Then visit: `http://localhost:3000`
    cd wordle-decoded
    ```
 
-2. **Start the application**
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your Kaggle API token
+   ```
+   See [Environment Setup Guide](docs/ENVIRONMENT-SETUP.md) for detailed configuration.
+
+3. **Start the application**
    ```bash
    docker compose up
    ```
 
-3. **Run the data pipeline** (first time only)
+4. **Run the data pipeline** (first time only)
    ```bash
-   docker compose exec backend python -m etl.run_pipeline
+   docker compose exec backend python scripts/run_etl.py
    ```
 
-4. **Access the dashboard**
+5. **Access the dashboard**
    - Frontend: `http://localhost:3000`
    - API docs: `http://localhost:8000/docs`
 
@@ -128,7 +135,7 @@ docker compose exec backend pytest
 docker compose exec frontend npm test
 
 # Refresh data pipeline
-docker compose exec backend python -m etl.run_pipeline
+docker compose exec backend python scripts/run_etl.py
 ```
 
 ---
@@ -163,6 +170,7 @@ wordle-decoded/
 
 ## Documentation
 
+- **[Environment Setup Guide](docs/ENVIRONMENT-SETUP.md)** - Complete guide to environment variables and configuration
 - **[Database & ETL Documentation](docs/data-pipeline/README.md)** - Technical write-up of the Database & ETL implementation (Phase 1.1)
 - **[Feature Plan](docs/FEATURE-PLAN.md)** - User-facing roadmap describing what you can do at each phase
 - **[Technical Spec](docs/TECHNICAL-SPEC.md)** - Developer guide with architecture and high-level implementation details

@@ -7,3 +7,4 @@ uvicorn
 pytest
 pytrends
 nltk
+psycopg2-binary

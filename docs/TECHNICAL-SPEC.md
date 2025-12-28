@@ -20,7 +20,7 @@
 
 ### Infrastructure
 - **Development:** Docker + Docker Compose
-- **Database:** TBD (SQLite for simplicity, PostgreSQL if needed for analytics)
+- **Database:** SQLite (Development), PostgreSQL (Production)
 - **Deployment:** TBD (Vercel, Netlify, Railway, or similar)
 
 ### Design System
@@ -688,6 +688,11 @@ tweet_sentiment (
 *To be filled as decisions are made during implementation*
 
 **Example format:**
+- **Decision:** Use SQLite for development and PostgreSQL for production
+- **Rationale:** SQLite provides a zero-configuration, file-based setup for rapid development and testing. PostgreSQL ensures data persistence and robust analytics for production deployment. The codebase uses a hybrid approach (via DATABASE_URL) to support both.
+- **Date:** 2025-12-28
+- **Alternatives Considered:** Exclusive PostgreSQL (higher dev overhead), Exclusive SQLite (lower production robustness)
+
 - **Decision:** Use FastAPI for backend
 - **Rationale:** Fast, modern, good for data APIs, built-in validation
 - **Date:** YYYY-MM-DD

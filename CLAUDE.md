@@ -39,7 +39,7 @@
 - **Run application:** `docker compose up`
 - **Stop application:** `docker compose down`
 - **Run tests:** `docker compose exec backend pytest` (backend), `docker compose exec frontend npm test` (frontend)
-- **Data pipeline:** `docker compose exec backend python -m etl.run_pipeline`
+- **Data pipeline:** `docker compose exec backend python scripts/run_etl.py`
 
 ---
 
