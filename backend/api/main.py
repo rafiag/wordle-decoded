@@ -22,11 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Standardized API response models
-class APIResponse(BaseModel):
-    status: str
-    data: Dict[str, Any]
-    meta: Dict[str, str]
+from backend.api.schemas import APIResponse
 
 # API versioning with v1 router
 api_v1_router = APIRouter(prefix="/api/v1")
@@ -43,7 +39,12 @@ async def health_check():
         }
     )
 
-# Include versioned router
+# Include versioned routers
+from backend.api.endpoints import words, distributions, analytics
+
+api_v1_router.include_router(words.router)
+api_v1_router.include_router(distributions.router)
+api_v1_router.include_router(analytics.router)
 app.include_router(api_v1_router)
 
 # Root endpoint (unversioned for basic info)

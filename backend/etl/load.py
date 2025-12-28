@@ -38,7 +38,9 @@ def load_games_data(df: pd.DataFrame):
                 "word": target_word,
                 "date": game_date_str,
                 "avg_guess_count": float(row['avg_guesses']),
-                "success_rate": float(row['success_rate'])
+                "success_rate": float(row['success_rate']),
+                "frequency_score": float(row['frequency_score']),
+                "difficulty_rating": int(row['difficulty_rating'])
             })
             
             # Distribution Data
@@ -101,6 +103,15 @@ def load_tweets_data(df: pd.DataFrame):
                 "frustration_index": float(row['frustration_index']),
                 "sample_size": int(row['sample_size'])
             })
+            
+        # Filter for valid Word IDs to avoid FK violations
+        existing_ids = set(flat_id for (flat_id,) in db.query(Word.id).all())
+        original_count = len(sentiment_data)
+        sentiment_data = [d for d in sentiment_data if d['word_id'] in existing_ids]
+        dropped_count = original_count - len(sentiment_data)
+        
+        if dropped_count > 0:
+            logger.warning(f"Dropped {dropped_count} sentiment records due to missing Word IDs.")
             
         logger.info("Performing Bulk Upsert (DELETE + INSERT) for Sentiment data...")
         

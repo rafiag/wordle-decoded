@@ -52,7 +52,7 @@ The dashboard uses a universally accessible color palette (blue replaces green, 
 
 ---
 
-### 1.3 Word Difficulty Analysis **(Status: NOT STARTED)**
+### 1.3 Word Difficulty Analysis **(Status: COMPLETED ✅)**
 
 **What You'll Experience:**
 
@@ -60,6 +60,7 @@ The dashboard uses a universally accessible color palette (blue replaces green, 
 - See every Wordle answer rated on a difficulty scale based on how common the word is in English
 - Scatter plots showing the relationship between word rarity and how many guesses people needed
 - Timeline view revealing difficulty trends over months
+- **Documentation:** [Visualization Implementation](../docs/visualization/README.md)
 
 **Interactive Exploration:**
 - Click any word to see its detailed breakdown (frequency score, letter patterns, performance stats)
@@ -71,7 +72,7 @@ Ever wonder why "KNOLL" felt impossible while "CRANE" was easy? This feature giv
 
 ---
 
-### 1.4 Guess Distribution Visualizations **(Status: NOT STARTED)**
+### 1.4 Guess Distribution Visualizations **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Shows how many people solved each puzzle in 1, 2, 3, 4, 5, or 6 tries - or failed completely.
@@ -80,6 +81,7 @@ Shows how many people solved each puzzle in 1, 2, 3, 4, 5, or 6 tries - or faile
 - Stacked bar charts breaking down the guess distribution for any day
 - Daily, weekly, and monthly views to spot patterns over time
 - Calendar heatmap showing which days were hardest across months
+- **Documentation:** [Visualization Implementation](../docs/visualization/README.md)
 - Comparison tools to see how different time periods stack up
 
 **What You'll Experience:**
@@ -183,7 +185,7 @@ Some words aren't hard because they're obscure; they're hard because they belong
 
 ---
 
-### 1.9 Sentiment & Performance Correlation **(Status: NOT STARTED)**
+### 1.9 Sentiment & Performance Correlation **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Combines tweet sentiment analysis with puzzle performance to see if "difficult" words also make the community "angry" or "frustrated."
@@ -192,6 +194,7 @@ Combines tweet sentiment analysis with puzzle performance to see if "difficult" 
 - **Mood of the Day:** An indicator showing if players felt "Triumphant," "Neutral," or "Frustrated" after the puzzle.
 - **Sentiment vs. Guesses:** A correlation chart showing if higher average guess counts lead to more negative tweet sentiment.
 - **Obscurity Sentiment:** Does an "obscure" word (low frequency) cause more frustration than a "trap" word? 
+- **Documentation:** [Visualization Implementation](../docs/visualization/README.md) 
 
 **Why It Matters:**
 It captures the social vibe of the game. It allows you to see the difference between a "statistically hard" day and an "emotionally draining" one for the Wordle community.
@@ -282,6 +285,9 @@ For example:
 
 **Deferred from Phase 1.1 & 1.2:**
 - **Backend ETL:** Sentiment analysis multiprocessing (3-4x speedup, currently acceptable at 2-5 minutes)
+- **Advanced Statistics:** Pearson correlation, p-values, R² metrics (deferred from Phase 1.9)
+- **Enhanced Aggregation:** Weekly/Monthly views for distribution endpoints (deferred from Phase 1.4)
+- **Feature Robustness:** Input validation and comprehensive test coverage (deferred from Phase 1.3)
 - **Frontend:** Incremental test coverage expansion (target 80%, currently 15%)
 - **Code Quality:** Complete type hints, extract magic numbers to named constants
 - **Distribution:** Package distribution setup (setup.py/pyproject.toml)

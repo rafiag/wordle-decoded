@@ -50,6 +50,13 @@ const HomePage: React.FC = () => {
       icon: '🔥',
       color: 'bg-red-500',
     },
+    {
+      path: '/sentiment',
+      title: 'Sentiment Analysis',
+      description: 'See how puzzle difficulty affects community mood and frustration.',
+      icon: '😠',
+      color: 'bg-orange-500',
+    },
   ]
 
   return (

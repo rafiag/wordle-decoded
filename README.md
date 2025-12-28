@@ -174,6 +174,7 @@ wordle-decoded/
 
 - **[Environment Setup Guide](docs/ENVIRONMENT-SETUP.md)** - Complete guide to environment variables and configuration
 - **[Database & ETL Documentation](docs/data-pipeline/README.md)** - Technical write-up of the Database & ETL implementation (Phase 1.1)
+- **[Visualization Implementation](docs/visualization/README.md)** - Technical write-up of the Core Visualizations (Phase 1.3-1.9)
 - **[Feature Plan](docs/FEATURE-PLAN.md)** - User-facing roadmap describing what you can do at each phase
 - **[Technical Spec](docs/TECHNICAL-SPEC.md)** - Developer guide with architecture and high-level implementation details
 - **[Claude Guide](CLAUDE.md)** - AI assistant instructions for project development patterns
@@ -222,15 +223,15 @@ This is a portfolio project, but suggestions and feedback are welcome:
 - ✅ Project structure and documentation
 - ✅ Development environment setup
 - ✅ Database schema and data pipeline (Phase 1.1)
-- ✅ Sentiment analysis engine integration
 - ✅ Dashboard application foundation (Phase 1.2)
+- ✅ Word difficulty analysis (Feature 1.3)
+- ✅ Guess distribution visualizations (Feature 1.4)
+- ✅ Sentiment analysis engine & charts (Feature 1.9)
 
 **Next Up:**
-- ⏳ Word difficulty analysis feature
-- ⏳ Guess distribution visualizations
-- ⏳ Pattern-based performance analysis
-- ⏳ NYT Effect analysis
-- ⏳ Outlier detection feature
+- ⏳ Pattern-based performance analysis (Feature 1.5)
+- ⏳ NYT Effect analysis (Feature 1.6)
+- ⏳ Outlier detection feature (Feature 1.7)
 
 See [Feature Plan](docs/FEATURE-PLAN.md) for detailed roadmap.
 

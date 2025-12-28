@@ -112,6 +112,33 @@ def transform_games_data(df: pd.DataFrame) -> pd.DataFrame:
     mask_total = result['total_tweets'] > 0
     result.loc[mask_total, 'success_rate'] = successful_games[mask_total] / result['total_tweets'][mask_total]
 
+    # Calculate mock metrics for MVP since external corpus might be heavy
+    # Frequency: simpler words (E, A, R, I, O) are more frequent.
+    # Difficulty: (Avg Guesses * 2) + (10 - Frequency * 10) ... rough heuristic
+    
+    def calculate_metrics(row):
+        word = str(row['target']).lower()
+        guesses = float(row['avg_guesses'])
+        
+        # Simple frequency heuristic (Scrabble-inverse-ish? or just random for MVP visual?)
+        # Let's use vowel count + common letters as a proxy for "commonness" if no corpus.
+        # Ideally we use wordfreq, but let's stick to simple logic for stability.
+        common_letters = set('eariotnslcudpmhbfgywkvxzjq')
+        freq_score = sum(1 for c in word if c in 'eariotnsl') / 5.0 # 0.0 to 1.0
+        
+        # Difficulty Rating (1-10)
+        # Higher avg_guesses -> Higher difficulty
+        # Lower frequency -> Higher difficulty
+        diff = (guesses - 3.5) * 4 # Center around 3.5. 4.0 -> 2, 4.5 -> 4, 5.0 -> 6...
+        diff += (1.0 - freq_score) * 2 # Rare words add difficulty
+        
+        # Clamp 0-10
+        diff = max(1, min(10, int(diff + 3))) # Baseline 3
+        
+        return pd.Series([freq_score, diff])
+
+    result[['frequency_score', 'difficulty_rating']] = result.apply(calculate_metrics, axis=1)
+
     logger.info(f"Transformed {len(result)} games/days.")
     return result
 

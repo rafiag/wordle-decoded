@@ -133,6 +133,22 @@ The web application foundation for Wordle Data Explorer. This phase delivers a r
 
 ---
 
+### Phase 1.3 - 1.9: Core Visualizations **(Status: COMPLETED ✅)**
+
+Implementation of the core analytical dashboards: Word Difficulty, Guess Distribution, and Sentiment Analysis.
+
+**Detailed Documentation:**
+- [Visualization Implementation](../docs/visualization/README.md)
+- [Technical Details](../docs/visualization/VISUALIZATION-IMPLEMENTATION.md)
+
+#### Key Achievements
+- **ETL Pipeline**: Calculation of `frequency_score`, `difficulty_rating`, and `frustration_index`.
+- **Backend API**: Endpoints serving aggregated statistics.
+- **Frontend**: Interactive charts using Recharts (Scatter, Line, Bar, Composed).
+
+
+---
+
 ### Phase 1.2 Technical Details (Reference)
 
 This sets up the web application infrastructure.
@@ -728,6 +744,22 @@ tweet_sentiment (
    - Icon indicators (✓, ⚠, ✕) to supplement color in charts
    - Deferred to: Phase 2.1 (UX/UI Improvements)
    - Deferred rationale: Current implementation adequate, polish not critical for MVP
+
+#### Phase 1.3 - 1.9 (Core Visualizations) Deferred Items:
+1. **Statistical Rigor**
+   - Pearson correlation coefficients and p-values for sentiment analysis.
+   - Deferred to: Phase 2.3 (Performance & Quality)
+   - Rationale: Visual correlation sufficient for exploration.
+
+2. **Aggregated Views**
+   - Weekly/Monthly endpoints for guess distributions.
+   - Deferred to: Phase 2.2 (Advanced Interactions)
+   - Rationale: Daily view sufficient for MVP demonstration.
+
+3. **Input Validation**
+   - Explicit API parameter validation (e.g., negative limits).
+   - Deferred to: Phase 2.3
+   - Rationale: Framework validation (FastAPI) covers most cases.
 
 ### Future Technical Enhancements
 - Real-time data pipeline
