@@ -9,7 +9,14 @@
       "Bash(\"venv\\\\Scripts\\\\python.exe\" -m pytest tests/integration/test_database.py -v)",
       "Bash(\"venv\\\\Scripts\\\\python.exe\" test_price_collector.py)",
       "Bash(cat:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(npm *)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init -p)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

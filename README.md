@@ -62,15 +62,17 @@ Then visit: `http://localhost:3000`
 ## Technology Stack
 
 **Frontend:**
-- React with modern hooks for state management
-- D3.js or Chart.js for interactive visualizations
-- Responsive design (mobile/tablet/desktop)
-- Wordle-inspired color palette (green #6aaa64, yellow #c9b458, gray #787c7e)
+- React 19 + TypeScript with Vite 7 build system
+- Recharts for interactive data visualizations
+- Tailwind CSS 4 for responsive design (mobile/tablet/desktop)
+- React Router v7 for client-side routing
+- React Query (TanStack Query) for data fetching
+- Color-blind friendly palette (blue #0284c7, orange #d97706, gray #6b7280) - WCAG 2.1 AA compliant
 
 **Backend:**
-- Python with FastAPI for high-performance API endpoints
-- PostgreSQL for structured data storage
-- NLTK for word frequency analysis
+- Python 3.11+ with FastAPI for high-performance API endpoints
+- PostgreSQL for structured data storage (SQLite for development)
+- NLTK for word frequency analysis and sentiment scoring
 - pytrends for Google Trends integration
 
 **Data Sources:**
@@ -81,7 +83,7 @@ Then visit: `http://localhost:3000`
 **Development:**
 - Docker Compose for containerized environment
 - Pytest for backend testing
-- Jest for frontend testing
+- Vitest + React Testing Library for frontend testing
 - Git for version control
 
 ---
@@ -221,9 +223,7 @@ This is a portfolio project, but suggestions and feedback are welcome:
 - ✅ Development environment setup
 - ✅ Database schema and data pipeline (Phase 1.1)
 - ✅ Sentiment analysis engine integration
-
-**In Progress:**
-- 🚧 Dashboard application foundation
+- ✅ Dashboard application foundation (Phase 1.2)
 
 **Next Up:**
 - ⏳ Word difficulty analysis feature

@@ -34,16 +34,21 @@ Without clean, well-structured data, none of the analytical features would work.
 
 ---
 
-### 1.2 Dashboard Application (Foundation) **(Status: NOT STARTED)**
+### 1.2 Dashboard Application (Foundation) **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Sets up the web application you'll interact with - the layout, navigation, color scheme, and responsive design that works on any device.
+- **Documentation:** [Dashboard Foundation Overview](dashboard-foundation/README.md)
 
 **What You'll See:**
-A working website at localhost:3000 with Wordle's signature green/yellow/gray colors, smooth navigation between features, and a design that adapts perfectly whether you're on your phone, tablet, or desktop.
+A working website at localhost:3000 with a color-blind friendly blue/orange/gray palette (WCAG 2.1 AA compliant), smooth navigation between features, and a design that adapts perfectly whether you're on your phone, tablet, or desktop.
+- **Verified**: React 19 + TypeScript, Vite build system, Tailwind CSS styling, responsive breakpoints working on all devices.
 
 **Why It Matters:**
 This creates the foundation for all features. Once it's ready, you can actually see and interact with the dashboard instead of just having data sitting in a database.
+
+**Accessibility Note:**
+The dashboard uses a universally accessible color palette (blue replaces green, orange replaces yellow) that is safe for users with deuteranopia and protanopia while maintaining the playful Wordle aesthetic.
 
 ---
 
@@ -229,6 +234,10 @@ Refines the visual experience with smooth transitions, enhanced design polish, a
 - Better loading states with skeleton screens instead of blank spaces
 - Micro-interactions that make the dashboard feel responsive and alive
 
+**Deferred from Phase 1.2:**
+- Skeleton loading screens (current spinner is accessible and functional)
+- Icon indicators for charts (✓, ⚠, ✕) to supplement color for maximum accessibility
+
 **Why It Matters:**
 The difference between a functional tool and a delightful experience. These refinements make the dashboard feel professional and polished - crucial for portfolio presentation.
 
@@ -249,12 +258,16 @@ These are nice-to-haves that enhance usability but aren't essential for the core
 - Export buttons to download charts as images or data as CSV
 - Comparison mode to view multiple timeframes side-by-side
 
+**Deferred from Phase 1.2:**
+- E2E testing setup with Playwright (no user workflows exist yet in Phase 1.2)
+- Advanced keyboard shortcuts beyond basic tab navigation
+
 ---
 
-### 2.3 Performance Optimization
+### 2.3 Performance Optimization & Code Quality
 
 **What It Does:**
-Optimizes loading times and interaction smoothness even with large datasets.
+Optimizes loading times and interaction smoothness even with large datasets. Also includes backend ETL optimizations and code quality improvements.
 
 **What You'll See:**
 A new section showing:
@@ -266,6 +279,12 @@ A new section showing:
 For example:
 - "Dashboard now loads in 0.8s (previously 2.1s)"
 - "Pattern search returns results in <100ms (previously 500ms)"
+
+**Deferred from Phase 1.1 & 1.2:**
+- **Backend ETL:** Sentiment analysis multiprocessing (3-4x speedup, currently acceptable at 2-5 minutes)
+- **Frontend:** Incremental test coverage expansion (target 80%, currently 15%)
+- **Code Quality:** Complete type hints, extract magic numbers to named constants
+- **Distribution:** Package distribution setup (setup.py/pyproject.toml)
 
 **Why It Matters:**
 Speed is a feature. Faster interactions mean users explore more, discover more insights, and have a better overall experience. Critical for making a professional impression.

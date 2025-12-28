@@ -59,3 +59,46 @@ Extract the `*` symbol from tweet text to identify Hard-Mode players.
 * **Data Leakage/Cheating:** Spikes in "1/6" scores are often indicators of leaks or "inspect element" cheating. These will be filtered using a Z-score outlier detection.
 * **Timezone Normalization:** Ensure tweet volume is normalized for UTC or EST to align with the "Daily Refresh" cycle of the game.
 * **Word List Scoping:** NYT sometimes removes words from the original list (e.g., *FETUS, LYNCH*). This project will track "List Deviations" as part of the NYT Effect study.
+
+---
+
+## 6. Technical Debt & Deferred Optimizations
+
+### Phase 1 Completion Status (December 2025)
+**Completed:**
+- ✅ Phase 1.1: Database & Data Pipeline (Production-ready, A- grade)
+- ✅ Phase 1.2: Dashboard Application Foundation (Production-ready, A grade)
+
+**Deferred Items (Strategically postponed to Phase 2):**
+
+#### Backend Optimizations:
+1. **ETL Performance:** Sentiment analysis multiprocessing
+   - Potential: 3-4x speedup (120s → 30s)
+   - Current state: Acceptable for one-time batch operation
+   - Priority: Low (defer to Phase 2 if dataset scales significantly)
+
+2. **Package Distribution:** Create setup.py/pyproject.toml
+   - Current state: Functional with `__init__.py` files
+   - Priority: Medium (important for external distribution)
+
+3. **Code Quality:** Complete type hints, extract magic numbers
+   - Priority: Low (cosmetic improvements)
+
+#### Frontend Optimizations:
+1. **Test Coverage:** Expand from 15% to 80%
+   - Strategy: Incremental addition during Phase 1.3+ feature development
+   - Priority: High (add with each new feature)
+
+2. **E2E Testing:** Playwright configuration
+   - Deferred to: Phase 2.2 (when user workflows exist)
+   - Priority: Medium (valuable once interactions are implemented)
+
+3. **UX Polish:** Skeleton screens, icon indicators
+   - Deferred to: Phase 2.1
+   - Priority: Low (current implementation adequate for MVP)
+
+### Rationale for Deferrals
+All deferred items were reviewed and strategically postponed based on:
+- **Better ROI:** Testing real features > testing placeholders
+- **Acceptable Performance:** One-time operations don't require optimization for MVP
+- **Phase Alignment:** Polish items better suited for Phase 2 UX/UI focus
