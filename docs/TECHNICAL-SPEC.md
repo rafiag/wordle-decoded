@@ -46,14 +46,15 @@
   - Tweet volume
   - Hard mode indicator (*)
 
-**Data Freshness Check Required:** Verify latest available date in dataset
+**Latest Available Date:** November 15, 2022 (dataset covers Jan 1 - Nov 15, 2022)
 
 #### 2. Kaggle - Wordle Tweets Dataset
 **Source:** https://www.kaggle.com/datasets/benhamner/wordle-tweets
 - **Contains:** Raw tweet data
 - **Usage:** Supplement tweet volume and distribution data
+- **Note:** Significant overlap with the Wordle Games Dataset (covers roughly the same peak 2022 period). Useful for raw tweet text analysis.
 
-**Data Freshness Check Required:** Verify latest available date
+**Latest Available Date:** Roughly mid-2022 (metadata shows last update ~3 years ago as of late 2025).
 
 #### 3. NLTK Word Frequency
 **Source:** NLTK corpus (Brown, Reuters, or similar)
@@ -99,213 +100,18 @@
 
 ## Implementation Phases
 
-### Phase 0: Database & Data Pipeline (Foundation)
+### Phase 1.1: Database & Data Pipeline (Foundation) **(Status: COMPLETED ✅)**
 
-This foundational work must be completed before any dashboard features can be built.
+The foundation for Wordle Data Explorer. This phase handles historical player performance extraction, NLP sentiment transformation, and structured SQLite storage.
 
-#### Database Setup
+**Detailed Documentation:**
+- [Architecture & Schema](data-pipeline/DATABASE-ETL.md)
+- [Workflow & Setup](data-pipeline/README.md)
 
-**Database Choice:** TBD (SQLite for development/simple deployment, PostgreSQL for production if needed)
-
-**Core Tables:**
-```sql
--- Words and daily puzzles
-words (
-    id INTEGER PRIMARY KEY,
-    word TEXT UNIQUE NOT NULL,
-    date DATE UNIQUE NOT NULL,
-    frequency_score FLOAT,
-    difficulty_rating INTEGER,
-    avg_guess_count FLOAT,
-    success_rate FLOAT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-
--- Guess distributions
-distributions (
-    id INTEGER PRIMARY KEY,
-    date DATE UNIQUE NOT NULL,
-    word_id INTEGER REFERENCES words(id),
-    guess_1 INTEGER DEFAULT 0,
-    guess_2 INTEGER DEFAULT 0,
-    guess_3 INTEGER DEFAULT 0,
-    guess_4 INTEGER DEFAULT 0,
-    guess_5 INTEGER DEFAULT 0,
-    guess_6 INTEGER DEFAULT 0,
-    failed INTEGER DEFAULT 0,
-    total_tweets INTEGER,
-    avg_guesses FLOAT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-
--- Individual pattern records
-patterns (
-    id INTEGER PRIMARY KEY,
-    date DATE NOT NULL,
-    word_id INTEGER REFERENCES words(id),
-    pattern_string TEXT NOT NULL,
-    guess_number INTEGER NOT NULL,
-    solved BOOLEAN NOT NULL,
-    total_guesses INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_pattern (pattern_string),
-    INDEX idx_date (date)
-)
-
--- Pre-computed pattern statistics
-pattern_statistics (
-    id INTEGER PRIMARY KEY,
-    pattern_string TEXT NOT NULL,
-    guess_number INTEGER NOT NULL,
-    occurrences INTEGER DEFAULT 0,
-    success_count INTEGER DEFAULT 0,
-    success_rate FLOAT,
-    avg_completion_guesses FLOAT,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(pattern_string, guess_number)
-)
-
--- Google Trends data
-google_trends (
-    id INTEGER PRIMARY KEY,
-    date DATE NOT NULL,
-    query TEXT NOT NULL,
-    search_interest INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(date, query)
-)
-
--- NYT Effect analysis results
-nyt_analysis (
-    id INTEGER PRIMARY KEY,
-    metric TEXT UNIQUE NOT NULL,
-    before_value FLOAT,
-    after_value FLOAT,
-    p_value FLOAT,
-    significant BOOLEAN,
-    effect_size FLOAT,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-
--- Outlier detection results
-outliers (
-    id INTEGER PRIMARY KEY,
-    date DATE UNIQUE NOT NULL,
-    word_id INTEGER REFERENCES words(id),
-    outlier_type TEXT NOT NULL,
-    expected_value FLOAT,
-    actual_value FLOAT,
-    residual FLOAT,
-    z_score FLOAT,
-    context TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-```
-
-**Indexes:**
-- `words.date`, `words.word` for fast lookups
-- `patterns.pattern_string`, `patterns.date` for pattern queries
-- `distributions.date` for timeline queries
-- `outliers.date`, `outliers.outlier_type` for filtering
-
-#### ETL Pipeline Implementation
-
-**Step 1: Data Extraction**
-
-**Kaggle Dataset Download:**
-- Manual download or API-based fetch (kaggle CLI)
-- Validate file integrity and format
-- Store raw data in `data/raw/` directory
-
-**Google Trends Fetching:**
-```python
-# Example structure
-from pytrends.request import TrendReq
-
-def fetch_trends_data(start_date, end_date, keywords):
-    pytrends = TrendReq(hl='en-US', tz=360)
-    # Implement rate limiting and caching
-    # Batch requests by date range
-    # Store results incrementally
-```
-
-**NLTK Word Frequency:**
-```python
-# Load word frequency data
-from nltk.corpus import brown, reuters
-import nltk
-
-# Download required corpora
-nltk.download('brown')
-nltk.download('reuters')
-
-# Calculate frequency scores for 5-letter words
-```
-
-**Step 2: Data Transformation**
-
-**Pattern Normalization:**
-- Convert emoji patterns to standard format
-- Handle different emoji variants (⬛⬜, 🟨🟡, 🟩🟢)
-- Extract pattern features (green count, yellow count, positions)
-- Validate pattern structure (must be 5 characters)
-
-**Word Difficulty Calculation:**
-```python
-def calculate_difficulty_score(word, frequency_data):
-    """
-    Calculate difficulty score based on:
-    - Word frequency in corpus (primary factor)
-    - Letter pattern complexity (repeated letters, vowel ratio)
-    - Letter commonality
-
-    Returns: float (0-10 scale, higher = harder)
-    """
-    base_score = get_frequency_score(word, frequency_data)
-    pattern_modifier = analyze_letter_patterns(word)
-    return normalize_score(base_score + pattern_modifier)
-```
-
-**Statistical Computations:**
-- Average guess count per day
-- Success rates
-- Distribution percentages
-- Outlier detection (Z-score based)
-
-**Step 3: Data Loading**
-
-- Bulk insert with transaction support
-- Upsert logic for idempotent pipeline runs
-- Data validation before insertion
-- Error logging and recovery
-
-**Pipeline Execution:**
-```python
-# Main ETL script structure
-def run_etl_pipeline():
-    # 1. Extract
-    kaggle_data = extract_kaggle_data()
-    trends_data = extract_trends_data()
-    freq_data = extract_nltk_frequencies()
-
-    # 2. Transform
-    cleaned_data = transform_patterns(kaggle_data)
-    enriched_data = add_difficulty_scores(cleaned_data, freq_data)
-    aggregated_data = compute_aggregations(enriched_data)
-    outliers = detect_outliers(enriched_data, trends_data)
-
-    # 3. Load
-    load_to_database(enriched_data, aggregated_data, outliers)
-
-    # 4. Validate
-    validate_data_quality()
-```
-
-**Testing:**
-- Unit tests for each transformation function
-- Integration test for full pipeline
-- Data quality checks
-- Sample data validation
+#### Core Data Components
+- **SQLite Database**: Local, portable storage for 320+ puzzles and 1M+ tweets.
+- **Linguistic Processing**: NLTK VADER sentiment scoring for frustration indexing.
+- **Bulk Loading**: Performance-optimized ingestion using SQLAlchemy bulk mappings.
 
 ---
 
@@ -685,6 +491,63 @@ google_trends (
 - Scatter plot: expected vs. actual tweets
 - Trend correlation chart (searches vs. performance)
 - Outlier detail cards with context
+
+---
+
+### Feature 6: Trap Pattern Analysis
+
+#### Technical Approach
+**Trap Identification Algorithm:**
+- For each 5-letter Wordle answer, identify "neighbors" (words differing by exactly 1 character).
+- **Trap Score:** Calculated as `(Number of Neighbors) * (1 / Aggregate Word Frequency)`.
+- Identify "Deadly Neighbors" based on the frequency of specific pattern collisions in the Wordle Games dataset.
+
+**Database Schema:**
+```sql
+trap_analysis (
+    id INTEGER PRIMARY KEY,
+    word_id INTEGER REFERENCES words(id),
+    trap_score FLOAT,
+    neighbor_count INTEGER,
+    deadly_neighbors TEXT, -- JSON array of neighbor words
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+```
+
+**API Endpoints:**
+- `GET /api/traps/top` - Most difficult traps
+- `GET /api/traps/{word}` - Neighbors and analysis for a specific trap word
+
+---
+
+### Feature 7: Sentiment & Performance Correlation
+
+#### Technical Approach
+**NLP Pipeline:**
+- **Pre-processing:** Use regex to strip Wordle grids (⬛⬜🟩🟨) and isolate user-written text from the Wordle Tweets dataset.
+- **Sentiment Analysis:** Use `NLTK.sentiment.vader` or `TextBlob` to assign a daily polarity score (-1.0 to 1.0) to user comments.
+- **Aggregation:** Compute daily mean sentiment and "Frustration Index" (percentage of highly negative tweets).
+
+**Metrics:**
+- Daily Mean Sentiment
+- Sentiment / Average Guess Correlation (Pearson)
+- Obscurity vs. Trap Sentiment Difference (comparative analysis)
+
+**Database Schema:**
+```sql
+tweet_sentiment (
+    id INTEGER PRIMARY KEY,
+    date DATE UNIQUE NOT NULL,
+    avg_sentiment FLOAT,
+    frustration_index FLOAT,
+    sample_size INTEGER,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+```
+
+**API Endpoints:**
+- `GET /api/sentiment/daily` - Daily sentiment metrics
+- `GET /api/sentiment/correlation` - Detailed stats on sentiment vs. performance correlation
 
 ---
 

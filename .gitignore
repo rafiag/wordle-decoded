@@ -90,9 +90,9 @@ frontend/.cache/
 Thumbs.db
 
 # Claude Code
-.agent/
-.claude/
-.mcp.json
+# .agent/
+# .claude/
+# .mcp.json
 
 # Docker
 .dockerignore
