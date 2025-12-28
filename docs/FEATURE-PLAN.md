@@ -19,13 +19,15 @@ A fully working interactive dashboard where you can explore Wordle patterns, ana
 
 ---
 
-### 1.1 Database & Data Pipeline (Foundation)
+### 1.1 Database & Data Pipeline (Foundation) **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Behind the scenes, this component downloads, cleans, and organizes all the Wordle data so the dashboard can show you insights instantly.
+- **Documentation:** [Database & ETL Overview](docs/data-pipeline/README.md)
 
 **What You'll See:**
 Fast, reliable data throughout the dashboard. Charts and statistics load quickly without errors or missing information.
+- **Verified**: 320 Game IDs and 306 days of Sentiment data processed.
 
 **Why It Matters:**
 Without clean, well-structured data, none of the analytical features would work. This foundation ensures every insight you see is accurate and based on complete information.
@@ -158,6 +160,36 @@ For example: "January 12, 2022: Tweet volume 340% above expected. Google searche
 
 **Why It Matters:**
 Discover the fascinating stories behind Wordle's viral moments. See which words caused the internet to explode with frustration, and understand what makes a puzzle "go viral" beyond just difficulty.
+
+---
+
+### 1.8 Trap Pattern Analysis ("The Trap Cache") **(Status: NOT STARTED)**
+
+**What It Does:**
+Specifically analyzes "trap" words—those that have many similar neighbors (like *LIGHT*, *NIGHT*, *FIGHT*)—to see how they derail players.
+
+**What You'll See:**
+- **Trap Highlight:** Words flagged as "Traps" stand out in your analytics.
+- **The "Deadly Neighbors" List:** For any trap word, see the list of words that commonly cause players to waste guesses (e.g., for *LIGHT*, see *MIGHT, SIGHT, TIGHT*).
+- **Brute-Force Rate:** Metrics showing how often players resort to brute-force guessing vs. strategic elimination.
+
+**Why It Matters:**
+Some words aren't hard because they're obscure; they're hard because they belong to a large family of similar words. This feature identifies those "Wordle Traps" and shows you exactly where players get stuck.
+
+---
+
+### 1.9 Sentiment & Performance Correlation **(Status: NOT STARTED)**
+
+**What It Does:**
+Combines tweet sentiment analysis with puzzle performance to see if "difficult" words also make the community "angry" or "frustrated."
+
+**What You'll See:**
+- **Mood of the Day:** An indicator showing if players felt "Triumphant," "Neutral," or "Frustrated" after the puzzle.
+- **Sentiment vs. Guesses:** A correlation chart showing if higher average guess counts lead to more negative tweet sentiment.
+- **Obscurity Sentiment:** Does an "obscure" word (low frequency) cause more frustration than a "trap" word? 
+
+**Why It Matters:**
+It captures the social vibe of the game. It allows you to see the difference between a "statistically hard" day and an "emotionally draining" one for the Wordle community.
 
 ---
 

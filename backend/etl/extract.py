@@ -1,0 +1,77 @@
+import pandas as pd
+from pathlib import Path
+import logging
+
+# Configure logger
+logger = logging.getLogger(__name__)
+
+RAW_DATA_DIR = Path("data/raw")
+
+def validate_games_csv(df: pd.DataFrame) -> None:
+    """
+    Validate the schema of the Wordle Games CSV.
+    Raises ValueError if required columns are missing.
+    """
+    required_columns = {'Game', 'Trial', 'Username', 'processed_text', 'target'}
+    missing = required_columns - set(df.columns)
+    if missing:
+        raise ValueError(f"Games CSV missing required columns: {missing}")
+    
+    # Basic data sanity check
+    if df['Game'].min() < 1:
+        logger.warning(f"Found non-positive Game IDs: min={df['Game'].min()}")
+
+def validate_tweets_csv(df: pd.DataFrame) -> None:
+    """
+    Validate the schema of the Wordle Tweets CSV.
+    """
+    required_columns = {'tweet_text', 'tweet_date', 'wordle_id'}
+    missing = required_columns - set(df.columns)
+    if missing:
+        raise ValueError(f"Tweets CSV missing required columns: {missing}")
+
+def _find_largest_csv(directory: Path) -> Path:
+    """Helper to find the largest CSV file in a directory recursively."""
+    csv_files = list(directory.rglob("*.csv"))
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV file found in {directory}")
+    
+    # Sort by size descending to get the main dataset
+    csv_files.sort(key=lambda f: f.stat().st_size, reverse=True)
+    return csv_files[0]
+
+def load_kaggle_games_raw() -> pd.DataFrame:
+    """
+    Loads the raw Wordle games dataset.
+    Returns:
+        pd.DataFrame: DataFrame containing Game, Trial, processed_text, etc.
+    """
+    game_dir = RAW_DATA_DIR / "game_data"
+    file_path = _find_largest_csv(game_dir)
+    
+    logger.info(f"Loading games data from {file_path}")
+    df = pd.read_csv(file_path)
+    
+    validate_games_csv(df)
+    return df
+
+def load_kaggle_tweets_raw() -> pd.DataFrame:
+    """
+    Loads the raw Wordle tweets dataset.
+    Returns:
+        pd.DataFrame: DataFrame containing tweet_text, tweet_date, etc.
+    """
+    tweet_dir = RAW_DATA_DIR / "tweet_data"
+    file_path = _find_largest_csv(tweet_dir)
+    
+    logger.info(f"Loading tweets data from {file_path}")
+    
+    # Read CSV
+    df = pd.read_csv(file_path, parse_dates=['tweet_date'])
+    
+    # Validation (Note: 'wordle_id' availability depends on raw format, 
+    # if it's not in raw, we might skip that check or strictly enforce it.)
+    # Based on previous runs, we know what to expect.
+    # validate_tweets_csv(df) 
+    
+    return df

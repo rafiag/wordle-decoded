@@ -163,8 +163,9 @@ wordle-decoded/
 
 ## Documentation
 
+- **[Database & ETL Documentation](docs/data-pipeline/README.md)** - Technical write-up of the Database & ETL implementation (Phase 1.1)
 - **[Feature Plan](docs/FEATURE-PLAN.md)** - User-facing roadmap describing what you can do at each phase
-- **[Technical Spec](docs/TECHNICAL-SPEC.md)** - Developer guide with architecture, database schema, and implementation details
+- **[Technical Spec](docs/TECHNICAL-SPEC.md)** - Developer guide with architecture and high-level implementation details
 - **[Claude Guide](CLAUDE.md)** - AI assistant instructions for project development patterns
 
 ---
@@ -210,9 +211,10 @@ This is a portfolio project, but suggestions and feedback are welcome:
 **Completed:**
 - ✅ Project structure and documentation
 - ✅ Development environment setup
+- ✅ Database schema and data pipeline (Phase 1.1)
+- ✅ Sentiment analysis engine integration
 
 **In Progress:**
-- 🚧 Database schema and data pipeline
 - 🚧 Dashboard application foundation
 
 **Next Up:**

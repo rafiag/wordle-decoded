@@ -7,7 +7,9 @@
       "Bash(\"venv\\\\Scripts\\\\python.exe\" -m pytest tests/unit/test_config.py -v)",
       "Bash(\"venv\\\\Scripts\\\\python.exe\" -m pytest tests/unit/test_rate_limiter.py -v)",
       "Bash(\"venv\\\\Scripts\\\\python.exe\" -m pytest tests/integration/test_database.py -v)",
-      "Bash(\"venv\\\\Scripts\\\\python.exe\" test_price_collector.py)"
+      "Bash(\"venv\\\\Scripts\\\\python.exe\" test_price_collector.py)",
+      "Bash(cat:*)",
+      "Bash(xargs:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,0 +1,9 @@
+kagglehub
+python-dotenv
+pandas
+sqlalchemy
+fastapi
+uvicorn
+pytest
+pytrends
+nltk
