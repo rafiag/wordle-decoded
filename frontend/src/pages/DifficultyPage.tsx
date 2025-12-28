@@ -19,7 +19,7 @@ const DifficultyPage: React.FC = () => {
   const { data: stats, isLoading, isError } = useQuery({
     queryKey: ['difficultyStats'],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/words/stats/difficulty`)
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/words/stats/difficulty`)
       return res.data.data.points
     }
   })
@@ -28,7 +28,7 @@ const DifficultyPage: React.FC = () => {
   const { data: hardestWords } = useQuery({
     queryKey: ['hardestWords'],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/words?sort=avg_guess_count&order=desc&limit=10`)
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/words?sort=avg_guess_count&order=desc&limit=10`)
       return res.data.data.words
     }
   })

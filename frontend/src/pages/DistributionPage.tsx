@@ -20,7 +20,7 @@ const DistributionPage: React.FC = () => {
     queryKey: ['distributions'],
     queryFn: async () => {
       // Fetch aggregations or just latest 30 days
-      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/distributions?limit=30`)
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/distributions?limit=30`)
       return res.data.data.distributions.reverse()
     }
   })

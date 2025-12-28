@@ -19,7 +19,7 @@ const SentimentPage: React.FC = () => {
     const { data: sentimentData, isLoading, isError } = useQuery({
         queryKey: ['sentimentStats'],
         queryFn: async () => {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/analytics/sentiment`)
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/analytics/sentiment`)
             return res.data.data.sentiment_correlation
         }
     })

@@ -96,7 +96,7 @@ Compare your own performance against thousands of other players. See if that puz
 
 ---
 
-### 1.5 Pattern-Based Performance Analysis **(Status: BACKEND COMPLETE 🚧)**
+### 1.5 Pattern-Based Performance Analysis **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Analyzes game patterns (those emoji grids like 🟩⬜⬜🟨⬜) to predict success rates and completion guesses.
@@ -121,7 +121,7 @@ Learn from crowd wisdom. See if your pattern puts you on track for success or if
 
 ---
 
-### 1.6 The NYT Effect Analysis **(Status: BACKEND COMPLETE 🚧)**
+### 1.6 The NYT Effect Analysis **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Answers the burning question: "Did Wordle get harder after the New York Times bought it?"

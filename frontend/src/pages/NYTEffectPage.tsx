@@ -1,8 +1,53 @@
-import React from 'react'
-import ChartContainer from '@/components/shared/ChartContainer'
-import MetricCard from '@/components/shared/MetricCard'
+import React, { useState, useEffect } from 'react'
+import { NYTComparisonCards } from '@/components/nyt/NYTComparisonCards'
+import { NYTTimeline } from '@/components/nyt/NYTTimeline'
+import { statsApi } from '@/services/api'
+import type { NYTEffectSummary, NYTTimelinePoint } from '@/types'
 
 const NYTEffectPage: React.FC = () => {
+  const [summary, setSummary] = useState<NYTEffectSummary | null>(null)
+  const [timeline, setTimeline] = useState<NYTTimelinePoint[] | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const [summaryData, timelineData] = await Promise.all([
+          statsApi.getNYTEffectSummary(),
+          statsApi.getNYTEffectTimeline()
+        ])
+        setSummary(summaryData)
+        setTimeline(timelineData)
+      } catch (err) {
+        console.error(err)
+        setError('Failed to load NYT Effect data.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+        <h3 className="font-bold mb-2">Error Loading Data</h3>
+        <p>{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -13,54 +58,16 @@ const NYTEffectPage: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <MetricCard
-          title="Before NYT: Avg Difficulty"
-          value="3.8"
-          subtitle="Out of 10"
-          trend="neutral"
-        />
-        <MetricCard
-          title="After NYT: Avg Difficulty"
-          value="4.2"
-          subtitle="Out of 10"
-          trend="up"
-        />
-        <MetricCard
-          title="Difficulty Change"
-          value="+10.5%"
-          subtitle="Increase"
-          trend="up"
-        />
-      </div>
+      {summary && <NYTComparisonCards data={summary} />}
 
-      <ChartContainer
-        title="Difficulty Before & After Acquisition"
-        description="Timeline showing the NYT transition impact"
-      >
-        <div className="flex items-center justify-center h-64 text-gray-400">
-          Chart: Line chart with vertical marker at Feb 10, 2022
-        </div>
-      </ChartContainer>
+      {timeline && <NYTTimeline data={timeline} />}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartContainer
-          title="Search Volume Comparison"
-          description="Google Trends before and after"
-        >
-          <div className="flex items-center justify-center h-64 text-gray-400">
-            Chart: Comparison bar chart
-          </div>
-        </ChartContainer>
-
-        <ChartContainer
-          title="Guess Distribution Changes"
-          description="How player performance shifted"
-        >
-          <div className="flex items-center justify-center h-64 text-gray-400">
-            Chart: Side-by-side bar chart
-          </div>
-        </ChartContainer>
+      <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 text-blue-900">
+        <h3 className="font-bold mb-2">Statistical Significance</h3>
+        <p className="text-sm">
+          Differences marked with <strong>p &lt; 0.05</strong> are statistically significant, meaning
+          there is less than a 5% probability that the change happened by random chance.
+        </p>
       </div>
     </div>
   )

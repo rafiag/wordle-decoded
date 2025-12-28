@@ -1,7 +1,13 @@
 import axios from 'axios'
-import type { OverviewStats } from '@/types'
+import type {
+  OverviewStats,
+  PatternStats,
+  PatternFlow,
+  NYTEffectSummary,
+  NYTTimelinePoint
+} from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -26,6 +32,33 @@ export const statsApi = {
     const response = await apiClient.get('/stats/overview')
     return response.data
   },
+
+  // Feature 1.5: Pattern Analysis
+  getTopPatterns: async (limit: number = 10): Promise<PatternStats[]> => {
+    const response = await apiClient.get(`/patterns/top?limit=${limit}`)
+    return response.data.data
+  },
+
+  getPatternStats: async (pattern: string): Promise<PatternStats> => {
+    const response = await apiClient.get(`/patterns/search?pattern=${encodeURIComponent(pattern)}`)
+    return response.data.data
+  },
+
+  getPatternFlow: async (pattern: string, limit: number = 5): Promise<PatternFlow[]> => {
+    const response = await apiClient.get(`/patterns/${encodeURIComponent(pattern)}/next?limit=${limit}`)
+    return response.data.data
+  },
+
+  // Feature 1.6: NYT Effect Analysis
+  getNYTEffectSummary: async (): Promise<NYTEffectSummary> => {
+    const response = await apiClient.get('/nyt/summary')
+    return response.data
+  },
+
+  getNYTEffectTimeline: async (): Promise<NYTTimelinePoint[]> => {
+    const response = await apiClient.get('/nyt/timeline')
+    return response.data
+  }
 }
 
 export default apiClient
