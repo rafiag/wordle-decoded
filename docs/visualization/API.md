@@ -261,3 +261,97 @@ Retrieve daily performance metrics tagged with their era ("Pre-NYT" or "Post-NYT
   }
 ]
 ```
+
+---
+
+## 5. Pattern Analysis Endpoints (Feature 1.5)
+
+### `GET /patterns/top`
+Retrieve the most frequently occurring patterns (e.g., successful start words or common failure patterns).
+
+**Usage:**
+- "Most Common Patterns" Leaderboard
+
+**Parameters:**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `limit` | `int` | `10` | Number of patterns to return |
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "pattern": "⬜⬜🟨⬜⬜",
+      "count": 15000,
+      "success_rate": 0.05,
+      "rank": 1
+    }
+  ],
+  "meta": {
+    "count": "1"
+  }
+}
+```
+
+---
+
+### `GET /patterns/search`
+Retrieve detailed statistics for a specific pattern configuration.
+
+**Usage:**
+- Pattern Detail View (Success Rate, Avg Guesses)
+
+**Parameters:**
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `pattern` | `str` | The emoji pattern string (e.g., `🟩🟩⬜⬜🟩`) |
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "pattern": "🟩🟩⬜⬜🟩",
+    "count": 450,
+    "success_count": 400,
+    "success_rate": 0.89,
+    "avg_guesses": 3.2,
+    "rank": 45
+  }
+}
+```
+
+---
+
+### `GET /patterns/{pattern}/next`
+Retrieve the most likely next patterns that follow the given pattern, based on historical transition data.
+
+**Usage:**
+- "What happens next?" Flow Visualization
+- Transition Probability Map
+
+**Parameters:**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `limit` | `int` | `5` | Number of next steps to return |
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "next_pattern": "🟩🟩🟩🟩🟩",
+      "count": 120,
+      "probability": 0.45
+    },
+    {
+      "next_pattern": "🟩🟩🟨⬜🟩",
+      "count": 80,
+      "probability": 0.30
+    }
+  ]
+}
+```
