@@ -9,6 +9,10 @@ interface DashboardInitData {
         avg_guesses: number;
         avg_sentiment: number;
         viral_events_count: number;
+        hardest_word: string;
+        hardest_word_guesses: number;
+        hardest_word_success: number;
+        success_rate: number;
     };
 }
 
@@ -84,13 +88,6 @@ export default function HeroSection() {
                             isLoading={isLoading}
                         />
                         <StatCard
-                            icon="👥"
-                            value={overview ? formatNumber(overview.total_tweets) : '---'}
-                            label="Player Tweets"
-                            variant="yellow"
-                            isLoading={isLoading}
-                        />
-                        <StatCard
                             icon="📊"
                             value={overview ? overview.avg_guesses.toFixed(2) : '---'}
                             label="Avg Guesses"
@@ -99,9 +96,16 @@ export default function HeroSection() {
                         />
                         <StatCard
                             icon="✅"
-                            value={overview ? `${Math.round(overview.avg_sentiment * 100 + 50)}%` : '---'}
-                            label="Positive Sentiment"
+                            value={overview ? `${overview.success_rate}%` : '---'}
+                            label="Success Rate"
                             variant="green"
+                            isLoading={isLoading}
+                        />
+                        <StatCard
+                            icon="🔥"
+                            value={overview?.hardest_word || '---'}
+                            label={overview ? `Hardest Word (${overview.hardest_word_guesses} guesses, ${overview.hardest_word_success}% success)` : 'Hardest Word'}
+                            variant="red"
                             isLoading={isLoading}
                         />
                     </div>

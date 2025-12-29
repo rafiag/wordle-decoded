@@ -2,7 +2,7 @@ interface StatCardProps {
     icon: string;       // Emoji
     value: string | number;
     label: string;
-    variant?: 'green' | 'yellow' | 'gray';
+    variant?: 'green' | 'yellow' | 'gray' | 'red';
     isLoading?: boolean;
 }
 
@@ -21,6 +21,7 @@ export default function StatCard({
         green: 'stat-card-green',
         yellow: 'stat-card-yellow',
         gray: 'stat-card-gray',
+        red: 'stat-card-red',
     };
 
     if (isLoading) {
