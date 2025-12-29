@@ -422,7 +422,7 @@ The implementation of Features 1.5 and 1.6 demonstrates strong technical executi
 
 ## API Documentation Review
 
-**File:** `docs/visualization/API.md`
+**File:** `docs/02-architecture/API-REFERENCE.md`
 
 **Strengths:**
 1. **Comprehensive Endpoint Coverage** (Lines 174-339)

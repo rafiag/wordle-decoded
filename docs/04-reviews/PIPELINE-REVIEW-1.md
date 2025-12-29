@@ -170,7 +170,7 @@ logger = logging.getLogger("ETL_Runner")
 #### 6. Documentation of 14-Game Sentiment Gap ✅
 **Added:** Clear explanation in technical documentation
 
-**Location:** [docs/data-pipeline/DATABASE-ETL.md](DATABASE-ETL.md) - Section 5: "Known Limitations & Optimizations"
+**Location:** [docs/02-architecture/DATA-PIPELINE.md](../02-architecture/DATA-PIPELINE.md) - Section 5: "Known Limitations & Optimizations"
 
 **Content:**
 ```markdown
@@ -1054,7 +1054,7 @@ def derive_date_from_id(wordle_id: int) -> str:
 
 **Recommendation:**
 1. Investigate which 14 games lack sentiment data
-2. Document reason in `docs/data-pipeline/DATABASE-ETL.md`
+2. Document reason in `docs/02-architecture/DATA-PIPELINE.md`
 3. Add query examples for handling missing sentiment (LEFT JOIN)
 
 **Query for Investigation:**
@@ -1136,7 +1136,7 @@ return pd.read_csv(csv_files[0])  # Largest file
    - ✅ Clear error messages for schema mismatches
 
 3. **~~Document 14-Game Sentiment Gap~~** (MEDIUM-3) - ✅ **COMPLETED**
-   - ✅ Documented in `docs/data-pipeline/DATABASE-ETL.md`
+   - ✅ Documented in `docs/02-architecture/DATA-PIPELINE.md`
    - ✅ Explanation provided: date range discrepancies in source datasets
    - ✅ SQL guidance provided: use LEFT JOIN for missing sentiment data
 
@@ -1200,8 +1200,8 @@ return pd.read_csv(csv_files[0])  # Largest file
 #### 2. Comprehensive Documentation
 **Evidence:**
 - 3-tier documentation (user-facing, technical, feature overview)
-- Clear setup instructions in `docs/data-pipeline/README.md`
-- Technical specifications in `docs/data-pipeline/DATABASE-ETL.md`
+- Clear setup instructions in `docs/02-architecture/DATA-PIPELINE.md`
+- Technical specifications in `docs/02-architecture/DATA-PIPELINE.md`
 - Inline code comments explaining complex logic
 
 **Impact:** Future developers can understand and modify code quickly
@@ -1413,8 +1413,8 @@ TOTAL DEBUG CODE:            100 lines
 
 ### Documentation
 ```
-docs/data-pipeline/README.md:       ~150 lines
-docs/data-pipeline/DATABASE-ETL.md: ~200 lines
+docs/02-architecture/DATA-PIPELINE.md:       ~150 lines
+docs/02-architecture/DATA-PIPELINE.md: ~200 lines
 docs/FEATURE-PLAN.md (Phase 1.1):   ~30 lines
 --------------------------------
 TOTAL DOCUMENTATION:               ~380 lines

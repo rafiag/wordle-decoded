@@ -23,7 +23,7 @@ A fully working interactive dashboard where you can explore Wordle patterns, ana
 
 **What It Does:**
 Behind the scenes, this component downloads, cleans, and organizes all the Wordle data so the dashboard can show you insights instantly.
-- **Documentation:** [Database & ETL Overview](docs/data-pipeline/README.md)
+- **Documentation:** [Data & Database Architecture](DATA-PIPELINE.md)
 
 **What You'll See:**
 Fast, reliable data throughout the dashboard. Charts and statistics load quickly without errors or missing information.
@@ -38,7 +38,7 @@ Without clean, well-structured data, none of the analytical features would work.
 
 **What It Does:**
 Sets up the web application you'll interact with - the layout, navigation, color scheme, and responsive design that works on any device.
-- **Documentation:** [Dashboard Foundation Overview](dashboard-foundation/README.md)
+- **Documentation:** [Dashboard & Visualization Architecture](DASHBOARD.md)
 
 **What You'll See:**
 A working website at localhost:3000 with a color-blind friendly blue/orange/gray palette (WCAG 2.1 AA compliant), smooth navigation between features, and a design that adapts perfectly whether you're on your phone, tablet, or desktop.
@@ -60,7 +60,7 @@ The dashboard uses Wordle's signature brand colors (green #6aaa64, yellow #c9b45
 - See every Wordle answer rated on a difficulty scale based on how common the word is in English
 - Scatter plots showing the relationship between word rarity and how many guesses people needed
 - Timeline view revealing difficulty trends over months
-- **Documentation:** [Visualization Implementation](../docs/visualization/README.md)
+- **Documentation:** [Dashboard & Visualization Architecture](DASHBOARD.md)
 
 **Interactive Exploration:**
 - Click any word to see its detailed breakdown (frequency score, letter patterns, performance stats)
@@ -81,7 +81,7 @@ Shows how many people solved each puzzle in 1, 2, 3, 4, 5, or 6 tries - or faile
 - Stacked bar charts breaking down the guess distribution for any day
 - Daily, weekly, and monthly views to spot patterns over time
 - Calendar heatmap showing which days were hardest across months
-- **Documentation:** [Visualization Implementation](../docs/visualization/README.md)
+- **Documentation:** [Dashboard & Visualization Architecture](DASHBOARD.md)
 - Comparison tools to see how different time periods stack up
 
 **What You'll Experience:**
@@ -150,7 +150,7 @@ Data-driven answer to one of the most debated Wordle questions. No more argument
 
 **What It Does:**
 Identifies days when tweet activity was unusually high or low, revealing viral moments, controversial puzzles, and quiet periods in Wordle's history.
-- **Documentation:** [Outlier Analysis Implementation](../docs/outliers/README.md)
+- **Documentation:** [Feature Implementation Details](../03-features/FEATURE-IMPLEMENTATION.md)
 
 **What You'll See:**
 - **Timeline with Highlights:** Days flagged as outliers stand out visually, color-coded by category
@@ -178,7 +178,7 @@ Google Trends integration will add search behavior data to distinguish "help-see
 
 **What It Does:**
 Specifically analyzes "trap" words—those that have many similar neighbors (like *LIGHT*, *NIGHT*, *FIGHT*)—to see how they derail players.
-- **Documentation:** [Trap Analysis Implementation](../docs/traps/README.md)
+- **Documentation:** [Feature Implementation Details](../03-features/FEATURE-IMPLEMENTATION.md)
 
 **What You'll See:**
 - **Trap Highlight:** Words flagged as "Traps" stand out in your analytics.
@@ -204,7 +204,7 @@ Combines tweet sentiment analysis with puzzle performance to reveal the emotiona
     - **Difficulty** (color-coded: Green=Easy, Yellow=Medium, Red=Hard)
     - **Success Rate**
     - Frustration Index and Total Tweets
-- **Documentation:** [Visualization Implementation](../docs/visualization/README.md), [API Reference](../docs/visualization/API.md)
+- **Documentation:** [Dashboard & Visualization Architecture](DASHBOARD.md), [API Reference](API-REFERENCE.md)
 
 **Why It Matters:**
 It captures the social vibe of the game, distinguishing between a \"statistically hard\" day and an \"emotionally draining\" one for the Wordle community.

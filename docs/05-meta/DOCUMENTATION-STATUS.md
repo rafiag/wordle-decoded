@@ -11,17 +11,17 @@
 
 #### Feature 1.7: Outlier & Viral Day Detection
 
-- [x] **README.md** - `docs/outliers/README.md`
+- [x] **DASHBOARD.md** - `docs/02-architecture/DASHBOARD.md`
   - Overview and technical summary
   - ETL pipeline description
   - Database schema
   - API endpoints
   - Status: ✅ Complete
 
-- [x] **OUTLIER-IMPLEMENTATION.md** - `docs/outliers/OUTLIER-IMPLEMENTATION.md`
+- [x] **FEATURE-IMPLEMENTATION.md** - `docs/03-features/FEATURE-IMPLEMENTATION.md`
   - Detailed technical implementation
   - Algorithm documentation
-  - Status: ✅ Complete (Brief version)
+  - Status: ✅ Complete (Consolidated)
 
 - [x] **FEATURE-PLAN.md** - Status updated to "COMPLETED ✅"
   - Line 149: Feature 1.7 marked as completed
@@ -34,18 +34,18 @@
 
 #### Feature 1.8: Trap Pattern Analysis
 
-- [x] **README.md** - `docs/traps/README.md`
+- [x] **FEATURE-IMPLEMENTATION.md** - `docs/03-features/FEATURE-IMPLEMENTATION.md`
   - Overview and technical summary
   - **Updated:** Data requirements section added
   - **Updated:** Documented `wordle_guesses.txt` source and setup
   - **Updated:** Trap score formula updated to match implementation
   - Status: ✅ Complete
 
-- [x] **TRAP-IMPLEMENTATION.md** - `docs/traps/TRAP-IMPLEMENTATION.md`
+- [x] **FEATURE-IMPLEMENTATION.md** - `docs/03-features/FEATURE-IMPLEMENTATION.md`
   - Algorithm documentation (masking dictionary approach)
   - Complexity analysis O(N*L)
   - Formula documentation
-  - Status: ✅ Complete (Brief version)
+  - Status: ✅ Complete (Consolidated)
 
 - [x] **FEATURE-PLAN.md** - Status updated to "COMPLETED ✅"
   - Line 177: Feature 1.8 marked as completed
@@ -96,7 +96,7 @@ docker compose exec backend python scripts/run_etl.py --traps
 
 ## Code Review Status
 
-**Review Document:** `docs/visualization/CODE-REVIEW-3.md`
+**Review Document:** `docs/04-reviews/VISUALIZATION-REVIEW-3.md`
 
 ### Latest Update: December 29, 2025 (Post-Implementation)
 

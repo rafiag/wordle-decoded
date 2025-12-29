@@ -4,7 +4,7 @@
 
 ### Backend
 - **Language:** Python 3.11+
-- **Framework:** TBD (FastAPI, Flask, or Django - to be decided based on requirements)
+- **Framework:** FastAPI (Modern, fast, automatic documentation)
 - **Data Processing:** Pandas, NumPy
 - **NLP/Linguistics:** NLTK (word frequency data, sentiment analysis)
 - **Statistical Analysis:** SciPy (for NYT Effect statistical tests)
@@ -13,10 +13,10 @@
 - **Code Quality:** black, flake8, mypy
 
 ### Frontend
-- **Framework:** TBD (React, Vue, or Svelte - to be decided)
-- **Visualization:** D3.js, Chart.js, or similar
-- **Styling:** TBD (Tailwind CSS, styled-components, or similar)
-- **Build Tools:** Vite or similar
+- **Framework:** React 19 + TypeScript
+- **Visualization:** Recharts (Composable D3-based charts)
+- **Styling:** Tailwind CSS 4
+- **Build Tools:** Vite 7
 - **Testing:** Jest, Testing Library, Playwright for E2E
 
 ### Infrastructure
@@ -112,8 +112,8 @@
 The foundation for Wordle Data Explorer. This phase handles historical player performance extraction, NLP sentiment transformation, and structured SQLite storage.
 
 **Detailed Documentation:**
-- [Architecture & Schema](data-pipeline/DATABASE-ETL.md)
-- [Workflow & Setup](data-pipeline/README.md)
+- [Architecture & Schema](DATA-PIPELINE.md)
+- [Workflow & Setup](../01-setup/SETUP.md)
 
 #### Core Data Components
 - **SQLite Database**: Local, portable storage for 320+ puzzles and 1M+ tweets.
@@ -127,12 +127,12 @@ The foundation for Wordle Data Explorer. This phase handles historical player pe
 The web application foundation for Wordle Data Explorer. This phase delivers a responsive, accessible React dashboard with professional API architecture.
 
 **Detailed Documentation:**
-- [Dashboard Foundation Overview](dashboard/README.md)
-- [Technical Implementation Details](dashboard/DASHBOARD-FOUNDATION.md)
+- [Dashboard Foundation Overview](DASHBOARD.md)
+- [Technical Implementation Details](DASHBOARD.md)
 
 #### Key Achievements
 - **React 19 + TypeScript**: Modern frontend with full type safety
-- **Color-Blind Accessible**: Blue/orange palette (WCAG 2.1 AA compliant, 4.5:1+ contrast ratios)
+- **Color-Blind Accessible**: Wordle brand colors with accessibility patterns (icons, line styles, shapes) to ensure WCAG 2.1 AA compliance (4.5:1+ contrast ratios).
 - **API Versioning**: Professional `/api/v1` prefix with standardized responses
 - **CORS Enabled**: Frontend-backend communication configured
 - **Responsive Design**: Mobile, tablet, and desktop breakpoints
@@ -145,8 +145,8 @@ The web application foundation for Wordle Data Explorer. This phase delivers a r
 Implementation of the core analytical dashboards: Word Difficulty, Guess Distribution, and Sentiment Analysis.
 
 **Detailed Documentation:**
-- [Visualization Implementation](../docs/visualization/README.md)
-- [Technical Details](../docs/visualization/VISUALIZATION-IMPLEMENTATION.md)
+- [Visualization Implementation](DASHBOARD.md)
+- [Technical Details](DASHBOARD.md)
 
 #### Key Achievements
 - **ETL Pipeline**: Calculation of `frequency_score`, `difficulty_rating`, and `frustration_index`.
@@ -161,8 +161,8 @@ Implementation of the core analytical dashboards: Word Difficulty, Guess Distrib
 Implementation of Outlier Detection and Trap Pattern Analysis.
 
 **Detailed Documentation:**
-- [Outlier Analysis](../docs/outliers/README.md)
-- [Trap Pattern Analysis](../docs/traps/README.md)
+- [Outlier Analysis](../03-features/FEATURE-IMPLEMENTATION.md)
+- [Trap Pattern Analysis](../03-features/FEATURE-IMPLEMENTATION.md)
 
 #### Key Achievements
 - **Outlier Detection**: Z-Score based identification of viral and quiet days merging volume and sentiment.
@@ -179,28 +179,11 @@ This sets up the web application infrastructure.
 
 #### Technology Stack Decisions
 
-**Backend Framework:** TBD - Options:
-- **FastAPI** (recommended): Modern, fast, automatic API docs, async support
-- **Flask**: Lightweight, familiar, extensive ecosystem
-- **Django**: Full-featured, includes ORM and admin panel
-
-**Frontend Framework:** TBD - Options:
-- **React**: Popular, extensive ecosystem, good for data viz
-- **Vue**: Easier learning curve, clean syntax
-- **Svelte**: Lightweight, compile-time framework
-
-**Visualization Library:** TBD - Options:
-- **D3.js**: Maximum flexibility, powerful, steep learning curve
-- **Chart.js**: Simple, clean, good defaults
-- **Recharts** (React): Composable, built on D3
-- **Plotly**: Interactive, good for data dashboards
-
 **Decision Criteria:**
-- Developer familiarity
-- Community support and documentation
-- Performance with data visualization
-- Mobile responsiveness
-- Ease of testing
+- **FastAPI**: Modern, high performance, and automatic API documentation.
+- **React**: Industry standard for data-driven dashboards.
+- **Recharts**: Perfect balance of simplicity and React-first composability.
+- **Tailwind**: Rapid, consistent styling via utility-first tokens.
 
 #### Docker Development Environment
 
@@ -630,7 +613,7 @@ tweet_sentiment (
 
 **API Endpoints:**
 - `GET /api/v1/analytics/sentiment` - Daily sentiment metrics with 5-bucket counts, `difficulty_label`, and `success_rate`.
-- Refer to [API Reference](visualization/API.md#3-sentiment-analytics-endpoints-feature-19) for detailed schema.
+- Refer to [API Reference](API-REFERENCE.md) for detailed schema.
 
 **Visualizations:**
 - **Sentiment Distribution Pie Chart:** 5-bucket breakdown.
@@ -711,7 +694,7 @@ tweet_sentiment (
 - Development tools (hot reload, debugger)
 
 **Documentation Required:**
-- `docs/SETUP.md` - Initial setup instructions
+- `docs/01-setup/SETUP.md` - Initial setup instructions
 - `docs/DOCKER.md` - Docker environment guide
 - `docs/DEVELOPMENT.md` - Development workflow
 

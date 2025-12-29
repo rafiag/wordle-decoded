@@ -128,7 +128,7 @@ Then visit: `http://localhost:3000`
    cp .env.example .env
    # Edit .env and add your Kaggle API token
    ```
-   See [Environment Setup Guide](docs/ENVIRONMENT-SETUP.md) for detailed configuration.
+   See [Environment Setup Guide](docs/01-setup/SETUP.md) for detailed configuration.
 
 3. **Start the application**
    ```bash
@@ -192,11 +192,11 @@ wordle-decoded/
 
 ## Documentation
 
-- **[Environment Setup Guide](docs/ENVIRONMENT-SETUP.md)** - Complete guide to environment variables and configuration
-- **[Database & ETL Documentation](docs/data-pipeline/README.md)** - Technical write-up of the Database & ETL implementation (Phase 1.1)
-- **[Visualization Implementation](docs/visualization/README.md)** - Technical write-up of the Core Visualizations (Phase 1.3-1.9)
-- **[Feature Plan](docs/FEATURE-PLAN.md)** - User-facing roadmap describing what you can do at each phase
-- **[Technical Spec](docs/TECHNICAL-SPEC.md)** - Developer guide with architecture and high-level implementation details
+- **[Environment Setup Guide](docs/01-setup/SETUP.md)** - Complete guide to environment variables and configuration
+- **[Data & Database Architecture](docs/02-architecture/DATA-PIPELINE.md)** - Technical write-up of the Database & ETL implementation
+- **[Dashboard & Visualization Architecture](docs/02-architecture/DASHBOARD.md)** - Technical write-up of the Core Visualizations
+- **[Feature Plan](docs/02-architecture/FEATURE-PLAN.md)** - User-facing roadmap describing what you can do at each phase
+- **[Technical Spec](docs/02-architecture/TECHNICAL-SPEC.md)** - Developer guide with architecture and high-level implementation details
 - **[Claude Guide](CLAUDE.md)** - AI assistant instructions for project development patterns
 
 ---
@@ -261,7 +261,7 @@ This is a portfolio project, but suggestions and feedback are welcome:
 - ⏳ Design system standardization
 - ⏳ Accessibility enhancements (ARIA labels, screen reader support)
 
-See [Feature Plan](docs/FEATURE-PLAN.md) for detailed roadmap.
+See [Feature Plan](docs/02-architecture/FEATURE-PLAN.md) for detailed roadmap.
 
 ---
 

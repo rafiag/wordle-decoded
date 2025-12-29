@@ -75,10 +75,8 @@
    - Show the working result
 
 4. **Document the Feature**
-   - Create a new folder: `docs/<feature-name>/`
-   - Inside the folder, create two files:
-     - `README.md` - High-level overview, what the feature does, setup instructions
-     - `<FEATURE_NAME>.md` - Technical implementation details, architecture, API specs, code structure
+   - Documentation should be placed in `docs/03-features/` or `docs/02-architecture/` depending on scope.
+   - Consolidate new feature documentation into `FEATURE-IMPLEMENTATION.md` or a similar organized file.
 
 ### Example
 ```
@@ -120,7 +118,7 @@ You have complete authority over ALL technical decisions:
 - **Boring Technology:** Choose proven, well-supported, stable technologies over cutting-edge
 - **Simplicity First:** Optimize for maintainability and clarity over cleverness
 - **Future-Proof:** Build for the next developer (or this user in 6 months)
-- **Document Technical Decisions:** Maintain TECHNICAL-SPEC.md for future developers (not for user review)
+- **Guiding Principles:** Optimize for maintainability; maintain `docs/02-architecture/TECHNICAL-SPEC.md` for future developers.
 
 ---
 
@@ -334,27 +332,24 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 ### Key Documents
 The project has three main planning documents:
 
-**1. docs/FEATURE-PLAN.md (User-Facing)**
+**1. docs/02-architecture/FEATURE-PLAN.md (User-Facing)**
 - Describes what the dashboard will do at each phase
 - Focuses on user experience and benefits
-- Use this to understand what features the user will see and experience
 
-**2. docs/TECHNICAL-SPEC.md (Developer-Facing)**
+**2. docs/02-architecture/TECHNICAL-SPEC.md (Developer-Facing)**
 - Detailed technical implementation specifications
 - Database schema, API rate limits, statistical formulas
 - Testing requirements and performance benchmarks
-- Technology stack decisions and rationale
-- Use this for all technical implementation details
 
-**3. PROJECT-PLAN.md (Overview)**
+**3. docs/02-architecture/DASHBOARD.md (Frontend)**
 - High-level project overview
 - Data architecture and methodology
 - Technical challenges and solutions
 
 ### When to Reference These Documents
-- **Before starting work:** Review FEATURE-PLAN.md to understand user expectations
-- **During implementation:** Reference TECHNICAL-SPEC.md for implementation details
-- **When making technical decisions:** Document choices in TECHNICAL-SPEC.md
+- **Before starting work:** Review `docs/02-architecture/FEATURE-PLAN.md` to understand user expectations
+- **During implementation:** Reference `docs/02-architecture/TECHNICAL-SPEC.md` for implementation details
+- **When making technical decisions:** Document choices in `docs/02-architecture/TECHNICAL-SPEC.md`
 
 ---
 
@@ -363,7 +358,7 @@ The project has three main planning documents:
 ### Decision-Making Checklist
 - **When Stuck:** Make the boring, reliable choice; optimize for clarity over cleverness
 - **User-Facing Decision?** → Ask (see Section 4 for template)
-- **Purely Technical?** → Decide independently and document in TECHNICAL-SPEC.md
+- **Purely Technical?** → Decide independently and document in `docs/02-architecture/TECHNICAL-SPEC.md`
 - **New Feature?** → Present implementation plan first (see Section 2 workflow)
 - **Environment Rule:** → Always run/test code via Docker Compose services
 

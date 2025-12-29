@@ -417,7 +417,7 @@ def load_wordle_guesses() -> list[str]:
 ```
 
 **Recommendation:**
-Document the data source and setup in `docs/traps/README.md`:
+Document the data source and setup in `docs/03-features/FEATURE-IMPLEMENTATION.md`:
 ```markdown
 ### Data Requirements
 - `data/raw/wordle_guesses.txt`: Official Wordle guess list (13k words)
@@ -514,12 +514,12 @@ if not trap:
 ### 1. Documentation Quality
 
 **Created Documentation:**
-- ✅ `docs/outliers/README.md` - Good overview and technical summary
-- ✅ `docs/traps/README.md` - Clear explanation of algorithm
+- ✅ `docs/03-features/FEATURE-IMPLEMENTATION.md` - Good overview and technical summary
+- ✅ `docs/03-features/FEATURE-IMPLEMENTATION.md` - Clear explanation of algorithm
 
 **Missing Documentation:**
-- ❌ `docs/outliers/OUTLIER-IMPLEMENTATION.md` (detailed technical spec)
-- ❌ `docs/traps/TRAP-IMPLEMENTATION.md` (detailed technical spec)
+- ❌ `docs/03-features/FEATURE-IMPLEMENTATION.md` (detailed technical spec)
+- ❌ `docs/03-features/FEATURE-IMPLEMENTATION.md` (detailed technical spec)
 - ❌ Data source documentation for `wordle_guesses.txt`
 - ❌ API documentation (endpoints, parameters, responses)
 
