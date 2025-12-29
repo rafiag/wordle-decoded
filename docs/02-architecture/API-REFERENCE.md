@@ -155,7 +155,7 @@ Retrieve correlation data between tweet sentiment and puzzle performance. Includ
 {
   "status": "success",
   "data": {
-    "sentiment_correlation": [
+    "timeline": [
       {
         "date": "2022-01-01",
         "target_word": "REBUS",
@@ -171,6 +171,12 @@ Retrieve correlation data between tweet sentiment and puzzle performance. Includ
         "difficulty_label": "Medium",
         "success_rate": 0.92
       }
+    ],
+    "top_hated": [
+       { "date": "2022-01-01", "target_word": "REBUS", "frustration": 0.12, ... }
+    ],
+    "top_loved": [
+       { "date": "2022-01-05", "target_word": "PARTY", "sentiment": 0.8, ... }
     ]
   },
   "meta": {
