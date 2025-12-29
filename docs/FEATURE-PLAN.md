@@ -48,7 +48,7 @@ A working website at localhost:3000 with a color-blind friendly blue/orange/gray
 This creates the foundation for all features. Once it's ready, you can actually see and interact with the dashboard instead of just having data sitting in a database.
 
 **Accessibility Note:**
-The dashboard uses a universally accessible color palette (blue replaces green, orange replaces yellow) that is safe for users with deuteranopia and protanopia while maintaining the playful Wordle aesthetic.
+The dashboard uses Wordle's signature brand colors (green #6aaa64, yellow #c9b458, gray #787c7e) with accessibility patterns (icons, line styles, shapes) to ensure color-blind users can distinguish all elements. Phase 2 migrated from blue/orange to Wordle colors using a Single Source of Truth (SSOT) pattern for easy theme updates.
 
 ---
 
@@ -219,60 +219,155 @@ You'll have a fully working Wordle Data Explorer where you can:
 
 ---
 
-## Phase 2: Polish & Enhancement
+## Phase 2: UX Polish & Enhancement ✅ **IN PROGRESS**
 
 **What Changes:**
-Phase 2 takes the working MVP and makes it delightful. Smoother animations, faster loading, better interactions, keyboard navigation, and additional polish that elevates the experience from "functional" to "professional portfolio piece."
+Phase 2 takes the working MVP and makes it delightful and accessible. Single-page navigation, plain language content, Wordle brand colors, mobile responsiveness, and accessibility improvements that elevate the experience from "functional" to "professional portfolio piece."
 
-**Prerequisites:**
-Phase 1 must be complete and working well based on your testing and feedback.
+**Prerequisites:** ✅ **COMPLETE**
+Phase 1 MVP is complete with all analytical features working.
+
+**Key Focus Areas:**
+- User feedback implementation (single-page dashboard, plain language, visual polish)
+- Wordle brand identity (color migration with SSOT pattern)
+- Mobile-first responsiveness
+- Basic accessibility (WCAG 2.1 AA compliance, screen readers)
+- Performance optimization
+
+**Out of Scope:**
+- Advanced keyboard navigation for charts (browser defaults sufficient)
+- Click-to-pin tooltips
+- Welcome modals/onboarding tours (deferred)
 
 ---
 
-### 2.1 UX/UI Improvements
+### 2.1 Navigation & Architecture Redesign
 
 **What It Does:**
-Refines the visual experience with smooth transitions, enhanced design polish, and improved mobile interactions.
+Converts multi-page tab navigation to single-page scrollable dashboard based on user feedback ("too many tabbing").
 
 **What You'll Experience:**
-- Smooth fade-in animations when loading charts
-- Subtle transitions when filtering or switching views
-- Enhanced visual hierarchy making key insights pop
-- Improved mobile touch interactions (swipe, pinch-to-zoom on charts)
-- Better loading states with skeleton screens instead of blank spaces
-- Micro-interactions that make the dashboard feel responsive and alive
+- All features accessible in one continuous scroll (no tab clicking)
+- Smooth scroll navigation with sticky top nav or sidebar
+- Anchor links for sharing specific sections (#difficulty, #patterns, etc.)
+- Progressive loading: Charts render as you scroll into view (Intersection Observer)
+- Maintains context while exploring different features
 
-**Deferred from Phase 1.2:**
-- Skeleton loading screens (current spinner is accessible and functional)
-- Icon indicators for charts (✓, ⚠, ✕) to supplement color for maximum accessibility
+**Technical Implementation:**
+- Convert page components to section components
+- Remove React Router routes (keep HashRouter for anchors)
+- Implement scroll-spy navigation highlighting current section
+- Lazy-load chart data when sections become visible
 
 **Why It Matters:**
-The difference between a functional tool and a delightful experience. These refinements make the dashboard feel professional and polished - crucial for portfolio presentation.
+Dashboard best practice - users want to explore data at a glance, not click through separate pages. Creates cohesive storytelling flow for data insights.
 
 ---
 
-### 2.2 Advanced Interactions
+### 2.2 Plain Language Content & Visual Polish
 
 **What It Does:**
-Adds keyboard navigation, enhanced filtering tools, shareable views, and data export functionality.
+Simplifies technical chart terminology based on user feedback ("charts are too technical").
 
-**Why This is Phase 2:**
-These are nice-to-haves that enhance usability but aren't essential for the core analytical experience. They build on the foundation established in Phase 1.
+**What You'll Experience:**
+- Chart titles in plain language (e.g., "Rare Words vs. Player Performance" instead of "Correlation between word rarity and guess count")
+- Two-tier content system: Primary title (plain) + subtitle/tooltip (technical details)
+- "How to Read This Chart" expandable sections
+- Insight callouts highlighting interesting findings
+- Example patterns users can click to try immediately
 
-**What You'll See:**
-- Full keyboard navigation (arrow keys, tab, shortcuts)
+**Implementation:**
+- Update ChartContainer component (add subtitle, helpText props)
+- Migrate all chart titles to plain language
+- Add info icons (ℹ️) with methodology tooltips
+- Create reusable InfoTooltip component
+
+**Why It Matters:**
+Target audience is general Wordle enthusiasts, not data scientists. Users need to understand insights within 1 minute (success criteria).
+
+---
+
+### 2.3 Wordle Brand Color Migration (SSOT)
+
+**What It Does:**
+Reverts from blue/orange to Wordle's signature green/yellow/gray colors using Single Source of Truth pattern.
+
+**What You'll Experience:**
+- Instantly recognizable Wordle aesthetic (green #6aaa64, yellow #c9b458, gray #787c7e)
+- Accessibility patterns (icons, line styles, shapes) for color-blind users
+- Consistent color usage across all components
+
+**Technical Implementation:**
+- Create `frontend/src/theme/colors.ts` (SSOT file)
+- Tailwind config imports from theme file
+- All components import from `@/theme/colors`
+- Add icons to pattern input squares (✓ green, ~ yellow, ✗ gray)
+- Different line styles for chart series (solid/dashed/dotted)
+
+**Why It Matters:**
+Brand recognition + easy theme updates. Change one file to update entire app. Future-proof for dark mode or theme variations.
+
+---
+
+### 2.4 Mobile Responsiveness & Design System
+
+**What It Does:**
+Optimizes dashboard for mobile devices and standardizes visual language.
+
+**What You'll Experience:**
+- Hamburger menu navigation on mobile (<768px)
+- Responsive chart heights (no excessive scrolling)
+- Touch targets ≥44px (WCAG minimum)
+- Consistent card components (FeatureCard, StatCard, DetailCard)
+- Standardized typography scale
+- Unified loading states (skeleton screens)
+- User-friendly error messages with retry buttons
+
+**Why It Matters:**
+40%+ users on mobile. Consistent design language creates professional, polished experience.
+
+---
+
+### 2.5 Accessibility & Performance
+
+**What It Does:**
+Adds basic accessibility support and optimizes performance.
+
+**What You'll Experience:**
+- ARIA live regions (screen readers announce loading/errors)
+- Focus indicators on interactive elements
+- Memoized chart data transformations (smoother interactions)
+- React Query standardization (consistent data fetching)
+
+**Out of Scope:**
+- Advanced keyboard navigation for charts (browser defaults sufficient)
+- Click-to-pin tooltips
+- Complex chart interactions
+
+**Why It Matters:**
+WCAG 2.1 AA compliance for portfolio quality. Performance optimizations prevent frame drops during interactions.
+
+---
+
+### 2.6 Advanced Interactions (Future Enhancement)
+
+**What It Does:**
+Adds enhanced filtering tools, shareable views, and data export functionality.
+
+**Status:** Deferred to future phase (optional enhancement)
+
+**Potential Features:**
 - Enhanced filter combinations (multiple criteria at once)
-- Shareable URLs preserving your current view and filters
+- Shareable URLs preserving current view and filters
 - Export buttons to download charts as images or data as CSV
 - Comparison mode to view multiple timeframes side-by-side
 
-**Deferred from Phase 1.2:**
-- E2E testing setup with Playwright (no user workflows exist yet in Phase 1.2)
-- Advanced keyboard shortcuts beyond basic tab navigation
+**Why Deferred:**
+These are nice-to-haves that aren't essential for the core analytical experience or portfolio demonstration. Focus on user feedback items first (navigation, plain language, colors, mobile).
 
 ---
 
-### 2.3 Performance Optimization & Code Quality
+### 2.7 Performance Optimization & Code Quality
 
 **What It Does:**
 Optimizes loading times and interaction smoothness even with large datasets. Also includes backend ETL optimizations and code quality improvements.
@@ -316,10 +411,12 @@ Speed is a feature. Faster interactions mean users explore more, discover more i
 ## When Phase 2 Is Complete
 
 You'll have everything from Phase 1, plus:
-- Polished, professional-quality design with smooth animations
-- Blazing-fast performance with optimized loading and interactions
-- Full accessibility including keyboard navigation
-- Shareable views and data export capabilities
+- Single-page scrollable dashboard for seamless exploration
+- Plain language chart titles that non-technical users can understand
+- Wordle brand color identity with accessibility patterns
+- Mobile-optimized responsive design
+- WCAG 2.1 AA accessibility compliance
+- Professional portfolio-ready user experience
 
 ---
 

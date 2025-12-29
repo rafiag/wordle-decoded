@@ -162,3 +162,6 @@ secrets.json
 *.key
 *.pem
 *.cert
+
+# Mockup
+mockup/

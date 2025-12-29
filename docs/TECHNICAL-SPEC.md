@@ -25,9 +25,13 @@
 - **Deployment:** TBD (Vercel, Netlify, Railway, or similar)
 
 ### Design System
-- **Color Palette:** Wordle-inspired (greens, yellows, grays) with color-blind accessible variants
+- **Color Palette:** Wordle brand colors (green #6aaa64, yellow #c9b458, gray #787c7e) with SSOT implementation
+  - **Phase 2 Migration:** Reverting from blue/orange to Wordle colors with accessibility patterns
+  - **SSOT Pattern:** All colors centralized in `frontend/src/theme/colors.ts` for easy updates
 - **Responsive Breakpoints:** Mobile (<768px), Tablet (768-1024px), Desktop (>1024px)
-- **Accessibility:** WCAG 2.1 AA compliance
+- **Accessibility:** WCAG 2.1 AA compliance, color-blind friendly via patterns + colors
+- **Navigation:** Single-page scrollable dashboard (Phase 2 migration from multi-page tabs)
+- **Keyboard Navigation:** Browser defaults for links/buttons (advanced chart navigation not in scope)
 
 ---
 
@@ -276,27 +280,35 @@ volumes:
 
 #### Design System Implementation
 
-**Color Palette (Wordle-inspired + Color-blind Safe):**
-```css
-:root {
-  /* Wordle colors */
-  --correct: #6aaa64;      /* Green */
-  --present: #c9b458;      /* Yellow */
-  --absent: #787c7e;       /* Gray */
-  --background: #ffffff;
-  --text: #1a1a1b;
+**Color Palette (SSOT Implementation):**
+```typescript
+// frontend/src/theme/colors.ts - Single Source of Truth
+export const wordleColors = {
+  // Wordle brand colors
+  green: '#6aaa64',
+  yellow: '#c9b458',
+  gray: '#787c7e',
 
-  /* Color-blind accessible alternatives */
-  --correct-cb: #0077bb;   /* Blue */
-  --present-cb: #ee7733;   /* Orange */
-  --absent-cb: #999999;    /* Gray */
+  // Chart colors
+  primary: '#6aaa64',      // Green for primary data
+  secondary: '#c9b458',    // Yellow for secondary data
+  neutral: '#787c7e',      // Gray for neutral/disabled
 
-  /* UI colors */
-  --primary: #6aaa64;
-  --secondary: #c9b458;
-  --accent: #787c7e;
-}
+  // Semantic colors
+  success: '#6aaa64',
+  warning: '#c9b458',
+  error: '#dc2626',
+  info: '#0284c7',
+} as const;
+
+// Tailwind config imports from this file
+// All components import from @/theme/colors
 ```
+
+**Phase 2 Migration Notes:**
+- Previously used blue (#0284c7) and orange (#d97706) for color-blind accessibility
+- Reverting to Wordle brand colors with accessibility patterns (icons, line styles)
+- SSOT pattern enables easy future theme changes
 
 **Responsive Breakpoints:**
 ```css
@@ -809,20 +821,27 @@ tweet_sentiment (
 
 ## Accessibility Requirements
 
-### WCAG 2.1 AA Compliance
-- Color contrast ratios ≥4.5:1 for text
-- Color-blind friendly palette (use patterns/labels in addition to color)
-- Keyboard navigation support (Phase 2)
-- Screen reader compatibility
+### WCAG 2.1 AA Compliance (Phase 2 Goals)
+- Color contrast ratios ≥4.5:1 for text (verified for Wordle green/yellow)
+- Color-blind friendly: Patterns + colors (icons, line styles, shapes)
+- Screen reader compatibility (ARIA live regions, labels)
 - Alt text for all visualizations
-- Focus indicators
-- Responsive text sizing
+- Focus indicators for interactive elements (browser defaults for links/buttons)
+- Responsive text sizing (16px minimum)
 
-### Color-Blind Considerations
-- Use diverging color schemes (not just red/green)
-- Include patterns/textures in addition to color
-- Provide text labels
-- Test with color-blind simulation tools
+### Color-Blind Accessibility Implementation
+**Phase 2 Approach:**
+- Wordle brand colors (green #6aaa64, yellow #c9b458) with accessibility patterns
+- Icons for pattern input squares (✓ green, ~ yellow, ✗ gray)
+- Different line styles for chart series (solid/dashed/dotted)
+- Different shapes for scatter plot data points
+- Text labels in addition to color
+- Tested with color-blind simulators (Chrome DevTools, Color Oracle)
+
+**Out of Scope:**
+- Advanced keyboard navigation for charts (arrow keys through data points)
+- Click-to-pin tooltips
+- Browser default focus is sufficient for MVP
 
 ---
 

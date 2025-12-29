@@ -28,22 +28,42 @@ Wordle Decoded is an interactive data exploration dashboard that reveals the pat
 
 ## Key Features
 
-### Phase 1: MVP (In Development)
+### Phase 1: MVP ✅ **COMPLETE**
 
-| Feature | What You Can Do |
-| :------ | :-------------- |
-| **Word Difficulty Analysis** | See how word rarity correlates with player performance, with interactive difficulty scoring |
-| **Guess Distribution Visualizations** | Compare your performance against the crowd with distribution charts across time |
-| **Pattern-Based Performance Analysis** | Input your game pattern (emoji grid) to see success rates and completion predictions |
-| **NYT Effect Analysis** | Data-driven answer to "Did Wordle get harder after NYT bought it?" |
-| **Outlier & Viral Day Detection** | Discover days when puzzles went viral or search interest spiked |
+| Feature | Status | What You Can Do |
+| :------ | :----: | :-------------- |
+| **Word Difficulty Analysis** | ✅ | See how word rarity correlates with player performance, with interactive difficulty scoring |
+| **Guess Distribution Visualizations** | ✅ | Compare your performance against the crowd with distribution charts across time |
+| **Pattern-Based Performance Analysis** | ✅ | Input your game pattern (emoji grid) to see success rates and completion predictions |
+| **NYT Effect Analysis** | ✅ | Data-driven answer to "Did Wordle get harder after NYT bought it?" |
+| **Outlier & Viral Day Detection** | ✅ | Discover days when puzzles went viral with unusual tweet volume or sentiment |
+| **Trap Pattern Analysis** | ✅ | Identify "trap" words with many similar neighbors that derail players |
+| **Sentiment Analysis** | ✅ | See the community's emotional response correlated with puzzle difficulty |
 
-### Phase 2: Polish & Enhancement (Planned)
+### Phase 2: UX Polish (In Progress)
 
-- Smooth animations and refined visual design
-- Keyboard navigation and accessibility improvements
-- Shareable URLs and data export (CSV, images)
-- Performance optimization for blazing-fast interactions
+**Navigation & Architecture:**
+- Single-page scrollable dashboard (migration from multi-page tabs)
+- Smooth scroll navigation with anchor links for sharing
+
+**Visual Design:**
+- Wordle brand color migration (green/yellow) with SSOT pattern for easy theme updates
+- Accessibility patterns (icons, line styles) for color-blind users
+- Plain language chart titles and descriptions for non-technical users
+
+**Responsive Design:**
+- Mobile-optimized navigation and touch interactions
+- Responsive chart sizing for all screen sizes
+
+**Accessibility:**
+- ARIA live regions for screen readers
+- Enhanced focus indicators
+- WCAG 2.1 AA compliance
+
+**Not in Scope:**
+- Advanced keyboard navigation for charts (browser defaults sufficient)
+- Click-to-pin tooltips
+- Welcome modals/tooltip tours
 
 ---
 
@@ -67,7 +87,7 @@ Then visit: `http://localhost:3000`
 - Tailwind CSS 4 for responsive design (mobile/tablet/desktop)
 - React Router v7 for client-side routing
 - React Query (TanStack Query) for data fetching
-- Color-blind friendly palette (blue #0284c7, orange #d97706, gray #6b7280) - WCAG 2.1 AA compliant
+- Wordle brand colors (green #6aaa64, yellow #c9b458, gray #787c7e) with SSOT pattern - WCAG 2.1 AA compliant
 
 **Backend:**
 - Python 3.11+ with FastAPI for high-performance API endpoints
@@ -219,19 +239,27 @@ This is a portfolio project, but suggestions and feedback are welcome:
 
 ### Current Status: Phase 1 Development
 
-**Completed:**
+**Phase 1 (MVP) - Completed:**
 - ✅ Project structure and documentation
 - ✅ Development environment setup (Docker Compose)
 - ✅ Database schema and hybrid PostgreSQL/SQLite data pipeline (Phase 1.1)
 - ✅ Dashboard application foundation with React 19 + Vite 7 (Phase 1.2)
 - ✅ Word difficulty analysis with interactive scoring (Feature 1.3)
 - ✅ Guess distribution visualizations and trends (Feature 1.4)
-- ✅ Sentiment analysis engine & frustration index charts (Feature 1.9)
+- ✅ Pattern-based performance analysis (Feature 1.5)
+- ✅ NYT Effect analysis with statistical tests (Feature 1.6)
+- ✅ Outlier detection engine (Feature 1.7)
+- ✅ Trap pattern analysis (Feature 1.8)
+- ✅ Sentiment analysis engine & correlation charts (Feature 1.9)
 
-**Next Up:**
-- ⏳ Pattern-based performance analysis (Feature 1.5)
-- ⏳ NYT Effect analysis (Feature 1.6)
-- ⏳ Outlier detection engine (Feature 1.7)
+**Phase 2 (UX Polish) - In Progress:**
+- 🚧 Critical bug fixes (navbar CSS, memoization)
+- 🚧 Plain language chart titles and descriptions
+- 🚧 Wordle brand color migration with SSOT pattern
+- 🚧 Single-page dashboard architecture
+- ⏳ Mobile responsiveness improvements
+- ⏳ Design system standardization
+- ⏳ Accessibility enhancements (ARIA labels, screen reader support)
 
 See [Feature Plan](docs/FEATURE-PLAN.md) for detailed roadmap.
 
@@ -242,8 +270,7 @@ See [Feature Plan](docs/FEATURE-PLAN.md) for detailed roadmap.
 - Dashboard initial load: **< 3 seconds**
 - API response time: **< 500ms**
 - Mobile responsive: **Yes** (phone/tablet/desktop)
-- Color-blind friendly: **Yes** (patterns + colors)
-- Accessibility: **WCAG 2.1 AA** (Phase 2)
+- Accessibility: **Color-blind friendly** (Wordle colors + patterns/icons), **WCAG 2.1 AA** (contrast ratios, ARIA labels)
 
 ---
 

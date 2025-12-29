@@ -21,19 +21,20 @@
 - When decisions are needed: provide clear pros/cons including complexity and user experience impact
 
 ### Constraints & Requirements
-- **Scope:** MVP with 5 core analytical features, then polish phase
-- **Design:** Playful and colorful (Wordle aesthetic), responsive (mobile/tablet/desktop), color-blind friendly
-- **Interactivity:** Click to filter/drill down, hover tooltips (keyboard navigation in Phase 2)
-- **Phase 1 (MVP):**
+- **Scope:** MVP with 5 core analytical features ✅ COMPLETE, now in Phase 2 (UX Polish)
+- **Design:** Playful and colorful (Wordle aesthetic), responsive (mobile/tablet/desktop), color-blind friendly with patterns
+- **Interactivity:** Click to filter/drill down, hover tooltips (keyboard navigation removed from scope)
+- **Phase 1 (MVP):** ✅ **COMPLETE**
   1. Database & data pipeline foundation ✅
   2. Dashboard application foundation ✅
   3. Word difficulty analysis (Feature 1.3) ✅
   4. Guess distribution visualizations (Feature 1.4) ✅
   5. Sentiment analysis engine & charts (Feature 1.9) ✅
-  6. Pattern-based performance analysis (Feature 1.5)
-  7. NYT Effect analysis (Feature 1.6)
-  8. Outlier/viral day detection (Feature 1.7)
-- **Phase 2:** Polish interactions, animations, UX/UI enhancements, keyboard navigation, performance optimization
+  6. Pattern-based performance analysis (Feature 1.5) ✅
+  7. NYT Effect analysis (Feature 1.6) ✅
+  8. Outlier/viral day detection (Feature 1.7) ✅
+  9. Trap pattern analysis (Feature 1.8) ✅
+- **Phase 2:** UX/UI polish (single-page dashboard, Wordle color migration with SSOT, mobile responsiveness, accessibility)
 - **Development Environment:** Docker Compose
 
 ### Key Commands
@@ -262,10 +263,13 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 
 #### Visual Design Requirements
 - **Theme:** Playful and colorful, inspired by Wordle's aesthetic
-- **Accents:** Green (#6aaa64), Yellow (#c9b458), Gray (#787c7e) - Wordle's signature colors
+- **Colors:** Wordle brand colors (Green #6aaa64, Yellow #c9b458, Gray #787c7e) with SSOT implementation
+  - **Phase 2 Migration:** Reverting from blue/orange to Wordle green/yellow with accessibility patterns (icons, line styles)
+  - **SSOT Pattern:** All colors defined in `frontend/src/theme/colors.ts` for easy updates
 - **Style:** Modern, clean, data-focused but approachable and fun
-- **Information Architecture:** Dashboard layout with section cards, filters in sidebars, charts as primary content
-- **Interactivity:** Click to filter/drill down, hover for tooltips, smooth transitions
+- **Information Architecture:** Single-page scrollable dashboard (Phase 2 migration from multi-page tabs)
+- **Interactivity:** Click to filter/drill down, hover/tap for tooltips (keyboard navigation for charts not in scope)
+- **Accessibility:** Color-blind friendly via patterns + colors, WCAG 2.1 AA contrast ratios, ARIA labels
 
 #### Data Architecture
 
@@ -298,13 +302,17 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 - Pre-computed metrics stored in database for performance
 
 #### Success Criteria
-The MVP is successful when:
-- All 5 analytical features work correctly and provide interesting insights
-- General users can immediately understand visualizations and find insights within 1 minute
-- Responsive design works smoothly on mobile, tablet, and desktop
-- Color-blind users can distinguish all chart elements
-- Recruiters see clean, maintainable code with strong data analysis techniques
+**Phase 1 (MVP):** ✅ **ACHIEVED**
+- All analytical features work correctly and provide interesting insights
+- Clean, maintainable code with strong data analysis techniques
 - Dashboard loads in <3 seconds, interactions feel smooth and responsive
+
+**Phase 2 (UX Polish) Goals:**
+- General users can immediately understand visualizations and find insights within 1 minute (plain language content)
+- Single-page scrollable dashboard for seamless exploration
+- Wordle brand colors with accessibility patterns for color-blind users
+- Responsive design works smoothly on mobile, tablet, and desktop
+- Professional portfolio-ready user experience
 
 #### Key Technical Challenges to Handle Silently
 - **Google Trends Rate Limiting:** Implement aggressive caching, batch requests, exponential backoff

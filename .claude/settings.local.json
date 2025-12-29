@@ -16,7 +16,8 @@
       "Bash(npm run build:*)",
       "Bash(npm test:*)",
       "Bash(docker compose build:*)",
-      "Bash(docker compose:*)"
+      "Bash(docker compose:*)",
+      "Bash(start mockup/index.html)"
     ]
   },
   "enableAllProjectMcpServers": true,
