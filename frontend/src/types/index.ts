@@ -93,3 +93,37 @@ export interface OutlierScatterPoint {
   sentiment: number
   outlier_type: string | null
 }
+
+// At a Glance Stats
+export interface AtAGlanceStats {
+  hardest_word: {
+    word: string
+    difficulty: number
+    success_rate: number
+    avg_guesses: number
+    date: string
+  }
+  easiest_word: {
+    word: string
+    difficulty: number
+    success_rate: number
+    avg_guesses: number
+    date: string
+  }
+  most_viral: {
+    date: string
+    word: string
+    tweet_volume: number
+    percent_increase: number
+  }
+  avg_guesses: number
+  nyt_effect: {
+    delta: number
+    direction: 'increase' | 'decrease'
+  }
+  community_mood: {
+    avg_sentiment: number
+    positive_pct: number
+    mood_label: string
+  }
+}

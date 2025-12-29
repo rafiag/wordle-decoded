@@ -4,7 +4,8 @@ import type {
   PatternFlow,
   NYTFullAnalysis,
   Trap,
-  OutliersOverview
+  OutliersOverview,
+  AtAGlanceStats
 } from '@/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
@@ -116,6 +117,12 @@ export const statsApi = {
   // Outliers
   getOutlierHighlights: async () => {
     const response = await apiClient.get('/outliers/highlights')
+    return response.data.data
+  },
+
+  // At a Glance
+  getAtAGlanceStats: async (): Promise<AtAGlanceStats> => {
+    const response = await apiClient.get('/dashboard/at-a-glance')
     return response.data.data
   }
 }

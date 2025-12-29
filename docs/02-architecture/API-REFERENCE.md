@@ -538,3 +538,53 @@ Retrieve key highlight cards (Highest Volume, Most Frustrating, Easiest Day).
   }
 }
 ```
+
+---
+
+## 12. At a Glance Endpoints
+
+### `GET /dashboard/at-a-glance`
+Retrieve 6 key metrics for the landing page hero section (Hardest Word, Easiest Word, Most Viral Moment, Avg Guesses, NYT Effect, and Community Mood).
+
+**Usage:**
+- Landing Page Hero Section
+- Quick Summary KPI Cards
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "hardest_word": {
+      "word": "MUMMY",
+      "difficulty": 10.0,
+      "success_rate": 80.2,
+      "avg_guesses": 4.99,
+      "date": "2022-05-04"
+    },
+    "easiest_word": {
+      "word": "TRAIN",
+      "difficulty": 2.1,
+      "success_rate": 99.3,
+      "avg_guesses": 3.26,
+      "date": "2022-03-24"
+    },
+    "most_viral": {
+      "date": "2022-01-30",
+      "word": "LIGHT",
+      "tweet_volume": 31988,
+      "percent_increase": 119
+    },
+    "avg_guesses": 4.06,
+    "nyt_effect": {
+      "delta": 0.14,
+      "direction": "increase"
+    },
+    "community_mood": {
+      "avg_sentiment": 0.05,
+      "positive_pct": 92.4,
+      "mood_label": "Mixed"
+    }
+  }
+}
+```

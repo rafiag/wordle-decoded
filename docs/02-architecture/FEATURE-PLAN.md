@@ -257,39 +257,19 @@ UI/UX mockup completed with approved design patterns in `mockup/index.html`. Moc
 
 ---
 
-### 2.1 Navigation & Architecture Redesign
+### 2.1 Navigation & Architecture Redesign **(Status: COMPLETED ✅)**
 
 **What It Does:**
-Converts multi-page tab navigation to single-page scrollable dashboard based on user feedback ("too many tabbing").
+Converts the dashboard to a multi-page structure (The Basics, Deep Dive, Interactive Tools) with a high-performance "At a Glance" landing page.
 
 **What You'll Experience:**
-- All features accessible in one continuous scroll (no tab clicking)
-- Sticky header with scroll-spy navigation highlighting current section
-- Scroll progress bar showing your position on the page
-- Anchor links for sharing specific sections (#difficulty, #patterns, #nyt-effect, etc.)
-- Back-to-top button appearing after scrolling 500px
-- Progressive loading: Charts render as you scroll into view (Intersection Observer)
-- Maintains context while exploring different features
-- Mobile: Hamburger menu with smooth slide-out navigation
-
-**Design Reference:**
-See `mockup/index.html` for approved layout:
-- Sticky header with horizontal navigation (desktop)
-- Scroll progress indicator at top of page
-- Section badges (🎯 Analysis, 📊 Trends, 🔍 Interactive, etc.)
-- Smooth scroll behavior with `scroll-padding-top` for header offset
-- Mobile menu toggle with overlay navigation
-
-**Technical Implementation:**
-- Convert page components (DifficultyPage, DistributionPage, etc.) to section components
-- Remove React Router routes (keep HashRouter for anchor navigation)
-- Implement scroll-spy using Intersection Observer API
-- Add sticky header with active section highlighting
-- Lazy-load chart data when sections become visible (90% viewport threshold)
-- Add scroll progress bar tracking `window.scrollY`
+- **Landing Page Hero**: 6 key metrics (Hardest Word, Avg Guesses, Easiest Word, NYT Effect, Most Viral, Community Mood) displayed in a 2x3 grid.
+- **Categorized Navigation**: 3 horizontal cards below the hero for quick access to functional areas.
+- **Improved Performance**: Focused pages reduce initial load time and data overhead.
+- **Sticky Header**: Horizontal navigation with dropdowns for quick access to all sections.
 
 **Why It Matters:**
-Dashboard best practice - users want to explore data at a glance, not click through separate pages. Creates cohesive storytelling flow for data insights. User feedback confirmed preference for continuous scrolling over multi-page navigation.
+Focused navigation improves user focus and application performance. The "At a Glance" landing page provides immediate value and storytelling before diving into detailed visual analytics.
 
 ---
 

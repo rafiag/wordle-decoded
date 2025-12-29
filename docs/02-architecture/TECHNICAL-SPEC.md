@@ -30,7 +30,7 @@
   - **SSOT Pattern:** All colors centralized in `frontend/src/theme/colors.ts` for easy updates
 - **Responsive Breakpoints:** Mobile (<768px), Tablet (768-1024px), Desktop (>1024px)
 - **Accessibility:** WCAG 2.1 AA compliance, color-blind friendly via patterns + colors
-- **Navigation:** Single-page scrollable dashboard (Phase 2 migration from multi-page tabs)
+- **Navigation:** Multi-page dashboard with a high-performance "At a Glance" landing page and focused detail pages (The Basics, Deep Dive, Interactive Tools).
 - **Keyboard Navigation:** Browser defaults for links/buttons (advanced chart navigation not in scope)
 
 ---
@@ -344,6 +344,7 @@ words (
 - `GET /api/words/{word}` - Detailed word analysis
 - `GET /api/difficulty/timeline` - Difficulty trends over time
 - `GET /api/difficulty/correlation` - Difficulty vs. performance correlation
+- `GET /api/v1/dashboard/at-a-glance` - 6 key summary metrics for landing page hero
 
 **Visualizations:**
 - Scatter plot: word frequency vs. avg guess count

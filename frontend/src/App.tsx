@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import MainLayout from './components/layout/MainLayout'
-import DashboardPage from './pages/DashboardPage'
+import HomePage from './pages/HomePage'
+import BasicsPage from './pages/BasicsPage'
+import DeepDivePage from './pages/DeepDivePage'
+import InteractivePage from './pages/InteractivePage'
 import './index.css'
 import './styles/dashboard.css'
 
@@ -17,7 +20,11 @@ const queryClient = new QueryClient({
 
 /**
  * Main application component.
- * Single-page dashboard architecture - all routes go to DashboardPage.
+ * Multi-page architecture with 4 distinct pages:
+ * - HomePage (landing with hero + at-a-glance stats)
+ * - BasicsPage (difficulty + distribution)
+ * - DeepDivePage (NYT effect + sentiment + outliers + traps)
+ * - InteractivePage (patterns + word explorer)
  */
 function App() {
   return (
@@ -25,8 +32,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<DashboardPage />} />
-            {/* All content is now in sections on the single-page dashboard */}
+            <Route index element={<HomePage />} />
+            <Route path="/basics" element={<BasicsPage />} />
+            <Route path="/deep-dive" element={<DeepDivePage />} />
+            <Route path="/interactive" element={<InteractivePage />} />
           </Route>
         </Routes>
       </BrowserRouter>

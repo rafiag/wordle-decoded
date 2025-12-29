@@ -1,85 +1,56 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 
-// Navigation categories with grouped sections
+// Navigation categories with grouped sections (multi-page routing)
 const navCategories = [
   {
     id: 'basics',
     label: 'The Basics',
     icon: '📊',
+    path: '/basics',
     sections: [
-      { hash: '#difficulty', label: 'Word Difficulty' },
-      { hash: '#distribution', label: 'Guess Distribution' },
+      { path: '/basics#difficulty', label: 'Word Difficulty' },
+      { path: '/basics#distribution', label: 'Guess Distribution' },
     ],
   },
   {
-    id: 'deep-dives',
-    label: 'Deep Dives',
+    id: 'deep-dive',
+    label: 'Deep Dive',
     icon: '🔍',
+    path: '/deep-dive',
     sections: [
-      { hash: '#sentiment', label: 'Player Sentiment' },
-      { hash: '#traps', label: 'Trap Words' },
-      { hash: '#patterns', label: 'Pattern Analysis' },
+      { path: '/deep-dive#nyt', label: 'NYT Effect' },
+      { path: '/deep-dive#sentiment', label: 'Player Sentiment' },
+      { path: '/deep-dive#outliers', label: 'Viral Days' },
+      { path: '/deep-dive#traps', label: 'Trap Words' },
     ],
   },
   {
-    id: 'special',
-    label: 'Special Events',
-    icon: '📰',
+    id: 'interactive',
+    label: 'Interactive Tools',
+    icon: '🎮',
+    path: '/interactive',
     sections: [
-      { hash: '#nyt', label: 'NYT Effect' },
-      { hash: '#outliers', label: 'Viral Days' },
+      { path: '/interactive#patterns', label: 'Pattern Analysis' },
+      { path: '/interactive#word-explorer', label: 'Word Explorer' },
     ],
   },
 ];
 
-// Flatten for scroll-spy
-const allSections = navCategories.flatMap(cat => cat.sections);
-
 /**
  * Sticky header with grouped dropdown navigation.
- * Highlights the current section based on scroll position.
+ * Highlights the current page based on route location.
  */
 export default function Header() {
-  const [activeSection, setActiveSection] = useState('#hero');
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Scroll-spy using Intersection Observer
-  useEffect(() => {
-    const sectionIds = ['hero', ...allSections.map(s => s.hash.replace('#', ''))];
+  // Determine active page based on current route
+  const activePath = location.pathname;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(`#${entry.target.id}`);
-          }
-        });
-      },
-      {
-        rootMargin: '-70px 0px -50% 0px',
-        threshold: 0,
-      }
-    );
-
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleNavClick = (hash: string) => {
-    setMobileMenuOpen(false);
-    const element = document.querySelector(hash);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Check if any section in a category is active
+  // Check if any section in a category is active (based on route path)
   const isCategoryActive = (category: typeof navCategories[0]) => {
-    return category.sections.some(s => s.hash === activeSection);
+    return activePath.startsWith(category.path);
   };
 
   return (
@@ -87,10 +58,10 @@ export default function Header() {
       <header className="header">
         <div className="container">
           {/* Logo */}
-          <a href="#hero" className="logo" onClick={() => handleNavClick('#hero')}>
+          <Link to="/" className="logo">
             <span className="logo-icon">📊</span>
             <h1>Wordle Data Explorer</h1>
-          </a>
+          </Link>
 
           {/* Desktop Navigation - Grouped Dropdowns */}
           <nav className="nav">
@@ -105,17 +76,14 @@ export default function Header() {
                 </button>
                 <div className="nav-dropdown-menu">
                   {category.sections.map((section) => (
-                    <a
-                      key={section.hash}
-                      href={section.hash}
-                      className={`nav-dropdown-item ${activeSection === section.hash ? 'active' : ''}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleNavClick(section.hash);
-                      }}
+                    <Link
+                      key={section.path}
+                      to={section.path}
+                      className={`nav-dropdown-item ${activePath === section.path || activePath + location.hash === section.path ? 'active' : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {section.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -143,17 +111,14 @@ export default function Header() {
               {category.icon} {category.label}
             </div>
             {category.sections.map((section) => (
-              <a
-                key={section.hash}
-                href={section.hash}
+              <Link
+                key={section.path}
+                to={section.path}
                 className="mobile-nav-link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(section.hash);
-                }}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 {section.label}
-              </a>
+              </Link>
             ))}
           </div>
         ))}

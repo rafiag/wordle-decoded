@@ -42,3 +42,18 @@ Analyzes the impact of the New York Times acquisition on February 10, 2022.
 
 ### Logic
 Data is tagged as `Pre-NYT` or `Post-NYT` and passed through the SciPy stats engine to determine if perceived difficulty increases were statistically significant or merely anecdotal.
+
+---
+
+## 4. At a Glance Summary (2.1)
+The landing page hero section summarizes key metrics from across all analytical features in a high-performance endpoint.
+
+### Components
+- **Hardest/Easiest Word**: Identified using `avg_guess_count` and `success_rate` across the entire `Word` table.
+- **Most Viral Moment**: Based on peak `actual_value` from the `Outlier` table, identifying the highest-engagement day.
+- **Community Mood**: Aggregates `avg_sentiment` and calculates the percentage of positive sentiment tweets.
+- **NYT Effect**: Provides the instant delta (+/-) of average guesses before and after the acquisition date.
+
+### Performance Optimization
+- **Unified Endpoint**: Reduces initial load time by combining 6 distinct analytical queries into a single JSON response.
+- **SQL Aggregations**: Uses SQLAlchemy `func.avg` and `func.max` directly for efficient server-side calculation.

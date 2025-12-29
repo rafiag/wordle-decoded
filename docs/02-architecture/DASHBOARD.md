@@ -44,6 +44,8 @@ All colors are centralized in `frontend/src/theme/colors.ts`.
 - **Neutral/Miss**: Gray (#6b7280)
 
 ### Layout Patterns
+- **Multi-Page Dashboard**: The dashboard is split into focused pages (The Basics, Deep Dive, Interactive Tools) to improve performance and scannability.
+- **Landing Page Hero**: Features a primary headline, 6 key "At a Glance" metrics (2x3 grid on desktop), and quick navigation categories.
 - **Metric Cards**: Provide quick summaries of aggregate data.
 - **Chart Containers**: Standardize loading/error states for all visualizations.
 - **Responsive Grid**: 1 column (Mobile) -> 2 columns (Tablet) -> 3+ columns (Desktop).
