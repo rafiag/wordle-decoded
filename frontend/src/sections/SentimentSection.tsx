@@ -1,5 +1,4 @@
 import { useMemo, useState, memo } from 'react';
-// @ts-ignore
 import { useQuery } from '@tanstack/react-query';
 import {
     BarChart,
@@ -13,6 +12,7 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
+    LegendPayload,
 } from 'recharts';
 import SectionHeader from '../components/shared/SectionHeader';
 import ContentCard from '../components/shared/ContentCard';
@@ -53,10 +53,27 @@ const PIE_COLORS = [
 ];
 
 
+interface TableRowProps {
+    item: {
+        word: string;
+        date: string;
+        score: number;
+        sentiment: number;
+        difficulty: number;
+        difficulty_label: string;
+        success_rate: number;
+        total_tweets: number;
+    };
+    idx: number;
+    rankingMode: 'hated' | 'loved';
+    getDifficultyColor: (label?: string) => string;
+    wordleColors: { [key: string]: string };
+}
+
 /**
  * Memoized table row component to prevent unnecessary re-renders
  */
-const TableRow = memo(({ item, idx, rankingMode, getDifficultyColor, wordleColors }: any) => {
+const TableRow = memo(({ item, idx, rankingMode, getDifficultyColor, wordleColors }: TableRowProps) => {
     const rankBadgeStyle = {
         background: idx === 0 ? (rankingMode === 'loved' ? wordleColors.green : wordleColors.negative) : '#eee',
         color: idx === 0 ? '#fff' : '#333',
@@ -113,7 +130,7 @@ TableRow.displayName = 'TableRow';
 /**
  * Custom Tooltip for the Grouped Bar Chart
  */
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     if (active && payload && payload.length) {
         const data = payload[0].payload as SentimentDataPoint;
         const total = (data.very_pos_count || 0) + (data.pos_count || 0) + (data.neu_count || 0) + (data.neg_count || 0) + (data.very_neg_count || 0);
@@ -222,7 +239,7 @@ export default function SentimentSection() {
     // Pre-calculate both lists for instant toggling (optimization)
     const mostHated = useMemo(() => {
         if (!sentimentData?.top_hated) return [];
-        return sentimentData.top_hated.map((d: any) => ({
+        return sentimentData.top_hated.map((d: SentimentDataPoint) => ({
             word: d.target_word || 'Unknown',
             date: d.date,
             score: d.frustration,
@@ -236,7 +253,7 @@ export default function SentimentSection() {
 
     const mostLoved = useMemo(() => {
         if (!sentimentData?.top_loved) return [];
-        return sentimentData.top_loved.map((d: any) => ({
+        return sentimentData.top_loved.map((d: SentimentDataPoint) => ({
             word: d.target_word || 'Unknown',
             date: d.date,
             score: d.frustration,
@@ -322,8 +339,9 @@ export default function SentimentSection() {
                                             <Legend
                                                 wrapperStyle={{ paddingTop: '20px' }}
                                                 iconType="square"
-                                                itemSorter={(item: any) => {
-                                                    // Define custom order: Very Neg -> Negative -> Neutral -> Positive -> Very Pos
+                                                itemSorter={(item: LegendPayload) => {
+                                                    const key = String(item.dataKey || '');
+                                                    // Define custom order
                                                     const order: { [key: string]: number } = {
                                                         'very_neg_count': 0,
                                                         'neg_count': 1,
@@ -331,7 +349,7 @@ export default function SentimentSection() {
                                                         'pos_count': 3,
                                                         'very_pos_count': 4
                                                     };
-                                                    return order[item.dataKey] ?? 999;
+                                                    return order[key] ?? 999;
                                                 }}
                                             />
                                             {/* Order matches legend: Very Neg -> Negative -> Neutral -> Positive -> Very Pos */}
@@ -470,7 +488,7 @@ export default function SentimentSection() {
                                     </tr>
                                 </thead>
                                 <tbody style={{ transition: 'opacity 0.15s ease-in-out' }}>
-                                    {topWords.map((item: any, idx: number) => (
+                                    {topWords.map((item: TableRowProps['item'], idx: number) => (
                                         <TableRow
                                             key={`${rankingMode}-${item.word}`}
                                             item={item}
