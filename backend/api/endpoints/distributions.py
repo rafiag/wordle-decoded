@@ -39,3 +39,43 @@ def get_distributions(
         data={"distributions": [DistributionSchema.from_orm(d).dict() for d in dists]},
         meta={"count": str(len(dists))}
     )
+
+@router.get("/aggregate", response_model=APIResponse)
+def get_aggregate_distribution(db: Session = Depends(get_db)):
+    """
+    Get aggregated guess distribution across all time.
+    """
+    results = db.query(
+        func.sum(Distribution.guess_1).label('g1'),
+        func.sum(Distribution.guess_2).label('g2'),
+        func.sum(Distribution.guess_3).label('g3'),
+        func.sum(Distribution.guess_4).label('g4'),
+        func.sum(Distribution.guess_5).label('g5'),
+        func.sum(Distribution.guess_6).label('g6'),
+        func.sum(Distribution.failed).label('fail'),
+        func.count(Distribution.id).label('total_games')
+    ).first()
+    
+    if not results:
+         return APIResponse(
+            status="success",
+            data={
+                "guess_1": 0, "guess_2": 0, "guess_3": 0, 
+                "guess_4": 0, "guess_5": 0, "guess_6": 0, 
+                "failed": 0, "total_games": 0
+            }
+        )
+        
+    return APIResponse(
+        status="success",
+        data={
+            "guess_1": int(results.g1 or 0),
+            "guess_2": int(results.g2 or 0),
+            "guess_3": int(results.g3 or 0),
+            "guess_4": int(results.g4 or 0),
+            "guess_5": int(results.g5 or 0),
+            "guess_6": int(results.g6 or 0),
+            "failed": int(results.fail or 0),
+            "total_games": int(results.total_games or 0)
+        }
+    )

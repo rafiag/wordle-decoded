@@ -222,17 +222,27 @@ You'll have a fully working Wordle Data Explorer where you can:
 ## Phase 2: UX Polish & Enhancement ✅ **IN PROGRESS**
 
 **What Changes:**
-Phase 2 takes the working MVP and makes it delightful and accessible. Single-page navigation, plain language content, Wordle brand colors, mobile responsiveness, and accessibility improvements that elevate the experience from "functional" to "professional portfolio piece."
+Phase 2 transforms the working MVP into a polished, single-page dashboard experience based on user feedback and UX/UI review. Includes single-page navigation, plain language content, Wordle brand colors, compact spacing, mobile responsiveness, and accessibility improvements that elevate the experience from "functional" to "professional portfolio piece."
 
 **Prerequisites:** ✅ **COMPLETE**
 Phase 1 MVP is complete with all analytical features working.
 
+**Design Reference:**
+UI/UX mockup completed with approved design patterns in `mockup/index.html`. Mockup demonstrates:
+- Single-page scrollable layout with sticky navigation
+- Compact spacing (25-42% reduction in whitespace)
+- Wordle brand colors with accessibility patterns
+- Mobile-responsive breakpoints
+- Statistical significance indicators
+- Plain language chart titles
+- Interactive pattern input with visual blocks
+
 **Key Focus Areas:**
-- User feedback implementation (single-page dashboard, plain language, visual polish)
+- User feedback implementation (single-page dashboard, compact spacing, plain language)
 - Wordle brand identity (color migration with SSOT pattern)
-- Mobile-first responsiveness
+- Mobile-first responsiveness with compact design
 - Basic accessibility (WCAG 2.1 AA compliance, screen readers)
-- Performance optimization
+- Performance optimization (Intersection Observer for progressive loading)
 
 **Out of Scope:**
 - Advanced keyboard navigation for charts (browser defaults sufficient)
@@ -248,19 +258,32 @@ Converts multi-page tab navigation to single-page scrollable dashboard based on 
 
 **What You'll Experience:**
 - All features accessible in one continuous scroll (no tab clicking)
-- Smooth scroll navigation with sticky top nav or sidebar
-- Anchor links for sharing specific sections (#difficulty, #patterns, etc.)
+- Sticky header with scroll-spy navigation highlighting current section
+- Scroll progress bar showing your position on the page
+- Anchor links for sharing specific sections (#difficulty, #patterns, #nyt-effect, etc.)
+- Back-to-top button appearing after scrolling 500px
 - Progressive loading: Charts render as you scroll into view (Intersection Observer)
 - Maintains context while exploring different features
+- Mobile: Hamburger menu with smooth slide-out navigation
+
+**Design Reference:**
+See `mockup/index.html` for approved layout:
+- Sticky header with horizontal navigation (desktop)
+- Scroll progress indicator at top of page
+- Section badges (🎯 Analysis, 📊 Trends, 🔍 Interactive, etc.)
+- Smooth scroll behavior with `scroll-padding-top` for header offset
+- Mobile menu toggle with overlay navigation
 
 **Technical Implementation:**
-- Convert page components to section components
-- Remove React Router routes (keep HashRouter for anchors)
-- Implement scroll-spy navigation highlighting current section
-- Lazy-load chart data when sections become visible
+- Convert page components (DifficultyPage, DistributionPage, etc.) to section components
+- Remove React Router routes (keep HashRouter for anchor navigation)
+- Implement scroll-spy using Intersection Observer API
+- Add sticky header with active section highlighting
+- Lazy-load chart data when sections become visible (90% viewport threshold)
+- Add scroll progress bar tracking `window.scrollY`
 
 **Why It Matters:**
-Dashboard best practice - users want to explore data at a glance, not click through separate pages. Creates cohesive storytelling flow for data insights.
+Dashboard best practice - users want to explore data at a glance, not click through separate pages. Creates cohesive storytelling flow for data insights. User feedback confirmed preference for continuous scrolling over multi-page navigation.
 
 ---
 
@@ -287,44 +310,80 @@ Target audience is general Wordle enthusiasts, not data scientists. Users need t
 
 ---
 
-### 2.3 Wordle Brand Color Migration (SSOT)
+### 2.3 Wordle Brand Color Migration & Compact Spacing (SSOT)
 
 **What It Does:**
-Reverts from blue/orange to Wordle's signature green/yellow/gray colors using Single Source of Truth pattern.
+Reverts from blue/orange to Wordle's signature green/yellow/gray colors using Single Source of Truth pattern, and implements compact spacing system to reduce whitespace throughout the dashboard.
 
 **What You'll Experience:**
 - Instantly recognizable Wordle aesthetic (green #6aaa64, yellow #c9b458, gray #787c7e)
 - Accessibility patterns (icons, line styles, shapes) for color-blind users
 - Consistent color usage across all components
+- Compact, efficient use of screen space (25-42% reduction in spacing values)
+- More content visible at a glance without excessive scrolling
+- Tighter visual hierarchy with reduced gaps between elements
 
-**Technical Implementation:**
+**Design Reference:**
+See `mockup/styles.css` for approved spacing system:
+- `--spacing-xs`: 0.375rem (was 0.5rem, 25% reduction)
+- `--spacing-sm`: 0.75rem (was 1rem, 25% reduction)
+- `--spacing-md`: 1rem (was 1.5rem, 33% reduction)
+- `--spacing-lg`: 1.25rem (was 2rem, 38% reduction)
+- `--spacing-xl`: 1.75rem (was 3rem, 42% reduction)
+- `--spacing-xxl`: 2.5rem (was 4rem, 38% reduction)
+
+**Color System Implementation:**
 - Create `frontend/src/theme/colors.ts` (SSOT file)
 - Tailwind config imports from theme file
 - All components import from `@/theme/colors`
 - Add icons to pattern input squares (✓ green, ~ yellow, ✗ gray)
 - Different line styles for chart series (solid/dashed/dotted)
 
+**Spacing System Implementation:**
+- Update Tailwind spacing scale in `tailwind.config.js`
+- Reduce section padding from `xxl` to `xl`
+- Reduce card padding and margins from `lg` to `md`
+- Reduce heading sizes (hero: 3rem → 2.25rem, section: 2.5rem → 2rem)
+- Tighten grid gaps (stats grid, quick nav, comparison cards)
+
 **Why It Matters:**
-Brand recognition + easy theme updates. Change one file to update entire app. Future-proof for dark mode or theme variations.
+Brand recognition + easy theme updates. Change one file to update entire app. Compact spacing addresses user feedback that design felt "too big with lots of whitespace." Future-proof for dark mode or theme variations.
 
 ---
 
 ### 2.4 Mobile Responsiveness & Design System
 
 **What It Does:**
-Optimizes dashboard for mobile devices and standardizes visual language.
+Optimizes dashboard for mobile devices and standardizes visual language across all components.
 
 **What You'll Experience:**
 - Hamburger menu navigation on mobile (<768px)
 - Responsive chart heights (no excessive scrolling)
 - Touch targets ≥44px (WCAG minimum)
-- Consistent card components (FeatureCard, StatCard, DetailCard)
-- Standardized typography scale
-- Unified loading states (skeleton screens)
+- Consistent card components across all sections
+- Standardized typography scale (display, h1, h2, h3, body, small)
+- Unified loading states (spinner with descriptive text)
 - User-friendly error messages with retry buttons
+- Pattern input blocks optimized for touch (3rem × 3rem with hover effects)
+- Comparison cards stack vertically on mobile with rotated arrow
+
+**Design Reference:**
+See `mockup/index.html` and `mockup/styles.css` for approved patterns:
+- **Stat Cards:** Green/yellow/gray color variants with icons
+- **Comparison Cards:** Before/After layout with significance indicators
+- **Pattern Blocks:** 5 interactive squares with emoji display
+- **Results Display:** 3-column metrics grid + flow list
+- **Filter Buttons:** Rounded pill style with active state
+- **Responsive Breakpoints:** Desktop (1024px+), Tablet (768px-1023px), Mobile (<768px)
+
+**Component Standardization:**
+- All cards use `border-radius: var(--radius-md)` (12px)
+- All sections use consistent badge style with emoji + label
+- All interactive elements have hover effects (scale, shadow, border)
+- All metrics follow label-value-note structure
 
 **Why It Matters:**
-40%+ users on mobile. Consistent design language creates professional, polished experience.
+40%+ users on mobile. Consistent design language creates professional, polished experience. Design system ensures maintainability and visual coherence.
 
 ---
 
@@ -411,12 +470,21 @@ Speed is a feature. Faster interactions mean users explore more, discover more i
 ## When Phase 2 Is Complete
 
 You'll have everything from Phase 1, plus:
-- Single-page scrollable dashboard for seamless exploration
+- Single-page scrollable dashboard with sticky navigation and scroll progress bar
 - Plain language chart titles that non-technical users can understand
 - Wordle brand color identity with accessibility patterns
-- Mobile-optimized responsive design
-- WCAG 2.1 AA accessibility compliance
+- Compact spacing design (25-42% reduction in whitespace)
+- Mobile-optimized responsive design with hamburger menu
+- Statistical significance indicators on NYT Effect comparison
+- Interactive pattern input with visual blocks (first guess only)
+- Pattern flow analysis showing most likely next steps
+- WCAG 2.1 AA accessibility compliance (basic support)
 - Professional portfolio-ready user experience
+
+**Visual Deliverables:**
+- Complete UI/UX mockup in `mockup/index.html` demonstrating all design patterns
+- Approved spacing system, color palette, and component styles
+- Mobile-responsive breakpoints and navigation patterns
 
 ---
 

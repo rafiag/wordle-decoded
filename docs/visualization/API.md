@@ -392,3 +392,120 @@ Retrieve trap analysis for a specific word, listing all its confusion neighbors.
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `word` | `str` | The 5-letter target word |
+
+---
+
+## 8. Dashboard Optimization Endpoints (Feature 2.0)
+
+### `GET /dashboard/init`
+Retrieve critical initial data for the dashboard in a single request (Hero stats, Main Distribution Chart, and Difficulty Timeline).
+Designed to reduce the "Time to Interactive" and number of initial HTTP requests.
+
+**Usage:**
+- Initial Page Load ("Above the Fold" content)
+
+**Parameters:**
+*None*
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "overview": {
+      "total_games_tracked": 1500000,
+      "avg_daily_players": 4500.5,
+      "avg_sentiment": 0.45,
+      "viral_events_count": 12
+    },
+    "distribution": {
+      "guess_1": 150, "guess_2": 800, "guess_3": 2500,
+      "guess_4": 1200, "guess_5": 400, "guess_6": 100,
+      "failed": 50, "total_games": 5200
+    },
+    "difficulty": [
+       { "date": "2022-01-01", "difficulty": 3, "avg_guesses": 3.78, "frequency": 0.8 }
+    ]
+  }
+}
+```
+
+---
+
+## 9. Analytics Overview Endpoints
+
+### `GET /analytics/overview`
+Retrieve high-level dashboard metrics for the Hero section.
+
+**Usage:**
+- Dashboard Headers/Hero
+- KPI Cards
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "total_games_tracked": 1500000,
+    "avg_daily_players": 4500.5,
+    "avg_sentiment": 0.45,
+    "viral_events_count": 12
+  }
+}
+```
+
+---
+
+## 10. Aggregate Distribution Endpoints
+
+### `GET /distributions/aggregate`
+Retrieve the sum of all guess counts across all time (1-6 and failed).
+
+**Usage:**
+- "All-Time Guess Distribution" Bar Chart
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "guess_1": 150,
+    "guess_2": 800,
+    "guess_3": 2500,
+    "guess_4": 1200,
+    "guess_5": 400,
+    "guess_6": 100,
+    "failed": 50,
+    "total_games": 5200
+  }
+}
+```
+
+---
+
+## 11. Outlier Highlights Endpoints
+
+### `GET /outliers/highlights`
+Retrieve key highlight cards (Highest Volume, Most Frustrating, Easiest Day).
+
+**Usage:**
+- "Viral Days" Highlights Section
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "highest_volume": {
+      "title": "Highest Volume",
+      "word": "FAVOR",
+      "date": "2022-01-09",
+      "metric": "Tweets",
+      "value": 350000,
+      "description": "Most discussed Wordle day"
+    },
+    "most_frustrating": { ... },
+    "easiest": { ... }
+  }
+}
+```

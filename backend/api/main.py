@@ -41,7 +41,8 @@ async def health_check():
 
 # Include versioned routers
 # Include versioned routers
-from backend.api.endpoints import words, distributions, analytics, patterns, nyt, outliers, traps
+# Include versioned routers
+from backend.api.endpoints import words, distributions, analytics, patterns, nyt, outliers, traps, dashboard
 
 api_v1_router.include_router(words.router)
 api_v1_router.include_router(distributions.router)
@@ -49,6 +50,7 @@ api_v1_router.include_router(analytics.router)
 api_v1_router.include_router(patterns.router)
 api_v1_router.include_router(outliers.router)
 api_v1_router.include_router(traps.router)
+api_v1_router.include_router(dashboard.router)
 api_v1_router.include_router(nyt.router, prefix="/nyt", tags=["nyt-effect"])
 app.include_router(api_v1_router)
 

@@ -165,3 +165,52 @@ def get_outlier_by_date(date: str, db: Session = Depends(get_db)):
             "context": outlier.context
         }
     )
+
+@router.get("/highlights", response_model=APIResponse)
+def get_outlier_highlights(db: Session = Depends(get_db)):
+    """
+    Get 3 specific highlight cards: Highest Volume, Most Frustrating, Easiest.
+    """
+    # 1. Highest Volume (Max total_tweets from Distribution)
+    max_vol = db.query(Distribution, Word).join(Word).order_by(Distribution.total_tweets.desc()).first()
+    
+    # 2. Most Frustrating (Highest difficulty_rating for now, or could use sentiment)
+    # Let's use Difficulty Rating from Word table as a proxy for "Hardest/Frustrating"
+    max_diff = db.query(Word).order_by(Word.difficulty_rating.desc()).first()
+    
+    # 3. Easiest (Lowest difficulty_rating)
+    min_diff = db.query(Word).filter(Word.difficulty_rating > 0).order_by(Word.difficulty_rating.asc()).first()
+    
+    def format_card(title, word_obj, metric_name, metric_value, desc):
+        if not word_obj: 
+            return None
+        return {
+            "title": title,
+            "word": word_obj.word,
+            "date": word_obj.date,
+            "metric": metric_name,
+            "value": metric_value,
+            "description": desc
+        }
+        
+    vol_card = None
+    if max_vol:
+        dist, word = max_vol
+        vol_card = format_card("Highest Volume", word, "Tweets", dist.total_tweets, "Most discussed Wordle day")
+        
+    diff_card = None
+    if max_diff:
+        diff_card = format_card("Most Frustrating", max_diff, "Difficulty Score", max_diff.difficulty_rating, "Players struggled the most")
+        
+    easy_card = None
+    if min_diff:
+        easy_card = format_card("Easiest Day", min_diff, "Difficulty Score", min_diff.difficulty_rating, "Players solved it quickly")
+        
+    return APIResponse(
+        status="success",
+        data={
+            "highest_volume": vol_card,
+            "most_frustrating": diff_card,
+            "easiest": easy_card
+        }
+    )

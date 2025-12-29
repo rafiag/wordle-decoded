@@ -37,3 +37,33 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
         data={"sentiment_correlation": data},
         meta={"count": str(len(data))}
     )
+
+@router.get("/overview", response_model=APIResponse)
+def get_analytics_overview(db: Session = Depends(get_db)):
+    """
+    Get high-level overview statistics for the dashboard hero section.
+    """
+    from sqlalchemy import func
+    from backend.db.schema import Distribution, TweetSentiment, Outlier
+    
+    # Total Games Tracked (sum of total_tweets across all days)
+    total_games = db.query(func.sum(Distribution.total_tweets)).scalar() or 0
+    
+    # Average Daily Players
+    avg_players = db.query(func.avg(Distribution.total_tweets)).scalar() or 0.0
+    
+    # Global Average Sentiment
+    avg_sentiment = db.query(func.avg(TweetSentiment.avg_sentiment)).scalar() or 0.0
+    
+    # Count of Viral Events
+    viral_count = db.query(func.count(Outlier.id)).filter(Outlier.outlier_type.ilike('%viral%')).scalar() or 0
+    
+    return APIResponse(
+        status="success",
+        data={
+            "total_games_tracked": int(total_games),
+            "avg_daily_players": float(avg_players),
+            "avg_sentiment": float(avg_sentiment),
+            "viral_events_count": int(viral_count)
+        }
+    )
