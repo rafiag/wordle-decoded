@@ -4,7 +4,10 @@ import type {
   PatternStats,
   PatternFlow,
   NYTEffectSummary,
-  NYTTimelinePoint
+  NYTTimelinePoint,
+  Outlier,
+  Trap,
+  OutlierScatterPoint
 } from '@/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
@@ -58,6 +61,37 @@ export const statsApi = {
   getNYTEffectTimeline: async (): Promise<NYTTimelinePoint[]> => {
     const response = await apiClient.get('/nyt/timeline')
     return response.data
+  },
+
+  // Feature 1.7: Outliers
+  getOutliers: async (type?: string, limit: number = 100): Promise<Outlier[]> => {
+    let url = `/outliers?limit=${limit}`
+    if (type) {
+      url += `&type=${type}`
+    }
+    const response = await apiClient.get(url)
+    return response.data.data
+  },
+
+  getOutlierByDate: async (date: string): Promise<Outlier> => {
+    const response = await apiClient.get(`/outliers/${date}`)
+    return response.data.data
+  },
+
+  getOutlierScatterData: async (): Promise<OutlierScatterPoint[]> => {
+    const response = await apiClient.get('/outliers/volume-sentiment')
+    return response.data.data
+  },
+
+  // Feature 1.8: Traps
+  getTopTraps: async (limit: number = 20): Promise<Trap[]> => {
+    const response = await apiClient.get(`/traps/top?limit=${limit}`)
+    return response.data.data
+  },
+
+  getTrapByWord: async (word: string): Promise<Trap> => {
+    const response = await apiClient.get(`/traps/${word}`)
+    return response.data.data
   }
 }
 

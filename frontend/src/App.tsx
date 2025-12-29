@@ -8,6 +8,7 @@ import PatternsPage from './pages/PatternsPage'
 import NYTEffectPage from './pages/NYTEffectPage'
 import OutliersPage from './pages/OutliersPage'
 import SentimentPage from './pages/SentimentPage'
+import TrapsPage from './pages/TrapsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,7 @@ function App() {
             <Route path="patterns" element={<PatternsPage />} />
             <Route path="nyt-effect" element={<NYTEffectPage />} />
             <Route path="outliers" element={<OutliersPage />} />
+            <Route path="traps" element={<TrapsPage />} />
             <Route path="sentiment" element={<SentimentPage />} />
           </Route>
         </Routes>

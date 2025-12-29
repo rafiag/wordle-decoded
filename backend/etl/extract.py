@@ -77,9 +77,23 @@ def load_kaggle_tweets_raw() -> pd.DataFrame:
     # Read CSV
     df = pd.read_csv(file_path, parse_dates=['tweet_date'])
     
-    # Validation (Note: 'wordle_id' availability depends on raw format, 
-    # if it's not in raw, we might skip that check or strictly enforce it.)
-    # Based on previous runs, we know what to expect.
-    # validate_tweets_csv(df) 
-    
     return df
+
+def load_wordle_guesses() -> list[str]:
+    """
+    Loads the official Wordle guess list (solutions + allowed).
+    Returns:
+        list[str]: List of ~13k valid 5-letter words in uppercase.
+    """
+    file_path = RAW_DATA_DIR / "wordle_guesses.txt"
+    
+    if not file_path.exists():
+        logger.warning(f"Wordle guesses file not found at {file_path}. Using fallback list.")
+        return []
+        
+    with open(file_path, 'r') as f:
+        # Read lines, strip whitespace, filtering for 5-letter words just in case
+        words = [line.strip().upper() for line in f if len(line.strip()) == 5]
+        
+    logger.info(f"Loaded {len(words)} words from validation list.")
+    return words

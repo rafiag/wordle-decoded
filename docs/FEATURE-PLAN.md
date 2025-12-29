@@ -146,10 +146,11 @@ Data-driven answer to one of the most debated Wordle questions. No more argument
 
 ---
 
-### 1.7 Outlier & Viral Day Detection **(Status: NOT STARTED)**
+### 1.7 Outlier & Viral Day Detection **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Identifies days when tweet activity was unusually high or low, revealing viral moments, controversial puzzles, and quiet periods in Wordle's history.
+- **Documentation:** [Outlier Analysis Implementation](../docs/outliers/README.md)
 
 **What You'll See:**
 - **Timeline with Highlights:** Days flagged as outliers stand out visually, color-coded by category
@@ -173,10 +174,11 @@ Google Trends integration will add search behavior data to distinguish "help-see
 
 ---
 
-### 1.8 Trap Pattern Analysis ("The Trap Cache") **(Status: NOT STARTED)**
+### 1.8 Trap Pattern Analysis ("The Trap Cache") **(Status: COMPLETED ✅)**
 
 **What It Does:**
 Specifically analyzes "trap" words—those that have many similar neighbors (like *LIGHT*, *NIGHT*, *FIGHT*)—to see how they derail players.
+- **Documentation:** [Trap Analysis Implementation](../docs/traps/README.md)
 
 **What You'll See:**
 - **Trap Highlight:** Words flagged as "Traps" stand out in your analytics.

@@ -355,3 +355,94 @@ Retrieve the most likely next patterns that follow the given pattern, based on h
   ]
 }
 ```
+
+---
+
+## 6. Outlier Detection Endpoints (Feature 1.7)
+
+### `GET /outliers`
+Retrieve a list of "outlier" days identified by the Z-Score algorithm, flagged for unusual tweet volume or extreme sentiment.
+
+**Usage:**
+- Viral Days Dashboard
+- Quiet Days Analysis
+
+**Parameters:**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `skip` | `int` | `0` | Number of records to skip |
+| `limit` | `int` | `100` | Number of records to return |
+| `type` | `str` | `null` | Filter by outlier type (e.g., `viral_frustration`, `viral_fun`, `quiet_day`) |
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "id": 204,
+      "word_id": 204,
+      "date": "2022-01-09",
+      "outlier_type": "viral_frustration",
+      "metric": "volume",
+      "value": 350000,
+      "z_score": 3.42,
+      "context": "Unusually high volume (Z=3.4) with negative sentiment."
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "limit": 100
+  }
+}
+```
+
+### `GET /outliers/{date}`
+Retrieve detailed outlier analysis for a specific date.
+
+**Parameters:**
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `date` | `str` | Date in `YYYY-MM-DD` format |
+
+---
+
+## 7. Trap Analysis Endpoints (Feature 1.8)
+
+### `GET /traps/top`
+Retrieve the words with the highest "Trap Scores" (words with many lookalike neighbors that confuse players).
+
+**Usage:**
+- "Deadly Traps" Leaderboard
+- Brute Force Analysis
+
+**Parameters:**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `limit` | `int` | `20` | Number of trap words to return |
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "word": "IGHTS",
+      "trap_score": 12.5,
+      "neighbor_count": 8,
+      "deadly_neighbors": ["LIGHT", "NIGHT", "RIGHT", "SIGHT", "MIGHT"]
+    }
+  ],
+  "meta": {
+    "count": 1
+  }
+}
+```
+
+### `GET /traps/{word}`
+Retrieve trap analysis for a specific word, listing all its confusion neighbors.
+
+**Parameters:**
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `word` | `str` | The 5-letter target word |

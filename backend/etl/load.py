@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from backend.db.database import SessionLocal, engine, Base
-from backend.db.schema import Word, Distribution, TweetSentiment, PatternStatistic, PatternTransition
+from backend.db.schema import Word, Distribution, TweetSentiment, PatternStatistic, PatternTransition, Outlier, TrapAnalysis
 import pandas as pd
 import logging
 import traceback
@@ -161,6 +161,60 @@ def load_patterns_data(stats_df: pd.DataFrame, transitions_df: pd.DataFrame):
         
     except Exception as e:
         logger.error(f"Error loading pattern data: {e}")
+        logger.debug(traceback.format_exc())
+        db.rollback()
+    finally:
+        db.close()
+
+def load_outliers_data(df: pd.DataFrame):
+    """
+    Loads outlier analysis results.
+    Strategy: Truncate and Reload (Full Refresh).
+    """
+    logger.info(f"load_outliers_data called with {len(df)} rows")
+    
+    db: Session = SessionLocal()
+    try:
+        logger.info("Truncating outlier table...")
+        db.query(Outlier).delete()
+        db.flush()
+        
+        if not df.empty:
+            logger.info("Inserting Outliers...")
+            db.bulk_insert_mappings(Outlier, df.to_dict(orient='records'))
+            
+        db.commit()
+        logger.info("Outlier data load complete.")
+        
+    except Exception as e:
+        logger.error(f"Error loading outlier data: {e}")
+        logger.debug(traceback.format_exc())
+        db.rollback()
+    finally:
+        db.close()
+
+def load_trap_data(df: pd.DataFrame):
+    """
+    Loads trap analysis results.
+    Strategy: Truncate and Reload (Full Refresh).
+    """
+    logger.info(f"load_trap_data called with {len(df)} rows")
+    
+    db: Session = SessionLocal()
+    try:
+        logger.info("Truncating trap_analysis table...")
+        db.query(TrapAnalysis).delete()
+        db.flush()
+        
+        if not df.empty:
+            logger.info("Inserting Trap Analysis...")
+            db.bulk_insert_mappings(TrapAnalysis, df.to_dict(orient='records'))
+            
+        db.commit()
+        logger.info("Trap data load complete.")
+        
+    except Exception as e:
+        logger.error(f"Error loading trap data: {e}")
         logger.debug(traceback.format_exc())
         db.rollback()
     finally:

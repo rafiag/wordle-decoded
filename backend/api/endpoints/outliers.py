@@ -1,0 +1,114 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from backend.db.database import get_db
+from backend.db.schema import Outlier, Word, Distribution, TweetSentiment
+from backend.api.schemas import APIResponse
+from sqlalchemy.orm import Session, joinedload
+
+router = APIRouter(prefix="/outliers", tags=["outliers"])
+
+# ... existing code ...
+
+@router.get("/volume-sentiment", response_model=APIResponse)
+def get_volume_sentiment_scatter(db: Session = Depends(get_db)):
+    """
+    Get volume vs sentiment data for all days, with outlier tags.
+    Used for Scatter Plot visualization.
+    """
+    # Query all words with their distribution and sentiment data
+    # We join explicitly to ensure we only get days with data
+    results = db.query(Word).join(Distribution).join(TweetSentiment).options(
+        joinedload(Word.distribution),
+        joinedload(Word.sentiment), 
+        joinedload(Word.outliers)
+    ).all()
+    
+    data_points = []
+    for w in results:
+        # Determine outlier type if exists
+        outlier_type = None
+        if w.outliers:
+            # A word might have multiple outliers (rare), pick the first one's type
+            outlier_type = w.outliers[0].outlier_type
+            
+        if w.distribution and w.sentiment:
+            data_points.append({
+                "date": w.date,
+                "word": w.word,
+                "volume": w.distribution.total_tweets,
+                "sentiment": w.sentiment.avg_sentiment,
+                "outlier_type": outlier_type
+            })
+            
+    return APIResponse(
+        status="success",
+        data=data_points,
+        meta={"count": len(data_points)}
+    )
+
+
+
+@router.get("", response_model=APIResponse)
+def get_outliers(
+    skip: int = 0, 
+    limit: int = Query(100, le=100, gt=0, description="Max 100 records"),
+    type: Optional[str] = Query(None, description="Filter by outlier type (e.g., viral_frustration, quiet_day)"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get a list of outlier days.
+    """
+    query = db.query(Outlier).join(Word)
+    
+    if type:
+        query = query.filter(Outlier.outlier_type == type)
+        
+    outliers = query.order_by(Word.date.desc()).offset(skip).limit(limit).all()
+    
+    # Enrich with Word info if needed, but the schema has relationships.
+    # We'll return a flat structure or nested? 
+    # Let's return the outlier data + the word it relates to.
+    
+    results = []
+    for o in outliers:
+        results.append({
+            "id": o.id,
+            "date": o.date,
+            "word": o.word.word,
+            "type": o.outlier_type,
+            "metric": o.metric,
+            "value": o.actual_value,
+            "z_score": o.z_score,
+            "context": o.context
+        })
+
+    return APIResponse(
+        status="success",
+        data=results,
+        meta={"count": len(results), "skip": skip, "limit": limit}
+    )
+
+@router.get("/{date}", response_model=APIResponse)
+def get_outlier_by_date(date: str, db: Session = Depends(get_db)):
+    """
+    Get outlier details for a specific date.
+    """
+    outlier = db.query(Outlier).filter(Outlier.date == date).first()
+    if not outlier:
+        raise HTTPException(status_code=404, detail="Outlier not found for this date")
+    
+    return APIResponse(
+        status="success",
+        data={
+            "id": outlier.id,
+            "date": outlier.date,
+            "word": outlier.word.word,
+            "type": outlier.outlier_type,
+            "metric": outlier.metric,
+            "value": outlier.actual_value,
+            "expected_value": outlier.expected_value,
+            "z_score": outlier.z_score,
+            "context": outlier.context
+        }
+    )

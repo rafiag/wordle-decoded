@@ -65,4 +65,4 @@ from typing import Dict, Any
 class APIResponse(BaseModel):
     status: str
     data: Any
-    meta: Optional[Dict[str, str]] = None
+    meta: Optional[Dict[str, Any]] = None

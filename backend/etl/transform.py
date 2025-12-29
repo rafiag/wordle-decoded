@@ -1,4 +1,5 @@
 import pandas as pd
+import time
 from datetime import datetime, timedelta
 import numpy as np
 import re
@@ -82,6 +83,15 @@ def get_sentiment_score(text: str) -> float:
         return 0.0 # Neutral if empty
     return sia.polarity_scores(cleaned)['compound']
 
+def calculate_frequency_score(word: str) -> float:
+    """
+    Calculates a heuristic frequency score (0.0 to 1.0) based on letter composition.
+    Uses 'eariotnsl' as common letters.
+    """
+    if not word: return 0.0
+    word = word.lower()
+    return sum(1 for c in word if c in 'eariotnsl') / 5.0
+
 def transform_games_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Transforms the raw games DataFrame into a structure ready for the 'words' and 'distributions' tables.
@@ -119,14 +129,10 @@ def transform_games_data(df: pd.DataFrame) -> pd.DataFrame:
     # Difficulty: (Avg Guesses * 2) + (10 - Frequency * 10) ... rough heuristic
     
     def calculate_metrics(row):
-        word = str(row['target']).lower()
+        word = str(row['target'])
         guesses = float(row['avg_guesses'])
         
-        # Simple frequency heuristic (Scrabble-inverse-ish? or just random for MVP visual?)
-        # Let's use vowel count + common letters as a proxy for "commonness" if no corpus.
-        # Ideally we use wordfreq, but let's stick to simple logic for stability.
-        common_letters = set('eariotnslcudpmhbfgywkvxzjq')
-        freq_score = sum(1 for c in word if c in 'eariotnsl') / 5.0 # 0.0 to 1.0
+        freq_score = calculate_frequency_score(word)
         
         # Difficulty Rating (1-10)
         # Higher avg_guesses -> Higher difficulty
@@ -350,3 +356,160 @@ def transform_pattern_data(df: pd.DataFrame):
     
     logger.info(f"Generated {len(stats_df)} pattern stats and {len(trans_df)} transitions.")
     return stats_df, trans_df
+
+def transform_outlier_data(games_df: pd.DataFrame, tweets_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Identifies outlier days based on tweet volume and sentiment.
+    Returns DataFrame for 'outliers' table.
+    """
+    logger.info("Transforming outlier data...")
+    
+    # 1. Merge Volume and Sentiment
+    # tweets_df already aggregated by day? No, transform_tweets_data returns aggregated.
+    # We assume the input 'tweets_df' here is the RESULT of transform_tweets_data (aggregated).
+    # If not, we might need to re-aggregate. 
+    # Let's verify input type in orchestration. Assuming aggregated for now.
+    
+    # Actually, let's just make sure we have volume AND sentiment.
+    # games_df has 'total_tweets' (volume) and 'date'.
+    # tweets_df (aggregated) has 'date', 'avg_sentiment'.
+    
+    # Merge on date
+    # Note: transformed games has 'Game' column, effectively the ID.
+    merged = pd.merge(games_df[['date', 'target', 'total_tweets', 'Game', 'difficulty_rating']], 
+                      tweets_df[['date', 'avg_sentiment']], 
+                      on='date', how='inner')
+    
+    if merged.empty:
+        logger.warning("No overlapping data for outliers analysis.")
+        return pd.DataFrame()
+        
+    # 2. Calculate Z-Scores for Volume
+    mean_vol = merged['total_tweets'].mean()
+    std_vol = merged['total_tweets'].std()
+    
+    merged['expected_volume'] = mean_vol # Simplified: static mean. Improved: day-of-week avg.
+    merged['z_score'] = (merged['total_tweets'] - mean_vol) / std_vol
+    
+    # 3. Identify Outliers
+    outliers = []
+    
+    Z_THRESHOLD = 2.0
+    SENTIMENT_LOW = -0.05 # Adjusted threshold for "negative" vibe
+    SENTIMENT_HIGH = 0.2
+    
+    for _, row in merged.iterrows():
+        z = row['z_score']
+        sent = row['avg_sentiment']
+        
+        o_type = None
+        context = ""
+        
+        # Viral High Volume
+        if z > Z_THRESHOLD:
+            if sent < SENTIMENT_LOW:
+                o_type = 'viral_frustration'
+                context = f"High volume (Z={z:.1f}) with negative sentiment ({sent:.2f}). likely a hard/controversial word."
+            elif sent > SENTIMENT_HIGH:
+                o_type = 'viral_fun'
+                context = f"High volume (Z={z:.1f}) with positive sentiment. Community enjoyed this."
+            else:
+                o_type = 'viral_general' # Just busy
+                context = f"Unusually high activity (Z={z:.1f})."
+                
+        # Quiet Days
+        elif z < -Z_THRESHOLD:
+            o_type = 'quiet_day'
+            context = f"Very low activity (Z={z:.1f}). Possibly a holiday or data gap."
+            
+        # Sentiment Extremes (independent of volume, but let's keep it pertinent)
+        elif sent < -0.3:
+             o_type = 'sentiment_negative'
+             context = f"Extremely negative sentiment ({sent:.2f})."
+             
+        if o_type:
+            outliers.append({
+                'word_id': row['Game'],
+                'date': row['date'],
+                'outlier_type': o_type,
+                'metric': 'volume' if 'viral' in o_type or 'quiet' in o_type else 'sentiment',
+                'actual_value': row['total_tweets'] if 'viral' in o_type or 'quiet' in o_type else sent,
+                'expected_value': mean_vol if 'viral' in o_type or 'quiet' in o_type else 0.0,
+                'z_score': z,
+                'context': context
+            })
+            
+    return pd.DataFrame(outliers)
+
+def transform_trap_data(games_df: pd.DataFrame, guess_list: Optional[list[str]] = None) -> pd.DataFrame:
+    """
+    Analyzes all words to find 'Traps' - words with many neighbors (Hamming distance 1).
+    Optimized with Masking Dictionary approach O(N*L) instead of O(N^2).
+    """
+    logger.info("Transforming trap data (Enhanced)...")
+    start_time = time.time()
+    
+    unique_words_df = games_df[['Game', 'target', 'frequency_score']].drop_duplicates()
+    target_words = unique_words_df['target'].dropna().astype(str).str.upper().unique()
+    
+    # define candidate pool: Official Guesses + Historical Answers
+    candidate_pool = set(target_words)
+    if guess_list:
+        # Filter for 5-letter words just in case
+        valid_guesses = {g.upper() for g in guess_list if len(g) == 5}
+        candidate_pool.update(valid_guesses)
+        logger.info(f"Using expanded candidate pool of {len(candidate_pool)} words.")
+    else:
+        logger.info(f"Using historical targets only ({len(candidate_pool)} words).")
+
+    # 1. Build Mask Dictionary
+    # Map "_IGHT" -> ["LIGHT", "NIGHT", "RIGHT", ...]
+    mask_to_words = defaultdict(list)
+    
+    for word in candidate_pool:
+        for i in range(5):
+            mask = word[:i] + "_" + word[i+1:]
+            mask_to_words[mask].append(word)
+            
+    results = []
+    
+    for _, row in unique_words_df.iterrows():
+        target = str(row['target']).upper()
+        if len(target) != 5: continue
+        
+        neighbors = set()
+        
+        # 2. Find Neighbors using Masks
+        for i in range(5):
+            mask = target[:i] + "_" + target[i+1:]
+            candidates = mask_to_words.get(mask, [])
+            for candidate in candidates:
+                if candidate != target:
+                    neighbors.add(candidate)
+                    
+        neighbor_list = sorted(list(neighbors))
+        neighbor_count = len(neighbor_list)
+        
+        # 3. Trap Score: Sum of Neighbor Frequencies
+        # This highlights words with MANY COMMON neighbors (which are the real traps).
+        # We calculate frequency on the fly for neighbors since they might be from the raw list.
+        neighbor_freq_sum = sum(calculate_frequency_score(n) for n in neighbor_list)
+        
+        # We can also weigh by the inverse of the target frequency (rare words with common neighbors are worse?)
+        # But 'Sum of Neighbor Frequence' is a strong enough signal on its own.
+        # Let's add a small multiplier if the target itself is rare, but keep it simple.
+        trap_score = neighbor_freq_sum
+        
+        # Only store if it has neighbors
+        if neighbor_count > 0:
+            import json
+            results.append({
+                'word_id': row['Game'],
+                'trap_score': trap_score,
+                'neighbor_count': neighbor_count,
+                'deadly_neighbors': json.dumps(neighbor_list)
+            })
+            
+    duration = time.time() - start_time
+    logger.info(f"Identified {len(results)} potential trap words in {duration:.2f} seconds.")
+    return pd.DataFrame(results)

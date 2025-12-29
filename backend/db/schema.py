@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Boolean, Text
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, Boolean, Text, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -62,7 +62,7 @@ class TrapAnalysis(Base):
     id = Column(Integer, primary_key=True, index=True)
     word_id = Column(Integer, ForeignKey("words.id"), unique=True)
     
-    trap_score = Column(Float)
+    trap_score = Column(Float, index=True)
     neighbor_count = Column(Integer)
     deadly_neighbors = Column(Text) # JSON string of neighbor list
     
@@ -97,6 +97,10 @@ class Outlier(Base):
     context = Column(Text) # e.g. "Thanksgiving Holiday"
     
     word = relationship("Word", back_populates="outliers")
+    
+    __table_args__ = (
+        Index('ix_outlier_type_zscore', 'outlier_type', 'z_score'),
+    )
 
 class PatternStatistic(Base):
     __tablename__ = "pattern_statistics"

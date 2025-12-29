@@ -10,6 +10,10 @@ description: Implement a new feature following the project's engineering standar
     - Important tradeoffs (explained in plain language).
 3. **Wait for Approval**: Stop and wait for the user to explicitly approve the plan (e.g., "ok", "approved").
 4. **Execute & Deliver**: Once approved, implement the feature completely:
+    - **Environment Mastery**:
+        - Ensure Docker services are running (`docker-compose up -d`) before starting.
+        - **Leverage Hot Reloading**: Do NOT rebuild images for standard code changes. Backend and Frontend code changes sync automatically via volumes.
+        - **Conditional Rebuild**: Only use `docker-compose up --build` if you modify dependencies (`requirements.txt`, `package.json`), environment variables, or Dockerfiles.
     - **Production-Ready**: Build only production-ready code. Do NOT use placeholders or "TODO" comments unless explicitly requested.
     - **No Placeholders**: If assets (images, data) are needed, generate or find real examples.
     - **Complexity Alert**: If an implementation detail becomes significantly more complex than initially planned, pause and ask for user confirmation before proceeding.

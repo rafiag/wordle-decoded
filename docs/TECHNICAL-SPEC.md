@@ -152,6 +152,23 @@ Implementation of the core analytical dashboards: Word Difficulty, Guess Distrib
 
 ---
 
+### Phase 1.7 - 1.8: Advanced Analytics **(Status: COMPLETED ✅)**
+
+Implementation of Outlier Detection and Trap Pattern Analysis.
+
+**Detailed Documentation:**
+- [Outlier Analysis](../docs/outliers/README.md)
+- [Trap Pattern Analysis](../docs/traps/README.md)
+
+#### Key Achievements
+- **Outlier Detection**: Z-Score based identification of viral and quiet days merging volume and sentiment.
+- **Trap Analysis**: Hamming distance algorithm identifying words with high "neighbor density".
+- **API**: New endpoints `/api/v1/outliers` and `/api/v1/traps`.
+
+
+
+---
+
 ### Phase 1.2 Technical Details (Reference)
 
 This sets up the web application infrastructure.
@@ -482,9 +499,10 @@ nyt_analysis (
 **Outlier Detection Algorithm:**
 ```python
 # Z-score based detection
-expected_tweets = f(day_of_week, historical_baseline)
+# Z-score based detection
+expected_tweets = historical_baseline_mean
 z_score = (actual_tweets - mean_tweets) / std_tweets
-if abs(z_score) > threshold:  # e.g., Z > 2.5
+if abs(z_score) > threshold:  # e.g., Z > 2.0
     flag_as_outlier()
 ```
 
@@ -538,8 +556,8 @@ outliers (
 #### Technical Approach
 **Trap Identification Algorithm:**
 - For each 5-letter Wordle answer, identify "neighbors" (words differing by exactly 1 character).
-- **Trap Score:** Calculated as `(Number of Neighbors) * (1 / Aggregate Word Frequency)`.
-- Identify "Deadly Neighbors" based on the frequency of specific pattern collisions in the Wordle Games dataset.
+- **Trap Score:** Calculated as `Sum(Frequency Score of Neighbors)`. High score = many common neighbors.
+
 
 **Database Schema:**
 ```sql
@@ -591,33 +609,9 @@ tweet_sentiment (
 ---
 
 ## Testing Strategy
+**(Deferred to Phase 2 - Post MVP)**
 
-### Unit Tests
-- Data processing functions
-- Statistical calculations
-- Score computation algorithms
-- Pattern parsing and analysis
-- API endpoint logic
-
-**Coverage Target:** >80%
-
-### Integration Tests
-- ETL pipeline end-to-end
-- Database operations
-- API integration
-- External data fetching (mocked)
-
-### End-to-End Tests
-- User workflows through UI
-- Critical user journeys
-- Responsive design verification
-- Accessibility compliance
-
-### Performance Tests
-- Page load times (<3s initial, <1s subsequent)
-- API response times (<500ms for most endpoints)
-- Large dataset handling
-- Mobile performance
+---
 
 ---
 

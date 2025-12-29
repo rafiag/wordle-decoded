@@ -39,7 +39,7 @@
 ### Key Commands
 - **Run application:** `docker compose up`
 - **Stop application:** `docker compose down`
-- **Build/Rebuild:** `docker compose build`
+- **Build/Rebuild:** `docker compose up --build` (Only for new deps/config)
 - **Run tests:** `docker compose exec backend pytest` (backend), `docker compose exec frontend npm test` (frontend)
 - **Data pipeline:** `docker compose exec backend python scripts/run_etl.py`
 - **Database Shell:** `docker compose exec db psql -U wordle_user -d wordle_db`
@@ -186,6 +186,13 @@ Bring decisions to me only when they directly affect what I will see or experien
 - Use version control with clear, descriptive commit messages
 - Separate development and production environments
 - Document setup and deployment processes
+
+#### Docker Workflow Standards
+- **Check Status First:** Ensure Docker services are running (`docker compose up -d`) before starting work.
+- **No Unnecessary Rebuilds:** Leverage hot reloading for standard code changes. Do NOT rebuild images for `.py`, `.js`, or `.css` edits.
+- **When to Rebuild:** Only run `docker compose up --build` for:
+  - Dependency changes (`requirements.txt`, `package.json`)
+  - Configuration changes (`Dockerfile`, `docker-compose.yml`, `.env`)
 
 ---
 
