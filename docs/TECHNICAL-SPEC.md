@@ -481,9 +481,7 @@ nyt_analysis (
 ```
 
 **API Endpoints:**
-- `GET /api/nyt-effect/summary` - Overall comparison
-- `GET /api/nyt-effect/tests` - Statistical test results
-- `GET /api/nyt-effect/timeline` - Trend around acquisition date
+- `GET /api/nyt-effect/analysis` - Complete analysis (summary + timeline + tests)
 
 **Visualizations:**
 - Split timeline view (before/after marked)
@@ -536,9 +534,9 @@ outliers (
 ```
 
 **API Endpoints:**
+- `GET /api/outliers/overview` - Unified view (Scatter plot data + Top outliers list)
 - `GET /api/outliers` - List all outlier days with categories
 - `GET /api/outliers/{date}` - Detailed outlier analysis with sentiment context
-- `GET /api/outliers/volume-sentiment` - Volume vs. sentiment scatter plot data
 
 **Visualizations:**
 - Timeline with outliers highlighted (color-coded by category)

@@ -173,12 +173,11 @@ Retrieve correlation data between tweet sentiment and puzzle performance.
 
 ## 4. NYT Effect Analysis Endpoints (Feature 1.6)
 
-### `GET /nyt/summary`
-Retrieve a comprehensive statistical comparison of Wordle performance before and after the New York Times acquisition (February 10, 2022).
+### `GET /nyt/analysis`
+Retrieve a comprehensive analysis of the NYT Effect, including summary statistics, statistical test results, and a daily timeline.
 
 **Usage:**
-- Before/After KPI Cards (Avg Guesses, Difficulty)
-- Statistical Significance Badges
+- Full NYT Effect Dashboard (KPIs, Badges, Timeline)
 
 **Parameters:**
 *None*
@@ -187,79 +186,27 @@ Retrieve a comprehensive statistical comparison of Wordle performance before and
 ```json
 {
   "summary": {
-    "before": {
-      "avg_guesses": 3.92,
-      "avg_difficulty": 4.5,
-      "avg_success_rate": 0.98,
-      "total_games": 230,
-      "variance_guesses": 0.15
+    "summary": {
+      "before": { "avg_guesses": 3.92, "avg_difficulty": 4.5, "total_games": 230 },
+      "after": { "avg_guesses": 4.08, "avg_difficulty": 5.2, "total_games": 85 },
+      "diff_guesses": 0.16,
+      "diff_difficulty": 0.7
     },
-    "after": {
-      "avg_guesses": 4.08,
-      "avg_difficulty": 5.2,
-      "avg_success_rate": 0.96,
-      "total_games": 85,
-      "variance_guesses": 0.22
-    },
-    "diff_guesses": 0.16,
-    "diff_difficulty": 0.7
-  },
-  "tests": {
-    "t_test_means": {
-      "test_name": "Welch's t-test",
-      "statistic": -2.45,
-      "p_value": 0.015,
-      "significant": true,
-      "interpretation": "Statistically significant difference in average guess count."
-    },
-    "mann_whitney": {
-      "test_name": "Mann-Whitney U",
-      "statistic": 1450.0,
-      "p_value": 0.03,
-      "significant": true,
-      "interpretation": "Distributions are significantly different."
-    },
-    "levene_variance": {
-      "test_name": "Levene's Test",
-      "statistic": 4.12,
-      "p_value": 0.04,
-      "significant": true,
-      "interpretation": "Variance (consistency) significantly changed."
+    "tests": {
+      "t_test_means": { "significant": true, "p_value": 0.015, "interpretation": "Significant diff" }
     }
-  }
-}
-```
-
----
-
-### `GET /nyt/timeline`
-Retrieve daily performance metrics tagged with their era ("Pre-NYT" or "Post-NYT") for comparative timeline visualization.
-
-**Usage:**
-- Timeline Chart with acquisition date annotation
-- Trend analysis
-
-**Parameters:**
-*None*
-
-**Expected Response (`200 OK`):**
-```json
-[
-  {
-    "date": "2021-12-31",
-    "word": "REBUS",
-    "era": "Pre-NYT",
-    "avg_guesses": 3.75,
-    "difficulty": 6
   },
-  {
-    "date": "2022-02-15",
-    "word": "ULTRA",
-    "era": "Post-NYT",
-    "avg_guesses": 4.1,
-    "difficulty": 4
-  }
-]
+  "tests": { ... }, // Map of test results
+  "timeline": [
+    {
+      "date": "2021-12-31",
+      "word": "REBUS",
+      "era": "Pre-NYT",
+      "avg_guesses": 3.75,
+      "difficulty": 6
+    }
+  ]
+}
 ```
 
 ---
@@ -360,40 +307,39 @@ Retrieve the most likely next patterns that follow the given pattern, based on h
 
 ## 6. Outlier Detection Endpoints (Feature 1.7)
 
-### `GET /outliers`
-Retrieve a list of "outlier" days identified by the Z-Score algorithm, flagged for unusual tweet volume or extreme sentiment.
+### `GET /outliers/overview`
+Retrieve a unified view of outlier data, including a list of top outliers and data for the scatter plot.
 
 **Usage:**
-- Viral Days Dashboard
-- Quiet Days Analysis
+- Outliers Dashboard (List & Scatter Plot)
 
 **Parameters:**
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `skip` | `int` | `0` | Number of records to skip |
-| `limit` | `int` | `100` | Number of records to return |
-| `type` | `str` | `null` | Filter by outlier type (e.g., `viral_frustration`, `viral_fun`, `quiet_day`) |
+| `limit` | `int` | `50` | Number of top outliers to return |
 
 **Expected Response (`200 OK`):**
 ```json
 {
-  "status": "success",
-  "data": [
+  "plot_data": [
     {
-      "id": 204,
-      "word_id": 204,
       "date": "2022-01-09",
-      "outlier_type": "viral_frustration",
-      "metric": "volume",
-      "value": 350000,
-      "z_score": 3.42,
-      "context": "Unusually high volume (Z=3.4) with negative sentiment."
+      "word": "FAVOR",
+      "volume": 350000,
+      "sentiment": -0.2,
+      "outlier_type": "viral_frustration"
     }
   ],
-  "meta": {
-    "count": 1,
-    "limit": 100
-  }
+  "top_outliers": [
+    {
+      "id": 204,
+      "date": "2022-01-09",
+      "word": "FAVOR",
+      "type": "viral_frustration",
+      "z_score": 3.42,
+      "context": "Unusually high volume..."
+    }
+  ]
 }
 ```
 

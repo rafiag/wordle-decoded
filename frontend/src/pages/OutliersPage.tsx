@@ -5,7 +5,7 @@ import type { Outlier, OutlierScatterPoint } from '@/types'
 import {
   BarChart, Bar,
   ScatterChart, Scatter,
-  XAxis, YAxis, ZAxis,
+  XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts'
 
@@ -23,12 +23,10 @@ const OutliersPage: React.FC = () => {
   const fetchOutliers = async () => {
     try {
 
-      const [outliersData, scatterPlotData] = await Promise.all([
-        statsApi.getOutliers(),
-        statsApi.getOutlierScatterData()
-      ])
-      setOutliers(outliersData)
-      setScatterData(scatterPlotData)
+      const data = await statsApi.getOutliersOverview()
+
+      setOutliers(data.top_outliers)
+      setScatterData(data.plot_data)
     } catch (err) {
       setError('Failed to load outliers data')
       console.error(err)

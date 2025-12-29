@@ -3,10 +3,63 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from backend.db.database import get_db
 from backend.db.schema import Outlier, Word, Distribution, TweetSentiment
-from backend.api.schemas import APIResponse
+from backend.api.schemas import APIResponse, OutliersOverviewResponse, OutlierPoint, OutlierEvent
 from sqlalchemy.orm import Session, joinedload
 
 router = APIRouter(prefix="/outliers", tags=["outliers"])
+
+@router.get("/overview", response_model=OutliersOverviewResponse)
+def get_outliers_dashboard(
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    """
+    Get combined data for the Outliers dashboard:
+    1. Scatter plot data (volume vs sentiment) for all days
+    2. List of top/recent outliers
+    """
+    # 1. Scatter Plot Data
+    scatter_results = db.query(Word).join(Distribution).join(TweetSentiment).options(
+        joinedload(Word.distribution),
+        joinedload(Word.sentiment), 
+        joinedload(Word.outliers)
+    ).all()
+    
+    plot_data = []
+    for w in scatter_results:
+        outlier_type = None
+        if w.outliers:
+            outlier_type = w.outliers[0].outlier_type
+            
+        if w.distribution and w.sentiment:
+            plot_data.append(OutlierPoint(
+                date=w.date.strftime("%Y-%m-%d") if hasattr(w.date, 'strftime') else str(w.date),
+                word=w.word,
+                volume=w.distribution.total_tweets,
+                sentiment=w.sentiment.avg_sentiment,
+                outlier_type=outlier_type
+            ))
+            
+    # 2. Recent Outliers List
+    outliers_query = db.query(Outlier).join(Word).order_by(Word.date.desc()).limit(limit).all()
+    
+    top_outliers = []
+    for o in outliers_query:
+        top_outliers.append(OutlierEvent(
+            id=o.id,
+            date=o.date.strftime("%Y-%m-%d") if hasattr(o.date, 'strftime') else str(o.date),
+            word=o.word.word,
+            type=o.outlier_type,
+            metric=o.metric,
+            value=o.actual_value,
+            z_score=o.z_score,
+            context=o.context or ""
+        ))
+        
+    return OutliersOverviewResponse(
+        plot_data=plot_data,
+        top_outliers=top_outliers
+    )
 
 # ... existing code ...
 

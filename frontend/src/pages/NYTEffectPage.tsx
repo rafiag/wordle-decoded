@@ -14,12 +14,15 @@ const NYTEffectPage: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const [summaryData, timelineData] = await Promise.all([
-          statsApi.getNYTEffectSummary(),
-          statsApi.getNYTEffectTimeline()
-        ])
-        setSummary(summaryData)
-        setTimeline(timelineData)
+        const data = await statsApi.getNYTAnalysis()
+
+        // The unified endpoint returns the structure { summary, tests, timeline }
+        // We need to reconstruct the objects as expected by the state/components
+        setSummary({
+          summary: data.summary,
+          tests: data.tests
+        })
+        setTimeline(data.timeline)
       } catch (err) {
         console.error(err)
         setError('Failed to load NYT Effect data.')

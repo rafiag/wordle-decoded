@@ -29,9 +29,9 @@ The ETL process calculates Z-scores for finding statistical anomalies using hist
     - Contextual mapping is applied (e.g., Holidays) if data is available.
 
 ### 3. API Endpoints
+- `GET /api/v1/outliers/overview`: **(New - Unified)** Returns both scatter plot data and top outlier list.
 - `GET /api/v1/outliers`: List outliers (paginated, sortable by date).
 - `GET /api/v1/outliers/{date}`: Detailed view for a specific date.
-- `GET /api/v1/outliers/volume-sentiment`: **(New)** Returns scatter plot data points (Volume vs. Sentiment) for visualization.
 
 ### 4. Frontend Visualization
 - **Bar Chart**: Top anomalies ranked by Z-Score magnitude.

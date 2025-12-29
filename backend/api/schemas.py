@@ -60,6 +60,32 @@ class NYTEffectResponse(BaseModel):
     summary: NYTComparison
     tests: Dict[str, StatTestResult]
 
+class NYTFullAnalysis(BaseModel):
+    summary: NYTComparison
+    tests: Dict[str, StatTestResult]
+    timeline: List[NYTTimelinePoint]
+
+class OutlierPoint(BaseModel):
+    date: str
+    word: str
+    volume: int
+    sentiment: float
+    outlier_type: Optional[str]
+
+class OutlierEvent(BaseModel):
+    id: int
+    date: str
+    word: str
+    type: str
+    metric: str
+    value: float
+    z_score: float
+    context: str
+
+class OutliersOverviewResponse(BaseModel):
+    plot_data: List[OutlierPoint]
+    top_outliers: List[OutlierEvent]
+
 from typing import Dict, Any
 
 class APIResponse(BaseModel):

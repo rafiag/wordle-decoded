@@ -4,9 +4,27 @@ from typing import List
 
 from backend.db.database import get_db
 from backend.services.nyt_service import NYTService
-from backend.api.schemas import NYTEffectResponse, NYTTimelinePoint
+from backend.api.schemas import NYTEffectResponse, NYTTimelinePoint, NYTFullAnalysis
 
 router = APIRouter()
+
+@router.get("/analysis", response_model=NYTFullAnalysis)
+def get_nyt_analysis(db: Session = Depends(get_db)):
+    """
+    Returns the complete NYT effect analysis: summary, statistical tests, and timeline.
+    Combines previous /summary and /timeline endpoints for faster initial load.
+    """
+    service = NYTService(db)
+    
+    summary = service.get_comparison_summary()
+    tests = service.run_statistical_tests()
+    timeline = service.get_timeline()
+    
+    return NYTFullAnalysis(
+        summary=summary,
+        tests=tests,
+        timeline=timeline
+    )
 
 @router.get("/summary", response_model=NYTEffectResponse)
 def get_nyt_summary(db: Session = Depends(get_db)):

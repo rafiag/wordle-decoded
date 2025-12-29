@@ -1,13 +1,10 @@
 import axios from 'axios'
 import type {
-  OverviewStats,
   PatternStats,
   PatternFlow,
-  NYTEffectSummary,
-  NYTTimelinePoint,
-  Outlier,
+  NYTFullAnalysis,
   Trap,
-  OutlierScatterPoint
+  OutliersOverview
 } from '@/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
@@ -30,12 +27,10 @@ apiClient.interceptors.response.use(
   }
 )
 
-export const statsApi = {
-  getOverview: async (): Promise<OverviewStats> => {
-    const response = await apiClient.get('/stats/overview')
-    return response.data
-  },
 
+
+// Feature 1.5: Pattern Analysis
+export const statsApi = {
   // Feature 1.5: Pattern Analysis
   getTopPatterns: async (limit: number = 10): Promise<PatternStats[]> => {
     const response = await apiClient.get(`/patterns/top?limit=${limit}`)
@@ -53,35 +48,20 @@ export const statsApi = {
   },
 
   // Feature 1.6: NYT Effect Analysis
-  getNYTEffectSummary: async (): Promise<NYTEffectSummary> => {
-    const response = await apiClient.get('/nyt/summary')
+  getNYTAnalysis: async (): Promise<NYTFullAnalysis> => {
+    const response = await apiClient.get('/nyt/analysis')
     return response.data
   },
 
-  getNYTEffectTimeline: async (): Promise<NYTTimelinePoint[]> => {
-    const response = await apiClient.get('/nyt/timeline')
-    return response.data
-  },
+
 
   // Feature 1.7: Outliers
-  getOutliers: async (type?: string, limit: number = 100): Promise<Outlier[]> => {
-    let url = `/outliers?limit=${limit}`
-    if (type) {
-      url += `&type=${type}`
-    }
-    const response = await apiClient.get(url)
-    return response.data.data
+  getOutliersOverview: async (limit: number = 50): Promise<OutliersOverview> => {
+    const response = await apiClient.get(`/outliers/overview?limit=${limit}`)
+    return response.data
   },
 
-  getOutlierByDate: async (date: string): Promise<Outlier> => {
-    const response = await apiClient.get(`/outliers/${date}`)
-    return response.data.data
-  },
 
-  getOutlierScatterData: async (): Promise<OutlierScatterPoint[]> => {
-    const response = await apiClient.get('/outliers/volume-sentiment')
-    return response.data.data
-  },
 
   // Feature 1.8: Traps
   getTopTraps: async (limit: number = 20): Promise<Trap[]> => {

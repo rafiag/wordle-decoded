@@ -58,6 +58,10 @@ export interface NYTTimelinePoint {
   difficulty: number
 }
 
+export interface NYTFullAnalysis extends NYTEffectSummary {
+  timeline: NYTTimelinePoint[]
+}
+
 export interface Outlier {
   id: number
   date: string
@@ -67,6 +71,11 @@ export interface Outlier {
   value: number
   z_score: number
   context: string
+}
+
+export interface OutliersOverview {
+  plot_data: OutlierScatterPoint[]
+  top_outliers: Outlier[]
 }
 
 export interface Trap {
