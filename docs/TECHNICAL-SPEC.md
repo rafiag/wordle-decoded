@@ -592,29 +592,51 @@ trap_analysis (
 #### Technical Approach
 **NLP Pipeline:**
 - **Pre-processing:** Use regex to strip Wordle grids (⬛⬜🟩🟨) and isolate user-written text from the Wordle Tweets dataset.
-- **Sentiment Analysis:** Use `NLTK.sentiment.vader` or `TextBlob` to assign a daily polarity score (-1.0 to 1.0) to user comments.
-- **Aggregation:** Compute daily mean sentiment and "Frustration Index" (percentage of highly negative tweets).
+- **Sentiment Analysis:** Use `NLTK.sentiment.vader` (VADER) with custom Wordle lexicon enhancements to assign a polarity score (-1.0 to 1.0) to user comments.
+- **Aggregation:** Compute daily mean sentiment and **Frustration Index** (percentage of tweets with sentiment below **-0.1**).
+
+**5-Bucket Sentiment Granularity:**
+- **Very Positive:** sentiment ≥ 0.5
+- **Positive:** 0.05 ≤ sentiment < 0.5
+- **Neutral:** -0.05 ≤ sentiment < 0.05
+- **Negative:** -0.5 ≤ sentiment < -0.05
+- **Very Negative:** sentiment < -0.5
 
 **Metrics:**
 - Daily Mean Sentiment
-- Sentiment / Average Guess Correlation (Pearson)
-- Obscurity vs. Trap Sentiment Difference (comparative analysis)
+- Frustration Index (Threshold: **-0.1**)
+- 5-Bucket Tweet Counts
+- Difficulty Label (Easy/Medium/Hard/Expert)
+- Success Rate per day
 
 **Database Schema:**
 ```sql
 tweet_sentiment (
     id INTEGER PRIMARY KEY,
+    word_id INTEGER REFERENCES words(id),
     date DATE UNIQUE NOT NULL,
     avg_sentiment FLOAT,
     frustration_index FLOAT,
     sample_size INTEGER,
+    very_pos_count INTEGER DEFAULT 0,
+    pos_count INTEGER DEFAULT 0,
+    neu_count INTEGER DEFAULT 0,
+    neg_count INTEGER DEFAULT 0,
+    very_neg_count INTEGER DEFAULT 0,
+    top_words TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 ```
 
 **API Endpoints:**
-- `GET /api/sentiment/daily` - Daily sentiment metrics
-- `GET /api/sentiment/correlation` - Detailed stats on sentiment vs. performance correlation
+- `GET /api/v1/analytics/sentiment` - Daily sentiment metrics with 5-bucket counts, `difficulty_label`, and `success_rate`.
+- Refer to [API Reference](visualization/API.md#3-sentiment-analytics-endpoints-feature-19) for detailed schema.
+
+**Visualizations:**
+- **Sentiment Distribution Pie Chart:** 5-bucket breakdown.
+- **Daily Sentiment Volume (Grouped Bar Chart):** 5 stacked bars per day.
+- **Frustration Index Meter:** Average frustration level (gradient bar).
+- **Most Frustrating Words Table:** Top 5 words by frustration index with color-coded difficulty and success rate.
 
 ---
 

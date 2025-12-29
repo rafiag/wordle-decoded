@@ -139,11 +139,13 @@ GET /distributions?limit=30
 ## 3. Sentiment Analytics Endpoints (Feature 1.9)
 
 ### `GET /analytics/sentiment`
-Retrieve correlation data between tweet sentiment and puzzle performance.
+Retrieve correlation data between tweet sentiment and puzzle performance. Includes 5-bucket sentiment counts, difficulty labels, and success rates.
 
 **Usage:**
-- Sentiment & Frustration Timeline
-- Frustration vs Difficulty Scatter Plot
+- Sentiment Distribution Pie Chart
+- Daily Sentiment Volume (Grouped Bar Chart)
+- Frustration Index Meter
+- Most Frustrating Words Table
 
 **Parameters:**
 *None*
@@ -156,18 +158,43 @@ Retrieve correlation data between tweet sentiment and puzzle performance.
     "sentiment_correlation": [
       {
         "date": "2022-01-01",
-        "sentiment": 0.45,       // VADER Compound Score (-1.0 to 1.0)
-        "frustration": 0.05,     // % of tweets with sentiment < threshold
+        "target_word": "REBUS",
+        "sentiment": 0.45,
+        "frustration": 0.12,
+        "very_pos_count": 50,
+        "pos_count": 200,
+        "neu_count": 350,
+        "neg_count": 80,
+        "very_neg_count": 20,
         "avg_guesses": 3.78,
-        "difficulty": 3
+        "difficulty": 6,
+        "difficulty_label": "Medium",
+        "success_rate": 0.92
       }
     ]
   },
   "meta": {
-    "count": "302"
+    "count": "306"
   }
 }
 ```
+
+**Field Descriptions:**
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `date` | `string` | Puzzle date (YYYY-MM-DD) |
+| `target_word` | `string` | The solution word for that day |
+| `sentiment` | `float` | Average VADER Compound Score (-1.0 to 1.0) |
+| `frustration` | `float` | Fraction of tweets with sentiment < **-0.1** |
+| `very_pos_count` | `int` | Tweets with sentiment ≥ 0.5 |
+| `pos_count` | `int` | Tweets with sentiment 0.05 to 0.5 |
+| `neu_count` | `int` | Tweets with sentiment -0.05 to 0.05 |
+| `neg_count` | `int` | Tweets with sentiment -0.5 to -0.05 |
+| `very_neg_count` | `int` | Tweets with sentiment < -0.5 |
+| `avg_guesses` | `float` | Average guesses for that puzzle |
+| `difficulty` | `int` | Difficulty rating (1-10) |
+| `difficulty_label` | `string` | Human-readable label: Easy (1-3), Medium (4-6), Hard (7-8), Expert (9-10) |
+| `success_rate` | `float` | Fraction of players who solved the puzzle |
 
 ---
 

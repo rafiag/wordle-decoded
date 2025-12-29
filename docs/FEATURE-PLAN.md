@@ -193,16 +193,21 @@ Some words aren't hard because they're obscure; they're hard because they belong
 ### 1.9 Sentiment & Performance Correlation **(Status: COMPLETED ✅)**
 
 **What It Does:**
-Combines tweet sentiment analysis with puzzle performance to see if "difficult" words also make the community "angry" or "frustrated."
+Combines tweet sentiment analysis with puzzle performance to reveal the emotional impact of Wordle puzzles on the community.
 
 **What You'll See:**
-- **Mood of the Day:** An indicator showing if players felt "Triumphant," "Neutral," or "Frustrated" after the puzzle.
-- **Sentiment vs. Guesses:** A correlation chart showing if higher average guess counts lead to more negative tweet sentiment.
-- **Obscurity Sentiment:** Does an "obscure" word (low frequency) cause more frustration than a "trap" word? 
-- **Documentation:** [Visualization Implementation](../docs/visualization/README.md) 
+- **Sentiment Distribution Pie Chart:** Breakdown of all tweets into 5 sentiment buckets (Very Positive, Positive, Neutral, Negative, Very Negative).
+- **Daily Sentiment Volume (Grouped Bar Chart):** Daily trends showing tweet volume per sentiment category, with tooltips revealing the day's solution word.
+- **Frustration Index Meter:** A visual gauge showing the average percentage of tweets with sentiment below **-0.1**.
+- **Most Frustrating Words Table (Top 5):** A dynamic table listing the top 5 most frustration-inducing words, including:
+    - Word and Date
+    - **Difficulty** (color-coded: Green=Easy, Yellow=Medium, Red=Hard)
+    - **Success Rate**
+    - Frustration Index and Total Tweets
+- **Documentation:** [Visualization Implementation](../docs/visualization/README.md), [API Reference](../docs/visualization/API.md)
 
 **Why It Matters:**
-It captures the social vibe of the game. It allows you to see the difference between a "statistically hard" day and an "emotionally draining" one for the Wordle community.
+It captures the social vibe of the game, distinguishing between a \"statistically hard\" day and an \"emotionally draining\" one for the Wordle community.
 
 ---
 

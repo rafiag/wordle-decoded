@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from backend.db.database import get_db
 from backend.db.schema import TweetSentiment, Word
-from backend.api.schemas import APIResponse # type: ignore
+from backend.api.schemas import APIResponse 
+from backend.api.utils import get_difficulty_label
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -16,8 +17,15 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
         TweetSentiment.date,
         TweetSentiment.avg_sentiment,
         TweetSentiment.frustration_index,
+        TweetSentiment.very_pos_count,
+        TweetSentiment.pos_count,
+        TweetSentiment.neu_count,
+        TweetSentiment.neg_count,
+        TweetSentiment.very_neg_count,
         Word.avg_guess_count,
-        Word.difficulty_rating
+        Word.difficulty_rating,
+        Word.success_rate,
+        Word.word.label("target_word")
     ).join(Word, TweetSentiment.word_id == Word.id)\
      .filter(Word.avg_guess_count.isnot(None))\
      .order_by(TweetSentiment.date).all()
@@ -26,10 +34,18 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
     for r in results:
         data.append({
             "date": r.date,
+            "target_word": r.target_word,
             "sentiment": r.avg_sentiment,
             "frustration": r.frustration_index,
+            "very_pos_count": r.very_pos_count,
+            "pos_count": r.pos_count,
+            "neu_count": r.neu_count,
+            "neg_count": r.neg_count,
+            "very_neg_count": r.very_neg_count,
             "avg_guesses": r.avg_guess_count,
-            "difficulty": r.difficulty_rating
+            "difficulty": r.difficulty_rating,
+            "difficulty_label": get_difficulty_label(r.difficulty_rating),
+            "success_rate": r.success_rate
         })
         
     return APIResponse(

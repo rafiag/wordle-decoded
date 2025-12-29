@@ -101,7 +101,12 @@ def load_tweets_data(df: pd.DataFrame):
                 "date": str(row['date']),
                 "avg_sentiment": float(row['avg_sentiment']),
                 "frustration_index": float(row['frustration_index']),
-                "sample_size": int(row['sample_size'])
+                "sample_size": int(row['sample_size']),
+                "very_pos_count": int(row['very_pos_count']),
+                "pos_count": int(row['pos_count']),
+                "neu_count": int(row['neu_count']),
+                "neg_count": int(row['neg_count']),
+                "very_neg_count": int(row['very_neg_count'])
             })
             
         # Filter for valid Word IDs to avoid FK violations

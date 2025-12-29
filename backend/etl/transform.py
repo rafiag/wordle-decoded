@@ -8,7 +8,10 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 import logging
 from typing import Optional
 from collections import defaultdict
+import multiprocessing
+from functools import partial
 import ast
+from typing import Set
 
 import os
 from dotenv import load_dotenv
@@ -20,7 +23,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Constants from environment or defaults
-FRUSTRATION_THRESHOLD = float(os.getenv("FRUSTRATION_THRESHOLD", "-0.2"))
+FRUSTRATION_THRESHOLD = float(os.getenv("FRUSTRATION_THRESHOLD", "-0.1"))
 MIN_GAME_ID = int(os.getenv("MIN_GAME_ID", "1"))
 MAX_GAME_ID = int(os.getenv("MAX_GAME_ID", "2000"))
 
@@ -32,13 +35,66 @@ except ValueError:
     logger.error(f"Invalid WORDLE_START_DATE format: {wordle_start_str}. Using default.")
     WORDLE_START_DATE = datetime(2021, 6, 19)
 
-# Initialize NLTK
+# Initialize NLTK resources
 try:
     nltk.data.find('sentiment/vader_lexicon.zip')
 except LookupError:
     nltk.download('vader_lexicon')
 
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
+from nltk.corpus import stopwords
+EXTRA_STOPWORDS = {
+    "wordle", "#wordle", "word", "words", "game", "guess", "letters", "guesses", "tries",
+    "got", "get", "getting", "took", "take", "done", "going", "gonna", "made", "starting",
+    "today", "day", "days", "time", "one", "another", "still", "back", "yet", "finally",
+    "i’m", "im", "it’s", "really", "think", "know", "first", "second", "last",
+    "2", "3", "4", "5", "nyt", "yesterday", "actually", "literally", "could", "would"
+}
+STOP_WORDS = set(stopwords.words('english')).union(EXTRA_STOPWORDS)
+
+# Wordle-specific terms and sentiment-rich emojis
+# VADER's logic often works better if we add them as they appear in text.
+WORDLE_LEXICON_EXT = {
+    # Slang / Keywords
+    "phew": 2.0,
+    "lucky": 2.0,
+    "easy": 2.0,
+    "nice": 1.5,
+    "great": 2.0,
+    "trap": -2.0,
+    "frustrating": -2.5,
+    "hard": -1.5,
+    "tough": -1.5,
+    "failed": -3.0,
+    "phew!": 2.5,
+    "impossible": -2.0,
+    "clue": 0.5,
+    "yikes": -1.5,
+    "whew": 1.5,
+    "slay": 1.0,
+    "bruh": -1.0,
+    # New Slang Injection (Moderate scores)
+    "boom": 1.5,
+    "oof": -0.5,
+    "whee": 1.5,
+    "sheesh": 1.0,
+    "yesss": 1.5,
+    "close": 0.5,
+    "hooked": 1.0,
+    # Emojis (Sentiment rich)
+    "😊": 2.0, "🥳": 3.0, "😍": 3.0, "😎": 2.0, "🙌": 2.0, "✨": 1.0,
+    "😫": -2.0, "🤯": -1.5, "😡": -3.0, "😤": -2.0, "😭": -1.5, "💀": -1.0, "❌": -2.0
+}
+
+# Protected keywords (don't remove these as stopwords)
+PROTECTED_KEYWORDS = {"phew", "lucky", "easy", "hard", "tough", "failed", "great", "nice", "trap"}
+
 sia = SentimentIntensityAnalyzer()
+sia.lexicon.update(WORDLE_LEXICON_EXT)
 
 def derive_date_from_id(wordle_id: int) -> str:
     """
@@ -57,22 +113,33 @@ def derive_date_from_id(wordle_id: int) -> str:
 def clean_tweet_text(text: str) -> str:
     """
     Removes Wordle grids (squares) and common urls to leave just the user commentary.
+    Also removes stopwords while protecting Wordle-specific keywords and strips punctuation.
     """
     if not isinstance(text, str):
         return ""
     
-    # Remove squares (roughly covers most variations)
-    # Unicode ranges for squares are broad, but let's try a simpler regex first.
-    # Black/White/Yellow/Green squares.
-    text = re.sub(r'[⬛⬜🟨🟩🟦🟧🟫]', '', text) 
-    
-    # Remove Wordle X/6 pattern
+    # 1. Remove Wordle X/6 pattern
     text = re.sub(r'Wordle \d+ \w/\d', '', text)
     
-    # Remove URLs
+    # 2. Remove URLs
     text = re.sub(r'http\S+', '', text)
     
-    return text.strip()
+    # 3. Remove box emojis/squares (strips the grid)
+    text = re.sub(r'[⬛⬜🟨🟩🟦🟧🟫🟥]', '', text) 
+    
+    # 4. Remove punctuation (excluding emojis)
+    # This keeps characters from major scripts and emojis while stripping standard symbols
+    text = re.sub(r'[.,!?:;\"\'()\[\]{}]', ' ', text)
+    
+    # 5. Tokenize and remove stopwords, but protect specific keywords
+    words = text.split()
+    filtered_words = []
+    for w in words:
+        w_lower = w.lower()
+        if w_lower in PROTECTED_KEYWORDS or w_lower not in STOP_WORDS:
+            filtered_words.append(w)
+            
+    return " ".join(filtered_words).strip()
 
 def get_sentiment_score(text: str) -> float:
     """
@@ -154,26 +221,63 @@ def transform_tweets_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Transforms tweets:
     1. Group by wordle_id
-    2. Calculate sentiment for each tweet
+    2. Calculate sentiment for each tweet (parallelized)
     3. Aggregate daily stats (avg sentiment, frustration index)
     """
-    logger.info("Transforming tweets data (this may take a moment)...")
+    logger.info("Transforming tweets data with multiprocessing...")
     
-    # Apply sentiment
-    df['sentiment'] = df['tweet_text'].apply(get_sentiment_score)
+    # Get number of CPUs to use (leave one for the system)
+    num_processes = max(1, multiprocessing.cpu_count() - 1)
+    logger.info(f"Using {num_processes} processes for parallel sentiment analysis.")
     
-    # Define Frustration
+    # Extract text column as a list for multiprocessing
+    texts = df['tweet_text'].fillna("").tolist()
+    
+    # Define cleaned text and filter out empty ones
+    logger.info("Cleaning tweets and filtering functional posts...")
+    with multiprocessing.Pool(processes=num_processes) as pool:
+        df['cleaned_text'] = pool.map(clean_tweet_text, texts)
+    
+    # Remove empty/null after cleaning
+    initial_count = len(df)
+    df = df[df['cleaned_text'].str.strip() != ""].copy()
+    filtered_count = len(df)
+    logger.info(f"Filtered {initial_count - filtered_count} functional tweets. Remaining: {filtered_count}")
+    
+    # Calculate sentiment for the remaining expressive tweets
+    logger.info("Calculating sentiment for expressive tweets...")
+    cleaned_texts = df['cleaned_text'].tolist()
+    # Use a top-level function for multiprocessing map to avoid lambda/pickling issues
+    with multiprocessing.Pool(processes=num_processes) as pool:
+        df['sentiment'] = pool.map(get_sentiment_score, cleaned_texts)
+
+    # Define Frustration and Sentiment Buckets (5-bucket)
     df['is_frustrated'] = df['sentiment'] < FRUSTRATION_THRESHOLD
+    df['is_very_neg'] = df['sentiment'] < -0.5
+    df['is_neg'] = (df['sentiment'] >= -0.5) & (df['sentiment'] < -0.1)
+    df['is_neu'] = (df['sentiment'] >= -0.1) & (df['sentiment'] <= 0.1)
+    df['is_pos'] = (df['sentiment'] > 0.1) & (df['sentiment'] <= 0.5)
+    df['is_very_pos'] = df['sentiment'] > 0.5
     
     # Aggregate
     agg = df.groupby('wordle_id').agg({
         'sentiment': 'mean',
         'is_frustrated': 'mean', # Proportion of frustrated tweets
-        'tweet_id': 'count'
+        'tweet_id': 'count',
+        'is_very_pos': 'sum',
+        'is_pos': 'sum',
+        'is_neu': 'sum',
+        'is_neg': 'sum',
+        'is_very_neg': 'sum'
     }).rename(columns={
-        'sentiment': 'avg_sentiment', 
+        'sentiment': 'avg_sentiment',
         'is_frustrated': 'frustration_index',
-        'tweet_id': 'sample_size'
+        'tweet_id': 'sample_size',
+        'is_very_pos': 'very_pos_count',
+        'is_pos': 'pos_count',
+        'is_neu': 'neu_count',
+        'is_neg': 'neg_count',
+        'is_very_neg': 'very_neg_count'
     })
     
     # Add date

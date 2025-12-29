@@ -22,6 +22,11 @@ class Word(Base):
     sentiment = relationship("TweetSentiment", back_populates="word", uselist=False)
     outliers = relationship("Outlier", back_populates="word")
 
+    @property
+    def difficulty_label(self):
+        from backend.api.utils import get_difficulty_label
+        return get_difficulty_label(self.difficulty_rating)
+
 class Distribution(Base):
     __tablename__ = "distributions"
 
@@ -78,6 +83,11 @@ class TweetSentiment(Base):
     avg_sentiment = Column(Float)
     frustration_index = Column(Float)
     sample_size = Column(Integer)
+    very_pos_count = Column(Integer, default=0)
+    pos_count = Column(Integer, default=0)
+    neu_count = Column(Integer, default=0)
+    neg_count = Column(Integer, default=0)
+    very_neg_count = Column(Integer, default=0)
     top_words = Column(Text, nullable=True) # JSON of top words
     
     word = relationship("Word", back_populates="sentiment")

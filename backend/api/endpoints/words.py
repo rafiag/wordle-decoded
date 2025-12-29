@@ -16,6 +16,7 @@ class WordSchema(BaseModel):
     date: str
     frequency_score: Optional[float]
     difficulty_rating: Optional[int]
+    difficulty_label: Optional[str]
     avg_guess_count: Optional[float]
     success_rate: Optional[float]
 
