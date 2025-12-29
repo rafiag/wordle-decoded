@@ -159,17 +159,13 @@ Retrieve correlation data between tweet sentiment and puzzle performance. Includ
       {
         "date": "2022-01-01",
         "target_word": "REBUS",
-        "sentiment": 0.45,
         "frustration": 0.12,
+        "difficulty_label": "Medium",
         "very_pos_count": 50,
         "pos_count": 200,
         "neu_count": 350,
         "neg_count": 80,
-        "very_neg_count": 20,
-        "avg_guesses": 3.78,
-        "difficulty": 6,
-        "difficulty_label": "Medium",
-        "success_rate": 0.92
+        "very_neg_count": 20
       }
     ],
     "top_hated": [

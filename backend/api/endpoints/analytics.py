@@ -52,8 +52,19 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
         }
         full_data.append(full_obj)
         
-        # Use full object for timeline to ensure tooltips have all data (target_word, etc.)
-        timeline_data.append(full_obj)
+        # Optimized object for timeline (charts only)
+        # Removes: sentiment, avg_guesses, difficulty, success_rate to save bandwidth
+        timeline_data.append({
+            "date": r.date,
+            "target_word": r.target_word,
+            "frustration": r.frustration_index,
+            "difficulty_label": get_difficulty_label(r.difficulty_rating),
+            "very_pos_count": r.very_pos_count,
+            "pos_count": r.pos_count,
+            "neu_count": r.neu_count,
+            "neg_count": r.neg_count,
+            "very_neg_count": r.very_neg_count,
+        })
 
     # Sort for top lists
     # Top Hated: Highest Frustration
