@@ -1,14 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import MainLayout from './components/layout/MainLayout'
-import HomePage from './pages/HomePage'
-import DifficultyPage from './pages/DifficultyPage'
-import DistributionPage from './pages/DistributionPage'
-import PatternsPage from './pages/PatternsPage'
-import NYTEffectPage from './pages/NYTEffectPage'
-import OutliersPage from './pages/OutliersPage'
-import SentimentPage from './pages/SentimentPage'
-import TrapsPage from './pages/TrapsPage'
+import DashboardPage from './pages/DashboardPage'
+import './index.css'
+import './styles/dashboard.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,20 +15,18 @@ const queryClient = new QueryClient({
   },
 })
 
+/**
+ * Main application component.
+ * Single-page dashboard architecture - all routes go to DashboardPage.
+ */
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="difficulty" element={<DifficultyPage />} />
-            <Route path="distribution" element={<DistributionPage />} />
-            <Route path="patterns" element={<PatternsPage />} />
-            <Route path="nyt-effect" element={<NYTEffectPage />} />
-            <Route path="outliers" element={<OutliersPage />} />
-            <Route path="traps" element={<TrapsPage />} />
-            <Route path="sentiment" element={<SentimentPage />} />
+            <Route index element={<DashboardPage />} />
+            {/* All content is now in sections on the single-page dashboard */}
           </Route>
         </Routes>
       </BrowserRouter>

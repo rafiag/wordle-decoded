@@ -1,33 +1,44 @@
-import React from 'react'
-
-const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear()
-
+/**
+ * Footer component with links and attribution.
+ */
+export default function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-200 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <div className="text-sm text-gray-600">
+    <footer className="footer">
+      <div className="container">
+        <div className="footer-content">
+          <div className="footer-section">
+            <h4>Wordle Data Explorer</h4>
             <p>
-              Built with data from{' '}
-              <a
-                href="https://www.kaggle.com/datasets/benhamner/wordle-tweets"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-wordle-green hover:underline"
-              >
-                Kaggle Wordle Tweets Dataset
-              </a>
+              An interactive dashboard exploring 500+ days of Wordle puzzle data,
+              player patterns, and difficulty insights.
             </p>
           </div>
 
-          <div className="text-sm text-gray-500">
-            <p>&copy; {currentYear} Wordle Data Explorer. Portfolio project.</p>
+          <div className="footer-section">
+            <h4>Data Sources</h4>
+            <ul>
+              <li>Kaggle Wordle Games Dataset</li>
+              <li>Kaggle Wordle Tweets Dataset</li>
+              <li>NLTK Word Frequency Corpus</li>
+            </ul>
           </div>
+
+          <div className="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="#hero">Overview</a></li>
+              <li><a href="#difficulty">Difficulty Analysis</a></li>
+              <li><a href="#traps">Trap Analysis</a></li>
+              <li><a href="#nyt-effect">NYT Effect</a></li>
+              <li><a href="#sentiment">Sentiment</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <p>© 2025 Wordle Data Explorer | Built for Wordle enthusiasts everywhere</p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-
-export default Footer

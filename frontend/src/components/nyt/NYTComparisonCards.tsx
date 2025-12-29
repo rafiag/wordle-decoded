@@ -70,7 +70,7 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
                 after={after.avg_guesses}
                 diff={data.summary.diff_guesses}
                 isInverse={true}
-                testResult={tests?.['t_test_means']}
+                testResult={tests?.t_test_means}
             />
 
             <StatCard
@@ -79,7 +79,7 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
                 after={after.avg_difficulty}
                 diff={data.summary.diff_difficulty}
                 isInverse={false}
-                testResult={tests?.['mann_whitney_difficulty']}
+                testResult={tests?.mann_whitney}
             />
 
             <StatCard
@@ -89,7 +89,7 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
                 diff={(after.avg_success_rate - before.avg_success_rate) * 100}
                 isInverse={false}
                 format={(v) => `${v.toFixed(1)}%`}
-                testResult={tests?.['t_test_success']}
+                testResult={tests?.levene_variance}
             />
         </div>
     )

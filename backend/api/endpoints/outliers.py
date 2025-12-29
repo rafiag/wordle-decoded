@@ -142,34 +142,11 @@ def get_outliers(
         meta={"count": len(results), "skip": skip, "limit": limit}
     )
 
-@router.get("/{date}", response_model=APIResponse)
-def get_outlier_by_date(date: str, db: Session = Depends(get_db)):
-    """
-    Get outlier details for a specific date.
-    """
-    outlier = db.query(Outlier).filter(Outlier.date == date).first()
-    if not outlier:
-        raise HTTPException(status_code=404, detail="Outlier not found for this date")
-    
-    return APIResponse(
-        status="success",
-        data={
-            "id": outlier.id,
-            "date": outlier.date,
-            "word": outlier.word.word,
-            "type": outlier.outlier_type,
-            "metric": outlier.metric,
-            "value": outlier.actual_value,
-            "expected_value": outlier.expected_value,
-            "z_score": outlier.z_score,
-            "context": outlier.context
-        }
-    )
-
 @router.get("/highlights", response_model=APIResponse)
 def get_outlier_highlights(db: Session = Depends(get_db)):
     """
     Get 3 specific highlight cards: Highest Volume, Most Frustrating, Easiest.
+    NOTE: This endpoint must come BEFORE /{date} to avoid route conflicts.
     """
     # 1. Highest Volume (Max total_tweets from Distribution)
     max_vol = db.query(Distribution, Word).join(Word).order_by(Distribution.total_tweets.desc()).first()
@@ -214,3 +191,29 @@ def get_outlier_highlights(db: Session = Depends(get_db)):
             "easiest": easy_card
         }
     )
+
+@router.get("/{date}", response_model=APIResponse)
+def get_outlier_by_date(date: str, db: Session = Depends(get_db)):
+    """
+    Get outlier details for a specific date.
+    NOTE: This endpoint must come AFTER /highlights to avoid route conflicts.
+    """
+    outlier = db.query(Outlier).filter(Outlier.date == date).first()
+    if not outlier:
+        raise HTTPException(status_code=404, detail="Outlier not found for this date")
+    
+    return APIResponse(
+        status="success",
+        data={
+            "id": outlier.id,
+            "date": outlier.date,
+            "word": outlier.word.word,
+            "type": outlier.outlier_type,
+            "metric": outlier.metric,
+            "value": outlier.actual_value,
+            "expected_value": outlier.expected_value,
+            "z_score": outlier.z_score,
+            "context": outlier.context
+        }
+    )
+

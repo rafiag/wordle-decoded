@@ -1,25 +1,26 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
-import Header from './Header'
-import Footer from './Footer'
-import ErrorBoundary from '../shared/ErrorBoundary'
+import { Outlet } from 'react-router-dom';
+import Header from './Header';
+import Footer from './Footer';
+import ScrollProgress from './ScrollProgress';
+import BackToTop from './BackToTop';
+import ErrorBoundary from '../shared/ErrorBoundary';
 
-const MainLayout: React.FC = () => {
+/**
+ * Main layout for the single-page dashboard.
+ * Includes header, scroll progress, footer, and back-to-top button.
+ */
+export default function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      <ScrollProgress />
 
-      <main className="flex-1 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </div>
-      </main>
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
 
       <Footer />
+      <BackToTop />
     </div>
-  )
+  );
 }
-
-export default MainLayout

@@ -72,6 +72,51 @@ export const statsApi = {
   getTrapByWord: async (word: string): Promise<Trap> => {
     const response = await apiClient.get(`/traps/${word}`)
     return response.data.data
+  },
+
+  // Dashboard Optimization
+  getDashboardInit: async () => {
+    const response = await apiClient.get('/dashboard/init')
+    return response.data.data
+  },
+
+  // Analytics
+  getSentimentData: async () => {
+    const response = await apiClient.get('/analytics/sentiment')
+    return response.data.data
+  },
+
+  getOverviewStats: async () => {
+    const response = await apiClient.get('/analytics/overview')
+    return response.data.data
+  },
+
+  // Distributions
+  getDistributions: async (limit: number = 365) => {
+    const response = await apiClient.get(`/distributions?limit=${limit}`)
+    return response.data.data
+  },
+
+  getAggregateDistribution: async () => {
+    const response = await apiClient.get('/distributions/aggregate')
+    return response.data.data
+  },
+
+  // Difficulty
+  getDifficultyStats: async () => {
+    const response = await apiClient.get('/words/stats/difficulty')
+    return response.data.data.points
+  },
+
+  getHardestWords: async (limit: number = 10) => {
+    const response = await apiClient.get(`/words?sort=avg_guess_count&order=desc&limit=${limit}`)
+    return response.data.data.words
+  },
+
+  // Outliers
+  getOutlierHighlights: async () => {
+    const response = await apiClient.get('/outliers/highlights')
+    return response.data.data
   }
 }
 

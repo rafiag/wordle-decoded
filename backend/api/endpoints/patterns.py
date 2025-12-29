@@ -23,23 +23,28 @@ async def search_pattern(
     # Simply strip whitespace just in case
     pattern = pattern.strip()
     
+    # Normalize: convert ⬛ (black) to ⬜ (white) for database consistency
+    pattern = pattern.replace('⬛', '⬜')
+    
     # Input Validation
-    valid_chars = {'🟩', '🟨', '⬜', '⬛'}
+    valid_chars = {'🟩', '🟨', '⬜'}
     if len(pattern) != 5:
         raise HTTPException(status_code=400, detail="Pattern must be exactly 5 characters long.")
     
-    # Check if all characters are valid emojis. 
-    # Note: Emojis can sometimes be tricky with string length, but standard Python3 str handles unicode chars well.
+    # Check if all characters are valid emojis
     if any(char not in valid_chars for char in pattern):
-        raise HTTPException(status_code=400, detail=f"Pattern contains invalid characters. Allowed: {valid_chars}")
+        raise HTTPException(status_code=400, detail=f"Pattern contains invalid characters. Allowed: 🟩, 🟨, ⬛ (or ⬜)")
 
     
     stat = db.query(PatternStatistic).filter(PatternStatistic.pattern == pattern).first()
     
     if not stat:
-        # Instead of 404, we might return empty stats if it's a valid pattern format but not in DB?
-        # But for now let's return 404 if data not found.
-        raise HTTPException(status_code=404, detail=f"Pattern '{pattern}' not found in database.")
+        # Return success with null data instead of 404 for better UX
+        return APIResponse(
+            status="success",
+            data=None,
+            meta={"message": f"Pattern '{pattern}' not found in database"}
+        )
         
     return APIResponse(
         status="success",
@@ -63,6 +68,9 @@ async def get_next_patterns(
     Get most common next patterns for a given pattern.
     """
     pattern = pattern.strip()
+    
+    # Normalize: convert ⬛ (black) to ⬜ (white) for database consistency
+    pattern = pattern.replace('⬛', '⬜')
     
     transitions = db.query(PatternTransition)\
         .filter(PatternTransition.source_pattern == pattern)\
