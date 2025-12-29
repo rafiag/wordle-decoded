@@ -751,20 +751,24 @@ tweet_sentiment (
    - Deferred rationale: Current implementation adequate, polish not critical for MVP
 
 #### Phase 1.3 - 1.9 (Core Visualizations) Deferred Items:
-1. **Statistical Rigor**
-   - Pearson correlation coefficients and p-values for sentiment analysis.
-   - Deferred to: Phase 2.3 (Performance & Quality)
-   - Rationale: Visual correlation sufficient for exploration.
+1. **Statistical Rigor** ✅ **PARTIALLY COMPLETED (Dec 29, 2025)**
+   - ✅ Statistical tests for NYT Effect metrics (guesses, difficulty, success rate) - **COMPLETED**
+   - 📋 Pearson correlation coefficients and p-values for sentiment analysis - **Deferred to Phase 2.3**
+   - 📋 Effect size (Cohen's d) calculations - **Deferred to Phase 2.3**
+   - 📋 Confidence intervals for mean differences - **Deferred to Phase 2.3**
+   - Rationale: Core statistical validation now complete; advanced metrics deferred for Phase 2 polish.
 
 2. **Aggregated Views**
    - Weekly/Monthly endpoints for guess distributions.
    - Deferred to: Phase 2.2 (Advanced Interactions)
    - Rationale: Daily view sufficient for MVP demonstration.
 
-3. **Input Validation**
-   - Explicit API parameter validation (e.g., negative limits).
-   - Deferred to: Phase 2.3
-   - Rationale: Framework validation (FastAPI) covers most cases.
+3. **Input Validation** ✅ **PARTIALLY COMPLETED (Dec 29, 2025)**
+   - ✅ Pattern format validation (5 characters, valid emoji set) - **COMPLETED**
+   - ✅ Proper HTTP error codes (400 Bad Request for invalid input) - **COMPLETED**
+   - 📋 Bounds checking on limit parameters (e.g., max 100) - **Deferred to Phase 2.3**
+   - 📋 Comprehensive validation tests - **Deferred to Phase 2.3**
+   - Rationale: Critical validation implemented; comprehensive edge case coverage deferred.
 
 ### Future Technical Enhancements
 - Real-time data pipeline

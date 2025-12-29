@@ -88,39 +88,68 @@ class NYTService:
         if df.empty:
             return {}
 
-        pre = df[df['era'] == 'Pre-NYT']['avg_guesses'].dropna()
-        post = df[df['era'] == 'Post-NYT']['avg_guesses'].dropna()
-        
         results = {}
 
-        # 1. Independent T-Test (Difference in Means)
-        t_stat, p_val = stats.ttest_ind(pre, post, equal_var=False)
+        # --- Metric: Average Guesses ---
+        pre_guesses = df[df['era'] == 'Pre-NYT']['avg_guesses'].dropna()
+        post_guesses = df[df['era'] == 'Post-NYT']['avg_guesses'].dropna()
+
+        # 1. Independent T-Test (Difference in Means) - Guesses
+        t_stat, p_val = stats.ttest_ind(pre_guesses, post_guesses, equal_var=False)
         results['t_test_means'] = StatTestResult(
-            test_name="Welch's t-test",
+            test_name="Welch's t-test (Guesses)",
             statistic=self._clean_float(t_stat),
             p_value=self._clean_float(p_val),
             significant=p_val < 0.05,
-            interpretation="Statistically significant difference in average guess count." if p_val < 0.05 else "No significant difference in averages."
+            interpretation="Significant difference in guess counts." if p_val < 0.05 else "No significant difference in guess counts."
         )
 
-        # 2. Mann-Whitney U Test (Difference in Distributions - Non-parametric)
-        u_stat, u_p_val = stats.mannwhitneyu(pre, post)
+        # 2. Mann-Whitney U - Guesses
+        u_stat, u_p_val = stats.mannwhitneyu(pre_guesses, post_guesses)
         results['mann_whitney'] = StatTestResult(
-            test_name="Mann-Whitney U",
+            test_name="Mann-Whitney U (Guesses)",
             statistic=self._clean_float(u_stat),
             p_value=self._clean_float(u_p_val),
             significant=u_p_val < 0.05,
-            interpretation="Distributions are significantly different." if u_p_val < 0.05 else "Distributions are likely similar."
+            interpretation="Guess distributions differ." if u_p_val < 0.05 else "Guess distributions similar."
         )
         
-        # 3. Levene's Test (Difference in Variances)
-        l_stat, l_p_val = stats.levene(pre, post)
+        # 3. Levene's Test - Guesses
+        l_stat, l_p_val = stats.levene(pre_guesses, post_guesses)
         results['levene_variance'] = StatTestResult(
-            test_name="Levene's Test",
+            test_name="Levene's Test (Guesses)",
             statistic=self._clean_float(l_stat),
             p_value=self._clean_float(l_p_val),
             significant=l_p_val < 0.05,
-            interpretation="Variance (consistency) significantly changed." if l_p_val < 0.05 else "Variance is consistent."
+            interpretation="Variance significantly changed." if l_p_val < 0.05 else "Variance is consistent."
+        )
+
+        # --- Metric: Difficulty (Ordinal/Continuous) ---
+        pre_diff = df[df['era'] == 'Pre-NYT']['difficulty'].dropna()
+        post_diff = df[df['era'] == 'Post-NYT']['difficulty'].dropna()
+
+        # We'll use Mann-Whitney for Difficulty as it's often non-normal/ordinal
+        d_stat, d_p_val = stats.mannwhitneyu(pre_diff, post_diff)
+        results['mann_whitney_difficulty'] = StatTestResult(
+            test_name="Mann-Whitney U (Difficulty)",
+            statistic=self._clean_float(d_stat),
+            p_value=self._clean_float(d_p_val),
+            significant=d_p_val < 0.05,
+            interpretation="Significant change in difficulty distribution." if d_p_val < 0.05 else "No significant change in difficulty."
+        )
+
+        # --- Metric: Success Rate ---
+        pre_success = df[df['era'] == 'Pre-NYT']['success_rate'].dropna()
+        post_success = df[df['era'] == 'Post-NYT']['success_rate'].dropna()
+
+        # T-test is robust for success rates (means of binary outcomes)
+        s_stat, s_p_val = stats.ttest_ind(pre_success, post_success, equal_var=False)
+        results['t_test_success'] = StatTestResult(
+            test_name="Welch's t-test (Success Rate)",
+            statistic=self._clean_float(s_stat),
+            p_value=self._clean_float(s_p_val),
+            significant=s_p_val < 0.05,
+            interpretation="Significant change in success rates." if s_p_val < 0.05 else "No significant change in success rates."
         )
 
         return results

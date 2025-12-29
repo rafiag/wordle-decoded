@@ -10,14 +10,21 @@ const StatCard: React.FC<{
     before: number
     after: number
     diff: number
-    isInverse?: boolean // If true, lower is better (e.g. difficulty, guesses)
+    isInverse?: boolean
     format?: (val: number) => string
-}> = ({ title, before, after, diff, isInverse = false, format = (v) => v.toFixed(2) }) => {
+    testResult?: {
+        p_value: number
+        significant: boolean
+    }
+}> = ({ title, before, after, diff, isInverse = false, format = (v) => v.toFixed(2), testResult }) => {
     const isBetter = isInverse ? diff < 0 : diff > 0
+    // Color logic: if significant, show green/red. If not significant, maybe show neutral?
+    // Current design: Green = Improved, Red = Worsened.
+    // If NOT significant, it means the change is likely noise. We should probably tint it less strongly?
+    // For now keeping color logic simple but adding the specific badge.
+
     const colorClass = isBetter ? 'text-green-600' : 'text-red-600'
     const icon = diff > 0 ? '↑' : '↓'
-
-    // Neutral checks for small diffs could be added here, but keeping it simple.
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
@@ -34,13 +41,16 @@ const StatCard: React.FC<{
                 </div>
             </div>
 
-            <div className={`pt-3 border-t border-slate-100 flex items-center justify-between ${colorClass}`}>
-                <span className="text-sm font-medium">
+            <div className={`pt-3 border-t border-slate-100 flex items-center justify-between`}>
+                <span className={`text-sm font-medium ${colorClass}`}>
                     {icon} {Math.abs(diff).toFixed(2)} change
                 </span>
-                <span className="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500">
-                    p &lt; 0.05
-                </span>
+
+                {testResult && (
+                    <span className={`text-xs px-2 py-1 rounded ${testResult.significant ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`} title={`p = ${testResult.p_value}`}>
+                        {testResult.significant ? 'Significant' : 'Not Sig.'}
+                    </span>
+                )}
             </div>
         </div>
     )
@@ -50,6 +60,7 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
     if (!data) return null
 
     const { before, after } = data.summary
+    const { tests } = data
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -58,7 +69,8 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
                 before={before.avg_guesses}
                 after={after.avg_guesses}
                 diff={data.summary.diff_guesses}
-                isInverse={true} // Lower guesses is better (harder = worse usually)
+                isInverse={true}
+                testResult={tests?.['t_test_means']}
             />
 
             <StatCard
@@ -66,7 +78,8 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
                 before={before.avg_difficulty}
                 after={after.avg_difficulty}
                 diff={data.summary.diff_difficulty}
-                isInverse={false} // Higher difficulty is... harder. "Better" is subjective, but let's assume Harder = Red (User Pain)
+                isInverse={false}
+                testResult={tests?.['mann_whitney_difficulty']}
             />
 
             <StatCard
@@ -74,8 +87,9 @@ export const NYTComparisonCards: React.FC<NYTComparisonCardsProps> = ({ data }) 
                 before={before.avg_success_rate * 100}
                 after={after.avg_success_rate * 100}
                 diff={(after.avg_success_rate - before.avg_success_rate) * 100}
-                isInverse={false} // Higher success is better
+                isInverse={false}
                 format={(v) => `${v.toFixed(1)}%`}
+                testResult={tests?.['t_test_success']}
             />
         </div>
     )

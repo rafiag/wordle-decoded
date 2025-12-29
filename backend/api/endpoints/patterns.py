@@ -23,6 +23,17 @@ async def search_pattern(
     # Simply strip whitespace just in case
     pattern = pattern.strip()
     
+    # Input Validation
+    valid_chars = {'🟩', '🟨', '⬜', '⬛'}
+    if len(pattern) != 5:
+        raise HTTPException(status_code=400, detail="Pattern must be exactly 5 characters long.")
+    
+    # Check if all characters are valid emojis. 
+    # Note: Emojis can sometimes be tricky with string length, but standard Python3 str handles unicode chars well.
+    if any(char not in valid_chars for char in pattern):
+        raise HTTPException(status_code=400, detail=f"Pattern contains invalid characters. Allowed: {valid_chars}")
+
+    
     stat = db.query(PatternStatistic).filter(PatternStatistic.pattern == pattern).first()
     
     if not stat:

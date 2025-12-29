@@ -286,11 +286,22 @@ For example:
 - "Dashboard now loads in 0.8s (previously 2.1s)"
 - "Pattern search returns results in <100ms (previously 500ms)"
 
+**Completed During Phase 1 (Post-Review, Dec 29, 2025):**
+- ✅ **Pattern Input Validation:** Format validation with proper HTTP error codes (400 Bad Request)
+- ✅ **Statistical Completeness:** All NYT Effect metrics now have statistical tests (guesses, difficulty, success rate)
+- ✅ **Dynamic Significance Badges:** UI reflects actual p-values with color coding and tooltips
+
 **Deferred from Phase 1.1 & 1.2:**
 - **Backend ETL:** Sentiment analysis multiprocessing (3-4x speedup, currently acceptable at 2-5 minutes)
-- **Advanced Statistics:** Pearson correlation, p-values, R² metrics (deferred from Phase 1.9)
+- **Advanced Statistics:**
+  - Effect size (Cohen's d) for practical significance
+  - Confidence intervals for mean differences
+  - Pearson correlation and R² metrics for sentiment analysis (deferred from Phase 1.9)
 - **Enhanced Aggregation:** Weekly/Monthly views for distribution endpoints (deferred from Phase 1.4)
-- **Feature Robustness:** Input validation and comprehensive test coverage (deferred from Phase 1.3)
+- **Feature Robustness:**
+  - Bounds checking on limit parameters (e.g., max 100)
+  - Comprehensive validation tests for edge cases
+  - Integration tests for pattern endpoints
 - **Frontend:** Incremental test coverage expansion (target 80%, currently 15%)
 - **Code Quality:** Complete type hints, extract magic numbers to named constants
 - **Distribution:** Package distribution setup (setup.py/pyproject.toml)
