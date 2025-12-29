@@ -30,9 +30,12 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
      .filter(Word.avg_guess_count.isnot(None))\
      .order_by(TweetSentiment.date).all()
      
-    data = []
+    timeline_data = []
+    full_data = [] # To sort for top 5
+    
     for r in results:
-        data.append({
+        # Full object for top 5 sorting
+        full_obj = {
             "date": r.date,
             "target_word": r.target_word,
             "sentiment": r.avg_sentiment,
@@ -46,12 +49,27 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
             "difficulty": r.difficulty_rating,
             "difficulty_label": get_difficulty_label(r.difficulty_rating),
             "success_rate": r.success_rate
-        })
+        }
+        full_data.append(full_obj)
+        
+        # Use full object for timeline to ensure tooltips have all data (target_word, etc.)
+        timeline_data.append(full_obj)
+
+    # Sort for top lists
+    # Top Hated: Highest Frustration
+    top_hated = sorted(full_data, key=lambda x: x['frustration'] or -1, reverse=True)[:5]
+    
+    # Top Loved: Highest Sentiment
+    top_loved = sorted(full_data, key=lambda x: x['sentiment'] or -1, reverse=True)[:5]
         
     return APIResponse(
         status="success",
-        data={"sentiment_correlation": data},
-        meta={"count": str(len(data))}
+        data={
+            "timeline": timeline_data,
+            "top_hated": top_hated,
+            "top_loved": top_loved
+        },
+        meta={"count": str(len(timeline_data))}
     )
 
 @router.get("/overview", response_model=APIResponse)

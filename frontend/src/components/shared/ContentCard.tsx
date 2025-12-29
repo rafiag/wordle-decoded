@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 
 interface ContentCardProps {
-    header?: string;
+    header?: ReactNode;
     subheader?: string;
     tooltip?: string;
     children: ReactNode;
@@ -34,7 +34,7 @@ export default function ContentCard({
             {(header || filterButtons) && (
                 <div className="card-header">
                     <div>
-                        {header && <h3>{header}</h3>}
+                        {header && (typeof header === 'string' ? <h3>{header}</h3> : header)}
                         {subheader && <p className="card-description">{subheader}</p>}
                     </div>
                     <div className="flex items-center gap-2">

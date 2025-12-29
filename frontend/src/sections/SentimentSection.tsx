@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState, memo } from 'react';
+// @ts-ignore
 import { useQuery } from '@tanstack/react-query';
 import {
     BarChart,
@@ -44,12 +45,70 @@ const BUCKET_COLORS = {
 };
 
 const PIE_COLORS = [
-    BUCKET_COLORS.very_pos,
-    BUCKET_COLORS.pos,
-    BUCKET_COLORS.neu,
+    BUCKET_COLORS.very_neg,
     BUCKET_COLORS.neg,
-    BUCKET_COLORS.very_neg
+    BUCKET_COLORS.neu,
+    BUCKET_COLORS.pos,
+    BUCKET_COLORS.very_pos
 ];
+
+
+/**
+ * Memoized table row component to prevent unnecessary re-renders
+ */
+const TableRow = memo(({ item, idx, rankingMode, getDifficultyColor, wordleColors }: any) => {
+    const rankBadgeStyle = {
+        background: idx === 0 ? (rankingMode === 'loved' ? wordleColors.green : wordleColors.negative) : '#eee',
+        color: idx === 0 ? '#fff' : '#333',
+        padding: '2px 8px',
+        borderRadius: '12px',
+        fontWeight: 'bold' as const,
+        fontSize: '0.9em'
+    };
+
+    return (
+        <tr style={{ borderBottom: '1px solid #eee' }}>
+            <td style={{ padding: '12px' }}>
+                <span className="rank-badge" style={rankBadgeStyle}>#{idx + 1}</span>
+            </td>
+            <td style={{ padding: '12px', fontWeight: 'bold', letterSpacing: '1px' }}>{item.word}</td>
+            <td style={{ padding: '12px', textAlign: 'right', color: '#666' }}>{item.date}</td>
+            <td style={{ padding: '12px', textAlign: 'right' }}>
+                {item.difficulty ? (
+                    <span style={{
+                        color: getDifficultyColor(item.difficulty_label),
+                        fontWeight: 'bold'
+                    }}>
+                        {item.difficulty.toFixed(1)}
+                        {item.difficulty_label && <span style={{ fontSize: '0.8em', marginLeft: '5px' }}>({item.difficulty_label})</span>}
+                    </span>
+                ) : '-'}
+            </td>
+            <td style={{ padding: '12px', textAlign: 'right' }}>
+                {item.success_rate ? `${(item.success_rate * 100).toFixed(1)}%` : '-'}
+            </td>
+            <td style={{
+                padding: '12px',
+                textAlign: 'right',
+                fontWeight: rankingMode === 'hated' ? 'bold' : 'normal',
+                color: rankingMode === 'hated' ? wordleColors.negative : '#666'
+            }}>
+                {`${(item.score * 100).toFixed(1)}%`}
+            </td>
+            <td style={{
+                padding: '12px',
+                textAlign: 'right',
+                fontWeight: rankingMode === 'loved' ? 'bold' : 'normal',
+                color: rankingMode === 'loved' ? wordleColors.green : '#666'
+            }}>
+                {item.sentiment.toFixed(2)}
+            </td>
+            <td style={{ padding: '12px', textAlign: 'right' }}>{item.total_tweets.toLocaleString()}</td>
+        </tr>
+    );
+});
+
+TableRow.displayName = 'TableRow';
 
 /**
  * Custom Tooltip for the Grouped Bar Chart
@@ -92,11 +151,13 @@ export default function SentimentSection() {
         queryFn: statsApi.getSentimentData,
     });
 
+    const [rankingMode, setRankingMode] = useState<'hated' | 'loved'>('hated');
+
     // Calculate sentiment distribution from timeline data (Absolute Counts)
     const sentimentDistribution = useMemo(() => {
-        if (!sentimentData?.sentiment_correlation) return [];
+        if (!sentimentData?.timeline) return [];
 
-        const data = sentimentData.sentiment_correlation as SentimentDataPoint[];
+        const data = sentimentData.timeline as SentimentDataPoint[];
         let very_pos = 0, positive = 0, neutral = 0, negative = 0, very_neg = 0;
 
         data.forEach((d: SentimentDataPoint) => {
@@ -108,22 +169,44 @@ export default function SentimentSection() {
         });
 
         // Recharts Pie calculates percent automatically from values
+        // Order matches legend: Very Neg -> Negative -> Neutral -> Positive -> Very Pos
         return [
-            { name: 'Very Pos', value: very_pos },
-            { name: 'Positive', value: positive },
-            { name: 'Neutral', value: neutral },
-            { name: 'Negative', value: negative },
             { name: 'Very Neg', value: very_neg },
+            { name: 'Negative', value: negative },
+            { name: 'Neutral', value: neutral },
+            { name: 'Positive', value: positive },
+            { name: 'Very Pos', value: very_pos },
         ];
     }, [sentimentData]);
 
     // Calculate average frustration from data
     const avgFrustration = useMemo(() => {
-        if (!sentimentData?.sentiment_correlation) return 24;
-        const data = sentimentData.sentiment_correlation as SentimentDataPoint[];
+        if (!sentimentData?.timeline) return null;
+        const data = sentimentData.timeline as SentimentDataPoint[];
         const sum = data.reduce((sum: number, d: SentimentDataPoint) => sum + (d.frustration || 0), 0);
         return Math.round((sum / data.length) * 100);
     }, [sentimentData]);
+
+    // Calculate frustration by category
+    const frustrationByCategory = useMemo(() => {
+        if (!sentimentData?.timeline) return { Easy: 0, Medium: 0, Hard: 0 };
+        const data = sentimentData.timeline as SentimentDataPoint[];
+
+        const calcAvg = (label: string) => {
+            const subset = data.filter(d => d.difficulty_label === label);
+            if (!subset.length) return 0;
+            const sum = subset.reduce((acc, d) => acc + (d.frustration || 0), 0);
+            return Math.round((sum / subset.length) * 100);
+        };
+
+        return {
+            Easy: calcAvg('Easy'),
+            Medium: calcAvg('Medium'),
+            Hard: calcAvg('Hard')
+        };
+    }, [sentimentData]);
+
+
 
     // Helper for difficulty color
     const getDifficultyColor = (label?: string) => {
@@ -136,27 +219,37 @@ export default function SentimentSection() {
         }
     };
 
-    // Calculate Top 5 Frustrating Words dynamically
-    const topFrustratedWords = useMemo(() => {
-        if (!sentimentData?.sentiment_correlation) return [];
-        const data = sentimentData.sentiment_correlation as SentimentDataPoint[];
-
-        // Sort by frustration index descending (highest first)
-        // Filter out days with very low sample size to avoid noise? (Optional, skipping for transparency)
-        return [...data]
-            .sort((a, b) => (b.frustration || 0) - (a.frustration || 0))
-            .slice(0, 5)
-            .map(d => ({
-                word: d.target_word || 'Unknown',
-                date: d.date,
-                score: d.frustration,
-                sentiment: d.sentiment,
-                difficulty: d.difficulty,
-                difficulty_label: d.difficulty_label,
-                success_rate: d.success_rate,
-                total_tweets: (d.very_pos_count || 0) + (d.pos_count || 0) + (d.neu_count || 0) + (d.neg_count || 0) + (d.very_neg_count || 0)
-            }));
+    // Pre-calculate both lists for instant toggling (optimization)
+    const mostHated = useMemo(() => {
+        if (!sentimentData?.top_hated) return [];
+        return sentimentData.top_hated.map((d: any) => ({
+            word: d.target_word || 'Unknown',
+            date: d.date,
+            score: d.frustration,
+            sentiment: d.sentiment,
+            difficulty: d.difficulty,
+            difficulty_label: d.difficulty_label,
+            success_rate: d.success_rate,
+            total_tweets: (d.very_pos_count || 0) + (d.pos_count || 0) + (d.neu_count || 0) + (d.neg_count || 0) + (d.very_neg_count || 0)
+        }));
     }, [sentimentData]);
+
+    const mostLoved = useMemo(() => {
+        if (!sentimentData?.top_loved) return [];
+        return sentimentData.top_loved.map((d: any) => ({
+            word: d.target_word || 'Unknown',
+            date: d.date,
+            score: d.frustration,
+            sentiment: d.sentiment,
+            difficulty: d.difficulty,
+            difficulty_label: d.difficulty_label,
+            success_rate: d.success_rate,
+            total_tweets: (d.very_pos_count || 0) + (d.pos_count || 0) + (d.neu_count || 0) + (d.neg_count || 0) + (d.very_neg_count || 0)
+        }));
+    }, [sentimentData]);
+
+    // Switch between pre-calculated lists instantly
+    const topWords = rankingMode === 'hated' ? mostHated : mostLoved;
 
     return (
         <section id="sentiment" className="section section-alt">
@@ -190,6 +283,8 @@ export default function SentimentSection() {
                                             outerRadius={100}
                                             paddingAngle={2}
                                             dataKey="value"
+                                            startAngle={90}
+                                            endAngle={-270}
                                             label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
                                         >
                                             {sentimentDistribution.map((_, index) => (
@@ -203,7 +298,7 @@ export default function SentimentSection() {
                         )}
                     </ContentCard>
 
-                    <ContentCard header="Daily Sentiment Volume by Category">
+                    <ContentCard header="Daily Sentiment Distribution">
                         {isLoading ? (
                             <div className="chart-placeholder chart-placeholder-line">
                                 <div className="placeholder-content">
@@ -216,14 +311,30 @@ export default function SentimentSection() {
                                 <div style={{ height: '300px' }}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart
-                                            data={sentimentData?.sentiment_correlation || []}
+                                            data={sentimentData?.timeline || []}
                                             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                                         >
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                             <XAxis dataKey="date" hide />
                                             <YAxis />
                                             <Tooltip content={<CustomTooltip />} />
-                                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                            {/* Use itemSorter to control legend order */}
+                                            <Legend
+                                                wrapperStyle={{ paddingTop: '20px' }}
+                                                iconType="square"
+                                                itemSorter={(item: any) => {
+                                                    // Define custom order: Very Neg -> Negative -> Neutral -> Positive -> Very Pos
+                                                    const order: { [key: string]: number } = {
+                                                        'very_neg_count': 0,
+                                                        'neg_count': 1,
+                                                        'neu_count': 2,
+                                                        'pos_count': 3,
+                                                        'very_pos_count': 4
+                                                    };
+                                                    return order[item.dataKey] ?? 999;
+                                                }}
+                                            />
+                                            {/* Order matches legend: Very Neg -> Negative -> Neutral -> Positive -> Very Pos */}
                                             <Bar dataKey="very_neg_count" name="Very Negative" stackId="a" fill={BUCKET_COLORS.very_neg} />
                                             <Bar dataKey="neg_count" name="Negative" stackId="a" fill={BUCKET_COLORS.neg} />
                                             <Bar dataKey="neu_count" name="Neutral" stackId="a" fill={BUCKET_COLORS.neu} />
@@ -247,23 +358,89 @@ export default function SentimentSection() {
                 {/* Row 2: Frustration Meter & Top Table */}
                 <div className="grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
                     <ContentCard header="Frustration Index">
-                        <div className="frustration-meter" style={{ textAlign: 'center', padding: '20px' }}>
-                            <div className="meter-label" style={{ fontSize: '3rem', fontWeight: 'bold', color: wordleColors.negative }}>
-                                {avgFrustration}%
+                        {isLoading || avgFrustration === null ? (
+                            <div className="chart-placeholder" style={{ height: '300px' }}>
+                                <div className="placeholder-content">
+                                    <span className="placeholder-icon">😡</span>
+                                    <p>Loading frustration data...</p>
+                                </div>
                             </div>
-                            <div className="meter-description" style={{ fontSize: '1.2em', marginBottom: '10px' }}>
-                                Average Frustration Level
+                        ) : (
+                            <div className="frustration-meter" style={{ textAlign: 'center', padding: '20px' }}>
+                                <div className="meter-label" style={{ fontSize: '3rem', fontWeight: 'bold', color: wordleColors.negative }}>
+                                    {avgFrustration}%
+                                </div>
+                                <div className="meter-description" style={{ fontSize: '1.2em', marginBottom: '10px' }}>
+                                    Average Frustration Level
+                                </div>
+                                <div className="meter-visual" style={{ width: '100%', height: '20px', background: '#eee', borderRadius: '10px', overflow: 'hidden', margin: '15px 0' }}>
+                                    <div className="meter-fill" style={{ width: `${avgFrustration}%`, height: '100%', background: `linear-gradient(90deg, ${wordleColors.green}, ${wordleColors.negative})` }}></div>
+                                </div>
+                                <div style={{ borderTop: '1px solid #eee', paddingTop: '15px', marginBottom: '5px' }}>
+                                    <div style={{ fontSize: '0.85em', color: '#888', textAlign: 'center', marginBottom: '10px', fontWeight: '500' }}>
+                                        Breakdown by Difficulty
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontSize: '0.9em', color: '#666' }}>Easy</div>
+                                            <div style={{ fontWeight: 'bold', color: getDifficultyColor('Easy') }}>{frustrationByCategory.Easy}%</div>
+                                        </div>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontSize: '0.9em', color: '#666' }}>Medium</div>
+                                            <div style={{ fontWeight: 'bold', color: getDifficultyColor('Medium') }}>{frustrationByCategory.Medium}%</div>
+                                        </div>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <div style={{ fontSize: '0.9em', color: '#666' }}>Hard</div>
+                                            <div style={{ fontWeight: 'bold', color: getDifficultyColor('Hard') }}>{frustrationByCategory.Hard}%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="meter-subtext" style={{ fontSize: '0.9em', color: '#666', lineHeight: '1.4', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                    <strong>Calculation Note:</strong> Represents the percentage of tweets with a sentiment score below <strong>-0.1</strong>. High values indicate widespread player annoyance.
+                                </div>
                             </div>
-                            <div className="meter-visual" style={{ width: '100%', height: '20px', background: '#eee', borderRadius: '10px', overflow: 'hidden', margin: '15px 0' }}>
-                                <div className="meter-fill" style={{ width: `${avgFrustration}%`, height: '100%', background: `linear-gradient(90deg, ${wordleColors.green}, ${wordleColors.negative})` }}></div>
-                            </div>
-                            <div className="meter-subtext" style={{ fontSize: '0.9em', color: '#666', marginTop: '15px', lineHeight: '1.4' }}>
-                                <strong>Calculation Note:</strong> Represents the percentage of tweets with a sentiment score below <strong>-0.1</strong>. High values indicate widespread player annoyance.
-                            </div>
-                        </div>
+                        )}
                     </ContentCard>
 
-                    <ContentCard header="Most Frustrating Words (Top 5)">
+                    <ContentCard
+                        header={rankingMode === 'loved' ? 'Most Loved Words (Top 5)' : 'Most Hated Words (Top 5)'}
+                        filterButtons={
+                            <div className="toggle-container" style={{ display: 'flex', background: '#eee', borderRadius: '4px', padding: '2px' }}>
+                                <button
+                                    onClick={() => setRankingMode('hated')}
+                                    style={{
+                                        border: 'none',
+                                        background: rankingMode === 'hated' ? '#fff' : 'transparent',
+                                        color: rankingMode === 'hated' ? wordleColors.negative : '#666',
+                                        padding: '4px 8px',
+                                        borderRadius: '3px',
+                                        cursor: 'pointer',
+                                        fontWeight: rankingMode === 'hated' ? 'bold' : 'normal',
+                                        fontSize: '0.85em',
+                                        boxShadow: rankingMode === 'hated' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                                    }}
+                                >
+                                    Hated
+                                </button>
+                                <button
+                                    onClick={() => setRankingMode('loved')}
+                                    style={{
+                                        border: 'none',
+                                        background: rankingMode === 'loved' ? '#fff' : 'transparent',
+                                        color: rankingMode === 'loved' ? wordleColors.green : '#666',
+                                        padding: '4px 8px',
+                                        borderRadius: '3px',
+                                        cursor: 'pointer',
+                                        fontWeight: rankingMode === 'loved' ? 'bold' : 'normal',
+                                        fontSize: '0.85em',
+                                        boxShadow: rankingMode === 'loved' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                                    }}
+                                >
+                                    Loved
+                                </button>
+                            </div>
+                        }
+                    >
                         <div className="table-responsive">
                             <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95em' }}>
                                 <thead>
@@ -273,43 +450,37 @@ export default function SentimentSection() {
                                         <th style={{ padding: '12px', textAlign: 'right' }}>Date</th>
                                         <th style={{ padding: '12px', textAlign: 'right' }}>Difficulty</th>
                                         <th style={{ padding: '12px', textAlign: 'right' }}>Success Rate</th>
-                                        <th style={{ padding: '12px', textAlign: 'right' }}>Frustration Idx</th>
+                                        <th style={{
+                                            padding: '12px',
+                                            textAlign: 'right',
+                                            fontWeight: rankingMode === 'hated' ? 'bold' : 'normal',
+                                            color: rankingMode === 'hated' ? wordleColors.negative : '#333'
+                                        }}>
+                                            Frustration Index {rankingMode === 'hated' && '↓'}
+                                        </th>
+                                        <th style={{
+                                            padding: '12px',
+                                            textAlign: 'right',
+                                            fontWeight: rankingMode === 'loved' ? 'bold' : 'normal',
+                                            color: rankingMode === 'loved' ? wordleColors.green : '#333'
+                                        }}>
+                                            Sentiment {rankingMode === 'loved' && '↓'}
+                                        </th>
                                         <th style={{ padding: '12px', textAlign: 'right' }}>Total Tweets</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {topFrustratedWords.map((item, idx) => (
-                                        <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                                            <td style={{ padding: '12px' }}>
-                                                <span className="rank-badge" style={{
-                                                    background: idx === 0 ? wordleColors.negative : '#eee',
-                                                    color: idx === 0 ? '#fff' : '#333',
-                                                    padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.9em'
-                                                }}>#{idx + 1}</span>
-                                            </td>
-                                            <td style={{ padding: '12px', fontWeight: 'bold', letterSpacing: '1px' }}>{item.word}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right', color: '#666' }}>{item.date}</td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                {item.difficulty ? (
-                                                    <span style={{
-                                                        color: getDifficultyColor(item.difficulty_label),
-                                                        fontWeight: 'bold'
-                                                    }}>
-                                                        {item.difficulty.toFixed(1)}
-                                                        {item.difficulty_label && <span style={{ fontSize: '0.8em', marginLeft: '5px' }}>({item.difficulty_label})</span>}
-                                                    </span>
-                                                ) : '-'}
-                                            </td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>
-                                                {item.success_rate ? `${(item.success_rate * 100).toFixed(1)}%` : '-'}
-                                            </td>
-                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: wordleColors.negative }}>
-                                                {(item.score * 100).toFixed(1)}%
-                                            </td>
-                                            <td style={{ padding: '12px', textAlign: 'right' }}>{item.total_tweets.toLocaleString()}</td>
-                                        </tr>
+                                <tbody style={{ transition: 'opacity 0.15s ease-in-out' }}>
+                                    {topWords.map((item: any, idx: number) => (
+                                        <TableRow
+                                            key={`${rankingMode}-${item.word}`}
+                                            item={item}
+                                            idx={idx}
+                                            rankingMode={rankingMode}
+                                            getDifficultyColor={getDifficultyColor}
+                                            wordleColors={wordleColors}
+                                        />
                                     ))}
-                                    {topFrustratedWords.length === 0 && (
+                                    {topWords.length === 0 && (
                                         <tr>
                                             <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>No data available</td>
                                         </tr>

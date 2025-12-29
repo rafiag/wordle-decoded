@@ -196,14 +196,15 @@ Some words aren't hard because they're obscure; they're hard because they belong
 Combines tweet sentiment analysis with puzzle performance to reveal the emotional impact of Wordle puzzles on the community.
 
 **What You'll See:**
-- **Sentiment Distribution Pie Chart:** Breakdown of all tweets into 5 sentiment buckets (Very Positive, Positive, Neutral, Negative, Very Negative).
-- **Daily Sentiment Volume (Grouped Bar Chart):** Daily trends showing tweet volume per sentiment category, with tooltips revealing the day's solution word.
-- **Frustration Index Meter:** A visual gauge showing the average percentage of tweets with sentiment below **-0.1**.
-- **Most Frustrating Words Table (Top 5):** A dynamic table listing the top 5 most frustration-inducing words, including:
+- **Sentiment Distribution Pie Chart:** Breakdown of tweets into 5 sentiment buckets (Very Negative to Very Positive).
+- **Daily Sentiment Distribution (Grouped Bar Chart):** Daily trends showing tweet volume per sentiment category (Very Negative to Very Positive), with tooltips revealing the solution.
+- **Frustration Index:** A visual gauge showing average frustration, with **category breakdown** (Easy vs. Medium vs. Hard).
+- **Dynamic Word Rankings:** Toggle between **Most Frustrating** and **Most Loved** words (Top 5), displaying:
     - Word and Date
-    - **Difficulty** (color-coded: Green=Easy, Yellow=Medium, Red=Hard)
+    - **Difficulty** (color-coded)
     - **Success Rate**
-    - Frustration Index and Total Tweets
+    - Relevant Metric (Frustration Index or Sentiment Score)
+    - Total Tweets
 - **Documentation:** [Dashboard & Visualization Architecture](DASHBOARD.md), [API Reference](API-REFERENCE.md)
 
 **Why It Matters:**
