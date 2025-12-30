@@ -90,7 +90,7 @@ export const statsApi = {
   // Distributions
   getDistributions: async (limit: number = 365) => {
     const response = await apiClient.get(`/distributions?limit=${limit}`)
-    return response.data.data
+    return response.data.data.distributions
   },
 
   getAggregateDistribution: async () => {
@@ -106,6 +106,11 @@ export const statsApi = {
 
   getHardestWords: async (limit: number = 10) => {
     const response = await apiClient.get(`/words?sort=avg_guess_count&order=desc&limit=${limit}`)
+    return response.data.data.words
+  },
+
+  getEasiestWords: async (limit: number = 10) => {
+    const response = await apiClient.get(`/words?sort=avg_guess_count&order=asc&limit=${limit}`)
     return response.data.data.words
   },
 

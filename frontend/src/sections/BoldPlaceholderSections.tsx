@@ -11,31 +11,7 @@ const Placeholder = ({ title, color }: { title: string; color: string }) => (
     </div>
 );
 
-export const BoldDifficultySection = () => (
-    <section id="difficulty" className="mb-20 scroll-mt-20">
-        <div className="section-header">
-            <div className="section-eyebrow">Feature 1</div>
-            <h2 className="section-title">The Difficulty Timeline</h2>
-            <p className="section-description">
-                How word rarity correlates with player performance over time. Watch the difficulty curve evolve across 500+ puzzles.
-            </p>
-        </div>
-        <Placeholder title="Word Difficulty Trends" color="var(--accent-cyan)" />
-    </section>
-);
-
-export const BoldDistributionSection = () => (
-    <section id="guesses" className="mb-20 scroll-mt-20">
-        <div className="section-header">
-            <div className="section-eyebrow">Feature 2</div>
-            <h2 className="section-title">How America Guesses</h2>
-            <p className="section-description">
-                The distribution of guess counts reveals patterns in player behavior. Most solve in 4 guesses—how do you stack up?
-            </p>
-        </div>
-        <Placeholder title="Guess Breakdown" color="var(--accent-orange)" />
-    </section>
-);
+// Difficulty and Distribution replaced by BoldDifficultySection.tsx
 
 export const BoldPatternsSection = () => (
     <section id="pattern" className="mb-20 scroll-mt-20">
