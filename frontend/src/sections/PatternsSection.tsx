@@ -94,7 +94,7 @@ export default function PatternsSection() {
                                 <div className="pattern-metric">
                                     <span className="metric-label">Success Rate</span>
                                     <span className="metric-value">
-                                        {hasResults && patternStats ? `${(patternStats.success_rate * 100).toFixed(1)}%` : '--'}
+                                        {hasResults && patternStats ? `${(patternStats.success_rate * 100).toFixed(2)}%` : '--'}
                                     </span>
                                 </div>
                                 <div className="pattern-metric">
@@ -117,7 +117,7 @@ export default function PatternsSection() {
                                     nextSteps.map((step, index) => (
                                         <div key={index} className="flow-item">
                                             <span className="flow-pattern">{step.next_pattern}</span>
-                                            <span className="flow-percentage">{(step.probability * 100).toFixed(1)}%</span>
+                                            <span className="flow-percentage">{(step.probability * 100).toFixed(2)}%</span>
                                         </div>
                                     ))
                                 ) : (

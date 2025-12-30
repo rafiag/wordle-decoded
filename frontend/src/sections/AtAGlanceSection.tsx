@@ -67,7 +67,7 @@ export default function AtAGlanceSection() {
                             <p className="text-2xl font-bold text-gray-900 mb-1">{stats.hardest_word.word}</p>
                             <p className="text-sm text-gray-700">Difficulty {stats.hardest_word.difficulty}/10</p>
                             <p className="text-xs text-gray-500 mt-2">
-                                {stats.hardest_word.success_rate}% success • {stats.hardest_word.avg_guesses} avg guesses
+                                {stats.hardest_word.success_rate.toFixed(2)}% success • {stats.hardest_word.avg_guesses.toFixed(2)} avg guesses
                             </p>
                         </div>
                     </div>
@@ -80,9 +80,9 @@ export default function AtAGlanceSection() {
                         <div className="flex-1">
                             <h3 className="text-sm text-gray-600 mb-1">Easiest Day</h3>
                             <p className="text-2xl font-bold text-gray-900 mb-1">{stats.easiest_word.word}</p>
-                            <p className="text-sm text-gray-700">{stats.easiest_word.success_rate}% success rate</p>
+                            <p className="text-sm text-gray-700">{stats.easiest_word.success_rate.toFixed(2)}% success rate</p>
                             <p className="text-xs text-gray-500 mt-2">
-                                {stats.easiest_word.avg_guesses} avg guesses • Difficulty {stats.easiest_word.difficulty}/10
+                                {stats.easiest_word.avg_guesses.toFixed(2)} avg guesses • Difficulty {stats.easiest_word.difficulty}/10
                             </p>
                         </div>
                     </div>
@@ -99,7 +99,7 @@ export default function AtAGlanceSection() {
                             </p>
                             <p className="text-sm text-gray-700">{stats.most_viral.word}</p>
                             <p className="text-xs text-gray-500 mt-2">
-                                {stats.most_viral.tweet_volume.toLocaleString()} tweets • {stats.most_viral.percent_increase}% above average
+                                {stats.most_viral.tweet_volume.toLocaleString()} tweets • {stats.most_viral.percent_increase.toFixed(2)}% above average
                             </p>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ export default function AtAGlanceSection() {
                         <div className="text-5xl flex-shrink-0">📊</div>
                         <div className="flex-1">
                             <h3 className="text-sm text-gray-600 mb-1">Average Guesses</h3>
-                            <p className="text-2xl font-bold text-gray-900 mb-1">{stats.avg_guesses}</p>
+                            <p className="text-2xl font-bold text-gray-900 mb-1">{stats.avg_guesses.toFixed(2)}</p>
                             <p className="text-sm text-gray-700">Across all puzzles</p>
                             <p className="text-xs text-gray-500 mt-2">How many tries does the average player need?</p>
                         </div>
@@ -142,7 +142,7 @@ export default function AtAGlanceSection() {
                         <div className="flex-1">
                             <h3 className="text-sm text-gray-600 mb-1">Community Mood</h3>
                             <p className="text-2xl font-bold text-gray-900 mb-1">{stats.community_mood.mood_label}</p>
-                            <p className="text-sm text-gray-700">{stats.community_mood.positive_pct}% positive tweets</p>
+                            <p className="text-sm text-gray-700">{stats.community_mood.positive_pct.toFixed(2)}% positive tweets</p>
                             <p className="text-xs text-gray-500 mt-2">
                                 Average sentiment: {stats.community_mood.avg_sentiment > 0 ? '+' : ''}{stats.community_mood.avg_sentiment.toFixed(2)}
                             </p>

@@ -102,7 +102,7 @@ const TableRow = memo(({ item, idx, rankingMode, getDifficultyColor, wordleColor
                 ) : '-'}
             </td>
             <td style={{ padding: '12px', textAlign: 'right' }}>
-                {item.success_rate ? `${(item.success_rate * 100).toFixed(1)}%` : '-'}
+                {item.success_rate ? `${(item.success_rate * 100).toFixed(2)}%` : '-'}
             </td>
             <td style={{
                 padding: '12px',
@@ -110,7 +110,7 @@ const TableRow = memo(({ item, idx, rankingMode, getDifficultyColor, wordleColor
                 fontWeight: rankingMode === 'hated' ? 'bold' : 'normal',
                 color: rankingMode === 'hated' ? wordleColors.negative : '#666'
             }}>
-                {`${(item.score * 100).toFixed(1)}%`}
+                {`${(item.score * 100).toFixed(2)}%`}
             </td>
             <td style={{
                 padding: '12px',
@@ -201,7 +201,7 @@ export default function SentimentSection() {
         if (!sentimentData?.timeline) return null;
         const data = sentimentData.timeline as SentimentDataPoint[];
         const sum = data.reduce((sum: number, d: SentimentDataPoint) => sum + (d.frustration || 0), 0);
-        return Math.round((sum / data.length) * 100);
+        return ((sum / data.length) * 100).toFixed(2);
     }, [sentimentData]);
 
     // Calculate frustration by category
@@ -211,9 +211,9 @@ export default function SentimentSection() {
 
         const calcAvg = (label: string) => {
             const subset = data.filter(d => d.difficulty_label === label);
-            if (!subset.length) return 0;
+            if (!subset.length) return "0.00";
             const sum = subset.reduce((acc, d) => acc + (d.frustration || 0), 0);
-            return Math.round((sum / subset.length) * 100);
+            return ((sum / subset.length) * 100).toFixed(2);
         };
 
         return {
@@ -302,7 +302,7 @@ export default function SentimentSection() {
                                             dataKey="value"
                                             startAngle={90}
                                             endAngle={-270}
-                                            label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                                            label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(2)}%`}
                                         >
                                             {sentimentDistribution.map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />

@@ -132,3 +132,43 @@ class PatternTransition(Base):
     source_pattern = Column(String, index=True) 
     next_pattern = Column(String)
     count = Column(Integer, default=0)
+
+class GlobalStats(Base):
+    """
+    Stores daily aggregated statistics for the dashboard Hero/At-a-Glance section.
+    Computed via ETL to ensure O(1) API performance.
+    """
+    __tablename__ = "global_stats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(String, index=True) # Date of calculation (YYYY-MM-DD)
+    
+    # Overview Metrics
+    total_games = Column(Integer, default=0)
+    avg_guesses = Column(Float, default=0.0)
+    success_rate = Column(Float, default=0.0)
+    
+    # Key Highlights (Snapshots)
+    hardest_word = Column(String)
+    hardest_word_date = Column(String)
+    hardest_word_avg_guesses = Column(Float)
+    hardest_word_success_rate = Column(Float)
+    
+    easiest_word = Column(String)
+    easiest_word_date = Column(String)
+    easiest_word_avg_guesses = Column(Float)
+    easiest_word_success_rate = Column(Float)
+    
+    most_viral_word = Column(String)
+    most_viral_date = Column(String)
+    most_viral_tweets = Column(Integer)
+    
+    # Community & Trends
+    community_sentiment = Column(Float)
+    mood_label = Column(String)
+    positive_pct = Column(Float)
+    
+    nyt_effect_delta = Column(Float)
+    nyt_effect_direction = Column(String)
+    
+    created_at = Column(DateTime, server_default=func.now())

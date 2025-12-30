@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from backend.db.database import SessionLocal, engine, Base
-from backend.db.schema import Word, Distribution, TweetSentiment, PatternStatistic, PatternTransition, Outlier, TrapAnalysis
+from backend.db.schema import Word, Distribution, TweetSentiment, PatternStatistic, PatternTransition, Outlier, TrapAnalysis, GlobalStats
 import pandas as pd
 import logging
 import traceback
@@ -220,6 +220,41 @@ def load_trap_data(df: pd.DataFrame):
         
     except Exception as e:
         logger.error(f"Error loading trap data: {e}")
+        logger.debug(traceback.format_exc())
+        db.rollback()
+    finally:
+        db.close()
+
+def load_global_stats(stats_dict: dict):
+    """
+    Loads aggregation result into GlobalStats table.
+    Strategy: Append new record for today (or update if exists for same date).
+    """
+    logger.info("load_global_stats called.")
+    if not stats_dict:
+        return
+
+    db: Session = SessionLocal()
+    try:
+        # Check if record for this date exists
+        date_str = stats_dict.get('date')
+        existing = db.query(GlobalStats).filter(GlobalStats.date == date_str).first()
+        
+        if existing:
+            logger.info(f"Updating GlobalStats for {date_str}...")
+            for key, value in stats_dict.items():
+                if hasattr(existing, key):
+                    setattr(existing, key, value)
+        else:
+            logger.info(f"Creating new GlobalStats for {date_str}...")
+            new_record = GlobalStats(**stats_dict)
+            db.add(new_record)
+            
+        db.commit()
+        logger.info("Global stats load complete.")
+        
+    except Exception as e:
+        logger.error(f"Error loading global stats: {e}")
         logger.debug(traceback.format_exc())
         db.rollback()
     finally:

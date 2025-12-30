@@ -126,4 +126,5 @@ export interface AtAGlanceStats {
     positive_pct: number
     mood_label: string
   }
+  success_rate: number
 }

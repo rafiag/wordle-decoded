@@ -66,10 +66,10 @@ const TableRow = memo(({ item, idx }: any) => (
             {item.difficulty?.toFixed(1)}
         </td>
         <td className="p-3 text-right font-mono text-[var(--text-secondary)]">
-            {(item.success_rate * 100).toFixed(0)}%
+            {(item.success_rate * 100).toFixed(2)}%
         </td>
         <td className="p-3 text-right font-bold" style={{ color: 'var(--accent-coral)' }}>
-            {(item.score * 100).toFixed(1)}%
+            {(item.score * 100).toFixed(2)}%
         </td>
         <td className="p-3 text-right text-[var(--text-secondary)]">
             {(item.total_tweets).toLocaleString()}
@@ -109,7 +109,7 @@ export default function BoldSentimentSection() {
         if (!sentimentData?.timeline) return 0;
         const data = sentimentData.timeline;
         const sum = data.reduce((sum: number, d: any) => sum + (d.frustration || 0), 0);
-        return Math.round((sum / data.length) * 100);
+        return ((sum / data.length) * 100).toFixed(2);
     }, [sentimentData]);
 
     // Format top lists

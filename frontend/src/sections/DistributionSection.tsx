@@ -52,7 +52,7 @@ export default function DistributionSection() {
     // Calculate success rate per point (1 - failed rate)
     const successRateData = timelineData.map((point: DifficultyPoint) => ({
         date: point.date,
-        successRate: point.avg_guesses <= 6 ? Math.round((1 - (point.avg_guesses - 3) / 4) * 100) : 50,
+        successRate: point.avg_guesses <= 6 ? parseFloat(((1 - (point.avg_guesses - 3) / 4) * 100).toFixed(2)) : 50.00,
     }));
 
     return (

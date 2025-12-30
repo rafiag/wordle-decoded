@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Dict, Any, List
 from backend.db.database import get_db
-from backend.db.schema import Distribution, TweetSentiment, Outlier, Word
+from backend.db.schema import Distribution, TweetSentiment, Outlier, Word, GlobalStats
 from backend.api.schemas import APIResponse, DashboardInitResponse
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -135,6 +135,46 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
     - NYT effect (delta in avg guesses before/after acquisition)
     - Community mood (sentiment distribution)
     """
+    # 0. Check Global Stats (Optimized)
+    latest = db.query(GlobalStats).order_by(GlobalStats.date.desc()).first()
+    if latest:
+        return APIResponse(
+            status="success",
+            data={
+                "hardest_word": {
+                    "word": latest.hardest_word,
+                    "date": latest.hardest_word_date,
+                    "avg_guesses": latest.hardest_word_avg_guesses,
+                    "success_rate": latest.hardest_word_success_rate,
+                    "difficulty": 0 # Not stored in global stats yet, acceptable/can be added later or mocked
+                },
+                "easiest_word": {
+                    "word": latest.easiest_word,
+                    "date": latest.easiest_word_date,
+                    "avg_guesses": latest.easiest_word_avg_guesses,
+                    "success_rate": latest.easiest_word_success_rate,
+                    "difficulty": 0
+                },
+                "most_viral": {
+                    "word": latest.most_viral_word,
+                    "date": latest.most_viral_date,
+                    "tweet_volume": latest.most_viral_tweets,
+                    "percent_increase": 0 # Not stored, minor UI detail ideally computed in ETL
+                },
+                "avg_guesses": latest.avg_guesses,
+                "success_rate": latest.success_rate,
+                "nyt_effect": {
+                    "delta": latest.nyt_effect_delta,
+                    "direction": latest.nyt_effect_direction
+                },
+                "community_mood": {
+                    "avg_sentiment": latest.community_sentiment,
+                    "positive_pct": latest.positive_pct,
+                    "mood_label": latest.mood_label
+                }
+            }
+        )
+
     NYT_TRANSITION_DATE = "2022-02-10"
     
     # 1. Hardest word ever
@@ -247,6 +287,25 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
         "positive_pct": round(positive_pct, 1),
         "mood_label": mood_label
     }
+
+    # 7. Overall Success Rate
+    dist_res = db.query(
+        func.sum(Distribution.guess_1).label('g1'),
+        func.sum(Distribution.guess_2).label('g2'),
+        func.sum(Distribution.guess_3).label('g3'),
+        func.sum(Distribution.guess_4).label('g4'),
+        func.sum(Distribution.guess_5).label('g5'),
+        func.sum(Distribution.guess_6).label('g6'),
+        func.sum(Distribution.failed).label('fail')
+    ).first()
+    
+    success_rate = 0.0
+    if dist_res:
+        total_attempts = (dist_res.g1 or 0) + (dist_res.g2 or 0) + (dist_res.g3 or 0) + \
+                        (dist_res.g4 or 0) + (dist_res.g5 or 0) + (dist_res.g6 or 0) + (dist_res.fail or 0)
+        if total_attempts > 0:
+            success_count = total_attempts - (dist_res.fail or 0)
+            success_rate = (success_count / total_attempts) * 100
     
     return APIResponse(
         status="success",
@@ -256,6 +315,7 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
             "most_viral": most_viral_moment,
             "avg_guesses": round(avg_guesses_overall, 2),
             "nyt_effect": nyt_effect,
-            "community_mood": community_mood
+            "community_mood": community_mood,
+            "success_rate": round(success_rate, 1)
         }
     )

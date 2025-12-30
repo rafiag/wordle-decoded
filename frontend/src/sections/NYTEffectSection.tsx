@@ -69,7 +69,7 @@ export default function NYTEffectSection() {
                             <div className="comparison-stat">
                                 <span className="stat-label">Success Rate</span>
                                 <div className="stat-value-group">
-                                    <span className="stat-value">95.8%</span>
+                                    <span className="stat-value">95.80%</span>
                                     <span className="stat-significance stat-placeholder">&nbsp;</span>
                                 </div>
                             </div>
@@ -110,7 +110,7 @@ export default function NYTEffectSection() {
                             <div className="comparison-stat">
                                 <span className="stat-label">Success Rate</span>
                                 <div className="stat-value-group">
-                                    <span className="stat-value">96.4%</span>
+                                    <span className="stat-value">96.40%</span>
                                     <span className="stat-significance">✓ Significant change</span>
                                 </div>
                             </div>

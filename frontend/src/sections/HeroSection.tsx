@@ -80,21 +80,21 @@ export default function HeroSection() {
                         <StatCard
                             icon="😊"
                             value={data?.community_mood.mood_label || '---'}
-                            label={data ? `Community Mood (${data.community_mood.positive_pct}% positive)` : 'Community Mood'}
+                            label={data ? `Community Mood (${data.community_mood.positive_pct.toFixed(2)}% positive)` : 'Community Mood'}
                             variant="green"
                             isLoading={isLoading}
                         />
                         <StatCard
                             icon="🎉"
                             value={data?.easiest_word.word || '---'}
-                            label={data ? `Easiest Word (${data.easiest_word.success_rate}% success)` : 'Easiest Word'}
+                            label={data ? `Easiest Word (${data.easiest_word.avg_guesses.toFixed(2)} guesses, ${data.easiest_word.success_rate.toFixed(2)}% success)` : 'Easiest Word'}
                             variant="green"
                             isLoading={isLoading}
                         />
                         <StatCard
                             icon="🔥"
                             value={data?.hardest_word.word || '---'}
-                            label={data ? `Hardest Word (${data.hardest_word.avg_guesses} guesses, ${data.hardest_word.success_rate}% success)` : 'Hardest Word'}
+                            label={data ? `Hardest Word (${data.hardest_word.avg_guesses.toFixed(2)} guesses, ${data.hardest_word.success_rate.toFixed(2)}% success)` : 'Hardest Word'}
                             variant="red"
                             isLoading={isLoading}
                         />
