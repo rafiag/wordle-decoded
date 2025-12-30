@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import MainLayout from './components/layout/MainLayout'
 import HomePage from './pages/HomePage'
+import BoldLayout from './components/layout/BoldLayout'
+import BoldDashboard from './pages/BoldDashboard'
 import BasicsPage from './pages/BasicsPage'
 import DeepDivePage from './pages/DeepDivePage'
 import InteractivePage from './pages/InteractivePage'
@@ -36,6 +38,11 @@ function App() {
             <Route path="/basics" element={<BasicsPage />} />
             <Route path="/deep-dive" element={<DeepDivePage />} />
             <Route path="/interactive" element={<InteractivePage />} />
+          </Route>
+
+          {/* V2 Migration Route */}
+          <Route path="/v2" element={<BoldLayout />}>
+            <Route index element={<BoldDashboard />} />
           </Route>
         </Routes>
       </BrowserRouter>
