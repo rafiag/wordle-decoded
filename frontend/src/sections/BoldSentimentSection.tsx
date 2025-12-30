@@ -12,8 +12,10 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
+    LegendPayload,
 } from 'recharts';
 import { statsApi } from '../services/api';
+import { SentimentResponse, SentimentTimelinePoint } from '../types';
 
 // V2 Theme Colors
 const V2_COLORS = {
@@ -35,7 +37,7 @@ const PIE_COLORS = [
 // Dark Theme Tooltip
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-        const data = payload[0].payload;
+        const data = payload[0].payload as SentimentTimelinePoint;
         return (
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-3 rounded shadow-lg">
                 <p className="font-bold text-[var(--text-primary)] mb-1">{label}</p>
@@ -57,10 +59,34 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
+const PieTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        // Percentage calculation: (value / total) * 100
+        // We expect 'total' to be injected into the data object
+        const percentage = data.total ? ((data.value / data.total) * 100).toFixed(2) : '0.00';
+
+        return (
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-3 rounded shadow-lg">
+                <p className="font-bold text-[var(--text-primary)] mb-1">{data.name}</p>
+                <div className="text-sm space-y-1">
+                    <div className="text-[var(--text-secondary)]">
+                        Count: <span className="text-[var(--text-primary)] font-mono ml-1">{data.value.toLocaleString()}</span>
+                    </div>
+                    <div className="text-[var(--text-secondary)]">
+                        Proportion: <span className="text-[var(--accent-cyan)] font-mono ml-1">{percentage}%</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
+
 const TableRow = memo(({ item, idx }: any) => (
     <tr className="border-b border-[var(--border-color)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
         <td className="p-3 text-[var(--accent-cyan)] font-mono">#{idx + 1}</td>
-        <td className="p-3 font-bold">{item.word}</td>
+        <td className="p-3 font-bold">{item.target_word || item.word}</td>
         <td className="p-3 text-right text-[var(--text-secondary)] font-mono text-sm">{item.date}</td>
         <td className="p-3 text-right font-mono" style={{ color: item.difficulty > 5 ? 'var(--accent-coral)' : 'var(--accent-lime)' }}>
             {item.difficulty?.toFixed(1)}
@@ -69,7 +95,10 @@ const TableRow = memo(({ item, idx }: any) => (
             {(item.success_rate * 100).toFixed(2)}%
         </td>
         <td className="p-3 text-right font-bold" style={{ color: 'var(--accent-coral)' }}>
-            {(item.score * 100).toFixed(2)}%
+            {(item.frustration * 100).toFixed(2)}%
+        </td>
+        <td className="p-3 text-right font-bold" style={{ color: 'var(--accent-lime)' }}>
+            {(item.sentiment).toFixed(2)}
         </td>
         <td className="p-3 text-right text-[var(--text-secondary)]">
             {(item.total_tweets).toLocaleString()}
@@ -78,52 +107,44 @@ const TableRow = memo(({ item, idx }: any) => (
 ));
 
 export default function BoldSentimentSection() {
-    const { data: sentimentData, isLoading } = useQuery({
+    const { data: sentimentData, isLoading } = useQuery<SentimentResponse>({
         queryKey: ['sentimentData'],
         queryFn: statsApi.getSentimentData,
     });
 
     const [rankingMode, setRankingMode] = useState<'hated' | 'loved'>('hated');
 
+    // Use pre-calculated aggregates from backend but FORCE proper order
     const sentimentDistribution = useMemo(() => {
-        if (!sentimentData?.timeline) return [];
-        const data = sentimentData.timeline;
-        let very_pos = 0, positive = 0, neutral = 0, negative = 0, very_neg = 0;
-        data.forEach((d: any) => {
-            very_pos += (d.very_pos_count || 0);
-            positive += (d.pos_count || 0);
-            neutral += (d.neu_count || 0);
-            negative += (d.neg_count || 0);
-            very_neg += (d.very_neg_count || 0);
-        });
+        if (!sentimentData?.aggregates?.distribution) return [];
+
+        // Convert to map for easy lookup
+        const distMap = new Map<string, number>(sentimentData.aggregates.distribution.map((d: { name: string; value: number }) => [d.name, d.value]));
+
+        // Calculate total for percentages
+        const total = (distMap.get('Very Neg') || 0) +
+            (distMap.get('Negative') || 0) +
+            (distMap.get('Neutral') || 0) +
+            (distMap.get('Positive') || 0) +
+            (distMap.get('Very Pos') || 0);
+
+        // Return strictly ordered array: Very Neg -> Negative -> Neutral -> Positive -> Very Pos
         return [
-            { name: 'Very Neg', value: very_neg },
-            { name: 'Negative', value: negative },
-            { name: 'Neutral', value: neutral },
-            { name: 'Positive', value: positive },
-            { name: 'Very Pos', value: very_pos },
+            { name: 'Very Neg', value: distMap.get('Very Neg') || 0, total },
+            { name: 'Negative', value: distMap.get('Negative') || 0, total },
+            { name: 'Neutral', value: distMap.get('Neutral') || 0, total },
+            { name: 'Positive', value: distMap.get('Positive') || 0, total },
+            { name: 'Very Pos', value: distMap.get('Very Pos') || 0, total },
         ];
     }, [sentimentData]);
 
-    const avgFrustration = useMemo(() => {
-        if (!sentimentData?.timeline) return 0;
-        const data = sentimentData.timeline;
-        const sum = data.reduce((sum: number, d: any) => sum + (d.frustration || 0), 0);
-        return ((sum / data.length) * 100).toFixed(2);
-    }, [sentimentData]);
+    const avgFrustration = sentimentData?.aggregates?.avg_frustration || 0;
+    const frustrationBreakdown = sentimentData?.aggregates?.frustration_by_difficulty || { Easy: 0, Medium: 0, Hard: 0 };
 
     // Format top lists
     const topWords = useMemo(() => {
         if (!sentimentData) return [];
-        const source = (rankingMode === 'hated' ? sentimentData.top_hated : sentimentData.top_loved) || [];
-        return source.map((d: any) => ({
-            word: d.target_word || 'Unknown',
-            date: d.date,
-            score: d.frustration,
-            difficulty: d.difficulty,
-            success_rate: d.success_rate,
-            total_tweets: d.sample_size || 0
-        }));
+        return rankingMode === 'hated' ? sentimentData.top_hated : sentimentData.top_loved;
     }, [sentimentData, rankingMode]);
 
     if (isLoading) return <div className="py-20 text-center text-[var(--text-secondary)]">Loading sentiment data...</div>;
@@ -138,9 +159,9 @@ export default function BoldSentimentSection() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', marginBottom: '32px' }}>
                 {/* Distribution Chart */}
-                <div className="card h-80">
+                <div className="card h-96">
                     <h3 className="text-lg font-bold mb-4">Sentiment Distribution</h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -149,59 +170,117 @@ export default function BoldSentimentSection() {
                                 cx="50%"
                                 cy="50%"
                                 innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={5}
+                                outerRadius={100}
+                                paddingAngle={2}
                                 dataKey="value"
+                                startAngle={90}
+                                endAngle={-270}
                             >
                                 {sentimentDistribution.map((_, index) => (
                                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index]} stroke="rgba(0,0,0,0.5)" />
                                 ))}
                             </Pie>
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend />
+                            <Tooltip content={<PieTooltip />} />
+                            <Legend
+                                iconType="circle"
+                                wrapperStyle={{ paddingTop: '20px', paddingBottom: '20px' }}
+                                formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: '0.9em' }}>{value}</span>}
+                                itemSorter={(item: any) => {
+                                    const order: { [key: string]: number } = {
+                                        'Very Neg': 0, 'Negative': 1, 'Neutral': 2, 'Positive': 3, 'Very Pos': 4
+                                    };
+                                    return order[item.value] ?? 999;
+                                }}
+                            />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
 
                 {/* Timeline Chart */}
-                <div className="card h-80 lg:col-span-2">
-                    <h3 className="text-lg font-bold mb-4">Daily Sentiment Trend</h3>
-                    <ResponsiveContainer width="100%" height="80%">
-                        <BarChart data={sentimentData?.timeline || []}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" opacity={0.3} vertical={false} />
-                            <XAxis dataKey="date" hide />
-                            <YAxis stroke="var(--text-muted)" fontSize={12} />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Bar dataKey="very_neg_count" stackId="a" fill={V2_COLORS.very_neg} />
-                            <Bar dataKey="neg_count" stackId="a" fill={V2_COLORS.neg} />
-                            <Bar dataKey="neu_count" stackId="a" fill={V2_COLORS.neu} />
-                            <Bar dataKey="pos_count" stackId="a" fill={V2_COLORS.pos} />
-                            <Bar dataKey="very_pos_count" stackId="a" fill={V2_COLORS.very_pos} />
-                        </BarChart>
-                    </ResponsiveContainer>
+                <div className="card h-96 flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 className="text-lg font-bold">Daily Sentiment Trend</h3>
+                            <p className="text-xs text-[var(--text-secondary)] mt-1">Showing last 90 days of activity</p>
+                        </div>
+                    </div>
+
+                    <div className="flex-grow">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={sentimentData?.timeline || []}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" opacity={0.3} vertical={false} />
+                                <XAxis dataKey="date" hide />
+                                <YAxis stroke="var(--text-muted)" fontSize={12} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Legend
+                                    iconType="square"
+                                    wrapperStyle={{ paddingTop: '20px' }}
+                                    formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: '0.9em' }}>{value}</span>}
+                                    itemSorter={(item: LegendPayload) => {
+                                        const key = String(item.dataKey || '');
+                                        const order: { [key: string]: number } = {
+                                            'very_neg_count': 0, 'neg_count': 1, 'neu_count': 2, 'pos_count': 3, 'very_pos_count': 4
+                                        };
+                                        return order[key] ?? 999;
+                                    }}
+                                />
+                                {/* Ordered from Very Neg to Very Pos */}
+                                <Bar name="Very Neg" dataKey="very_neg_count" stackId="a" fill={V2_COLORS.very_neg} />
+                                <Bar name="Negative" dataKey="neg_count" stackId="a" fill={V2_COLORS.neg} />
+                                <Bar name="Neutral" dataKey="neu_count" stackId="a" fill={V2_COLORS.neu} />
+                                <Bar name="Positive" dataKey="pos_count" stackId="a" fill={V2_COLORS.pos} />
+                                <Bar name="Very Pos" dataKey="very_pos_count" stackId="a" fill={V2_COLORS.very_pos} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div className="mt-4 p-3 bg-[rgba(255,255,255,0.03)] rounded flex gap-3 text-sm text-[var(--text-secondary)] border border-[var(--border-color)]">
+                        <span className="text-lg">💡</span>
+                        <span>
+                            "Very Negative" spikes <span style={{ color: V2_COLORS.very_neg }}>(Pink)</span> often correlate with trap words or hard mode failures!
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
                 {/* Frustration Meter */}
-                <div className="card text-center flex flex-col justify-center">
-                    <h3 className="text-lg font-bold mb-6">Frustration Index</h3>
-                    <div className="text-6xl font-bold font-mono text-[var(--accent-coral)] mb-2">
+                <div className="card text-center flex flex-col justify-center py-8">
+                    <h3 className="text-lg font-bold mb-8">Frustration Index</h3>
+                    <div className="text-6xl font-bold font-mono text-[var(--accent-coral)]">
                         {avgFrustration}%
                     </div>
-                    <p className="text-sm text-[var(--text-secondary)] max-w-xs mx-auto">
+                    <p className="text-sm text-[var(--text-secondary)] max-w-xs mx-auto mb-[10px]">
                         Percentage of tweets expressing significant annoyance or failure.
                     </p>
-                    <div className="mt-8 h-4 w-full bg-[var(--bg-primary)] rounded-full overflow-hidden">
+                    <div className="h-[20px] w-full bg-[var(--bg-secondary)] rounded-full overflow-hidden my-[15px]">
                         <div
                             className="h-full bg-gradient-to-r from-[var(--accent-lime)] to-[var(--accent-coral)]"
                             style={{ width: `${avgFrustration}%` }}
                         />
                     </div>
+
+                    <div className="pt-[15px] border-t border-[var(--border-color)]">
+                        <p className="text-xs text-[var(--text-secondary)] font-bold mb-[10px] uppercase tracking-wider">Breakdown by Difficulty</p>
+                        <div className="flex justify-between px-6">
+                            <div>
+                                <div className="text-xs text-[var(--text-secondary)] mb-1">Easy</div>
+                                <div className="text-xl font-mono font-bold" style={{ color: V2_COLORS.pos }}>{frustrationBreakdown.Easy}%</div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-[var(--text-secondary)] mb-1">Medium</div>
+                                <div className="text-xl font-mono font-bold" style={{ color: V2_COLORS.neg }}>{frustrationBreakdown.Medium}%</div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-[var(--text-secondary)] mb-1">Hard</div>
+                                <div className="text-xl font-mono font-bold" style={{ color: V2_COLORS.very_neg }}>{frustrationBreakdown.Hard}%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Top Words Table */}
-                <div className="card lg:col-span-2 overflow-hidden">
+                <div className="card overflow-hidden">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-lg font-bold">
                             {rankingMode === 'hated' ? 'Most Frustrating Days' : 'Most Loved Days'}
@@ -232,13 +311,14 @@ export default function BoldSentimentSection() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-[var(--border-color)] text-[var(--text-secondary)]">
-                                    <th className="p-2 text-left">#</th>
-                                    <th className="p-2 text-left">Word</th>
-                                    <th className="p-2 text-right">Date</th>
-                                    <th className="p-2 text-right">Diff</th>
-                                    <th className="p-2 text-right">Success</th>
-                                    <th className="p-2 text-right">Frustration</th>
-                                    <th className="p-2 text-right">Tweets</th>
+                                    <th className="p-3 text-left">#</th>
+                                    <th className="p-3 text-left">Word</th>
+                                    <th className="p-3 text-right">Date</th>
+                                    <th className="p-3 text-right">Difficulty</th>
+                                    <th className="p-3 text-right">Success</th>
+                                    <th className="p-3 text-right">Frustration</th>
+                                    <th className="p-3 text-right">Sentiment</th>
+                                    <th className="p-3 text-right">Tweets</th>
                                 </tr>
                             </thead>
                             <tbody>
