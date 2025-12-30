@@ -22,7 +22,7 @@ export default function BoldDashboard() {
             <BoldHeroSection />
 
             {/* Content Container */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="container-v2 py-8">
 
                 {/* Phase 4: At A Glance */}
                 <BoldAtAGlanceSection />

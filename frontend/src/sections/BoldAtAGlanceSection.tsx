@@ -49,7 +49,13 @@ export default function BoldAtAGlanceSection() {
 
     return (
         <section id="at-a-glance" className="mb-20 pt-10">
-            <h2 className="text-3xl font-bold mb-8 font-heading text-gradient">At a Glance</h2>
+            <div className="section-header">
+                <div className="section-eyebrow">Overview</div>
+                <h2 className="section-title">At a Glance</h2>
+                <p className="section-description">
+                    The big picture: key metrics from over 500 days of Wordle puzzles, tweets, and player performance.
+                </p>
+            </div>
 
             {/* Primary Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

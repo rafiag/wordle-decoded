@@ -14,7 +14,7 @@ import React from 'react';
 const BoldHeroSection: React.FC = () => {
     return (
         <section id="hero" className="hero">
-            <div className="container mx-auto px-4">
+            <div className="container-v2">
                 <div className="hero-content text-center">
                     <div className="hero-eyebrow">Data Exploration Dashboard</div>
                     <h1 className="hero-title">

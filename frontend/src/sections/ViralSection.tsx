@@ -45,7 +45,7 @@ export default function ViralSection() {
     if (loading) {
         return (
             <section id="viral" className="mb-20 pt-10 scroll-mt-20">
-                <h2 className="text-3xl font-bold mb-2 font-heading text-gradient">Viral Moments</h2>
+                <h2 className="text-3xl font-bold mb-2 font-heading">Viral Moments</h2>
                 <p className="text-[var(--text-secondary)] mb-8">Days that broke the internet.</p>
                 <div className="text-center py-10 text-[var(--accent-cyan)] animate-pulse">Loading viral moments...</div>
             </section>
@@ -54,8 +54,13 @@ export default function ViralSection() {
 
     return (
         <section id="viral" className="mb-20 pt-10 scroll-mt-20">
-            <h2 className="text-3xl font-bold mb-2 font-heading text-gradient">Viral Moments</h2>
-            <p className="text-[var(--text-secondary)] mb-8">Days that broke the internet.</p>
+            <div className="section-header">
+                <div className="section-eyebrow">Feature 6</div>
+                <h2 className="section-title">Viral Moments</h2>
+                <p className="section-description">
+                    Days when Wordle broke the internet. Unusual tweet volume spikes and search interest surges reveal the most controversial puzzles.
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {viralMoments.map((moment, idx) => (

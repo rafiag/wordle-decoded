@@ -130,8 +130,13 @@ export default function BoldSentimentSection() {
 
     return (
         <section id="sentiment" className="mb-20 pt-10">
-            <h2 className="text-3xl font-bold mb-2 font-heading text-gradient">Sentiment Analysis</h2>
-            <p className="text-[var(--text-secondary)] mb-8">Community frustration vs. excitement over time.</p>
+            <div className="section-header">
+                <div className="section-eyebrow" style={{ color: 'var(--accent-lime)' }}>Feature 4</div>
+                <h2 className="section-title">Sentiment Analysis</h2>
+                <p className="section-description">
+                    Community frustration vs. excitement over time.
+                </p>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Distribution Chart */}
