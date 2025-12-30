@@ -778,12 +778,8 @@ def transform_global_stats_data(games_df: pd.DataFrame, tweets_df: pd.DataFrame,
         positive_days = (tweets_df['avg_sentiment'] > 0).sum()
         positive_pct = (positive_days / len(tweets_df)) * 100
         
-        if positive_pct > 70:
-            mood_label = "Mostly Positive"
-        elif positive_pct < 30:
-            mood_label = "Mostly Negative"
-        else:
-            mood_label = "Mixed"
+        from backend.api.utils import get_mood_label
+        mood_label = get_mood_label(positive_pct)
     else:
         avg_sentiment = 0.0
         positive_pct = 0.0

@@ -137,7 +137,17 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
     """
     # 0. Check Global Stats (Optimized)
     latest = db.query(GlobalStats).order_by(GlobalStats.date.desc()).first()
+    
+    # Calculate daily average for percent increase (needed for both paths)
+    total_tweets_sum = db.query(func.sum(Distribution.total_tweets)).scalar() or 0
+    total_days_count = db.query(func.count(Distribution.id)).scalar() or 1
+    avg_tweets_daily = total_tweets_sum / total_days_count if total_days_count > 0 else 1
+    
     if latest:
+        # Calculate percent increase
+        viral_vol = latest.most_viral_tweets or 0
+        percent_increase = round(((viral_vol - avg_tweets_daily) / avg_tweets_daily) * 100, 0) if avg_tweets_daily > 0 else 0
+
         return APIResponse(
             status="success",
             data={
@@ -159,7 +169,7 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
                     "word": latest.most_viral_word,
                     "date": latest.most_viral_date,
                     "tweet_volume": latest.most_viral_tweets,
-                    "percent_increase": 0 # Not stored, minor UI detail ideally computed in ETL
+                    "percent_increase": int(percent_increase)
                 },
                 "avg_guesses": latest.avg_guesses,
                 "success_rate": latest.success_rate,
@@ -177,6 +187,10 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
 
     NYT_TRANSITION_DATE = "2022-02-10"
     
+    # ... (Rest of fallback logic)
+
+    NYT_TRANSITION_DATE = "2022-02-10"
+    
     # 1. Hardest word ever
     hardest = db.query(
         Word.word,
@@ -185,7 +199,7 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
         Word.avg_guess_count,
         Word.date
     ).filter(Word.avg_guess_count.isnot(None))\
-     .order_by(Word.avg_guess_count.desc())\
+     .order_by(Word.difficulty_rating.desc(), Word.success_rate.desc())\
      .first()
     
     hardest_word = {
@@ -206,7 +220,8 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
     ).filter(Word.avg_guess_count.isnot(None))\
      .filter(Word.success_rate.isnot(None))\
      .filter(Word.success_rate > 0.95)\
-     .order_by(Word.avg_guess_count.asc())\
+     .filter(Word.success_rate > 0.95)\
+     .order_by(Word.difficulty_rating.asc(), Word.success_rate.asc())\
      .first()
     
     easiest_word = {
@@ -228,10 +243,11 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
      .order_by(Outlier.actual_value.desc())\
      .first()
     
-    # Calculate percent increase from Z-score
-    # Z-score indicates how many standard deviations above mean
-    # Approximate: Z=2 means ~100% increase, Z=3 means ~200% increase
-    percent_increase = round(most_viral.z_score * 50, 0) if most_viral else 0
+    # Calculate percent increase from actual average
+    if most_viral and avg_tweets_daily > 0:
+        percent_increase = round(((most_viral.actual_value - avg_tweets_daily) / avg_tweets_daily) * 100, 0)
+    else:
+        percent_increase = 0
     
     most_viral_moment = {
         "date": str(most_viral.date) if most_viral else "",
@@ -275,12 +291,9 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
     positive_pct = (positive_days / total_days * 100) if total_days > 0 else 0
     
     # Classify mood based on positive percentage (Option A alignment)
-    if positive_pct > 70:
-        mood_label = "Mostly Positive"
-    elif positive_pct < 30:
-        mood_label = "Mostly Negative"
-    else:
-        mood_label = "Mixed"
+    # Classify mood based on positive percentage (Option A alignment)
+    from backend.api.utils import get_mood_label
+    mood_label = get_mood_label(positive_pct)
     
     community_mood = {
         "avg_sentiment": round(avg_sentiment, 3),

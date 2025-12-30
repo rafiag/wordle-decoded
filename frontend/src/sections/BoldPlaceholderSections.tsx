@@ -16,7 +16,6 @@ const Placeholder = ({ title, color }: { title: string; color: string }) => (
 export const BoldPatternsSection = () => (
     <section id="pattern" className="mb-20 scroll-mt-20">
         <div className="section-header">
-            <div className="section-eyebrow">Feature 3</div>
             <h2 className="section-title">Pattern Detective</h2>
             <p className="section-description">
                 Input your Wordle pattern (emoji sequence) and discover how common your path to victory was.
@@ -29,7 +28,6 @@ export const BoldPatternsSection = () => (
 export const BoldNYTEffectSection = () => (
     <section id="nyt-effect" className="mb-20 scroll-mt-20">
         <div className="section-header">
-            <div className="section-eyebrow">Feature 5</div>
             <h2 className="section-title">The NYT Effect</h2>
             <p className="section-description">
                 When the New York Times acquired Wordle in June 2022, everything changed. See the before/after impact on difficulty.
@@ -42,7 +40,6 @@ export const BoldNYTEffectSection = () => (
 export const BoldTrapsSection = () => (
     <section id="traps" className="mb-20 scroll-mt-20">
         <div className="section-header">
-            <div className="section-eyebrow">Feature 7</div>
             <h2 className="section-title">Letter Traps</h2>
             <p className="section-description">
                 Which letter patterns trip up players the most? This heatmap reveals the trickiest letter positions and combinations.

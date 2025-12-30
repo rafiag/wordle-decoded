@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 const SECTIONS = [
     { id: 'at-a-glance', label: 'At a Glance' },
     { id: 'difficulty', label: 'Difficulty' },
-    { id: 'guesses', label: 'Guesses' },
-    { id: 'pattern', label: 'Pattern' },
     { id: 'sentiment', label: 'Sentiment' },
+    { id: 'pattern', label: 'Pattern' },
     { id: 'nyt-effect', label: 'NYT Effect' },
     { id: 'viral', label: 'Viral' },
     { id: 'traps', label: 'Traps' },

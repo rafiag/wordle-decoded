@@ -22,3 +22,25 @@ def get_difficulty_label(rating: float) -> str:
         return "Hard"
     else:
         return "Expert"
+
+def get_mood_label(positive_pct: float) -> str:
+    """
+    Returns a unified mood label based on the percentage of positive tweets.
+    
+    Logic (V2 Standard):
+    - > 90%: Positive
+    - > 70%: Mostly Positive
+    - > 50%: Neutral
+    - > 30%: Mostly Negative
+    - < 30%: Negative
+    """
+    if positive_pct > 90:
+        return "Positive"
+    elif positive_pct > 70:
+        return "Mostly Positive"
+    elif positive_pct > 50:
+        return "Neutral"
+    elif positive_pct > 30:
+        return "Mostly Negative"
+    else:
+        return "Negative"

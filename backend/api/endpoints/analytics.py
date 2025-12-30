@@ -83,6 +83,7 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
     
     timeline_data = []
     for r in results:
+        total = (r.very_pos_count or 0) + (r.pos_count or 0) + (r.neu_count or 0) + (r.neg_count or 0) + (r.very_neg_count or 0)
         timeline_data.append({
             "date": r.date,
             "target_word": r.target_word,
@@ -93,11 +94,12 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
             "neu_count": r.neu_count,
             "neg_count": r.neg_count,
             "very_neg_count": r.very_neg_count,
+            "total_tweets": total
         })
 
     # 3. Top Lists (All Time)
     # Re-using the join logic but optimized for sorting
-    def get_top_list(sort_col, order_desc=True, limit=5):
+    def get_top_list(sort_col, order_desc=True, limit=5, secondary_sort_col=None, secondary_order_desc=True):
         q = db.query(
             Word.word.label("target_word"),
             Word.date,
@@ -113,15 +115,36 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
         ).join(Word, TweetSentiment.word_id == Word.id)\
          .filter(Word.avg_guess_count.isnot(None))
         
+        # Primary Sort
         if order_desc:
             q = q.order_by(sort_col.desc())
         else:
             q = q.order_by(sort_col.asc())
+
+        # Secondary Sort (if provided)
+        if secondary_sort_col is not None:
+             if secondary_order_desc:
+                 q = q.order_by(secondary_sort_col.desc())
+             else:
+                 q = q.order_by(secondary_sort_col.asc())
             
         return q.limit(limit).all()
 
-    top_hated_raw = get_top_list(TweetSentiment.frustration_index, True)
-    top_loved_raw = get_top_list(TweetSentiment.avg_sentiment, True)
+    # Frustrating: Frustration Index desc, then by Sentiment score desc
+    top_hated_raw = get_top_list(
+        sort_col=TweetSentiment.frustration_index, 
+        order_desc=True,
+        secondary_sort_col=TweetSentiment.avg_sentiment,
+        secondary_order_desc=True
+    )
+
+    # Loved: Sentiment score desc, then by Frustration index asc
+    top_loved_raw = get_top_list(
+        sort_col=TweetSentiment.avg_sentiment, 
+        order_desc=True,
+        secondary_sort_col=TweetSentiment.frustration_index,
+        secondary_order_desc=False
+    )
 
     def format_top_item(r):
         total_tweets = (r.very_pos_count or 0) + (r.pos_count or 0) + (r.neu_count or 0) + (r.neg_count or 0) + (r.very_neg_count or 0)

@@ -154,6 +154,9 @@ def main():
             tweets_dates = set(temp_tweets_df['date'].unique())
             common_dates = list(games_dates.intersection(tweets_dates))
             
+            # [FILTER] Cap end date at 2022-11-15 due to data quality drop-off
+            common_dates = [d for d in common_dates if d <= '2022-11-15']
+            
             logger.info(f"Found {len(common_dates)} common dates between datasets")
             logger.info(f"Games date range: {len(games_dates)} dates")
             logger.info(f"Tweets date range: {len(tweets_dates)} dates")

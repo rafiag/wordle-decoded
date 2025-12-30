@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import List, Optional
 from pydantic import BaseModel
 from backend.db.database import get_db
-from backend.db.schema import Distribution
+from backend.db.schema import Distribution, Word
 from backend.api.schemas import APIResponse
 
 router = APIRouter(prefix="/distributions", tags=["distributions"])
@@ -20,6 +20,7 @@ class DistributionSchema(BaseModel):
     failed: int
     total_tweets: int
     avg_guesses: Optional[float]
+    word_solution: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -32,11 +33,17 @@ def get_distributions(
     """
     Get guess distributions.
     """
-    dists = db.query(Distribution).order_by(Distribution.date.desc()).limit(limit).all()
+    dists = db.query(Distribution).options(joinedload(Distribution.word)).order_by(Distribution.date.desc()).limit(limit).all()
     
+    results = []
+    for d in dists:
+        schema = DistributionSchema.from_orm(d)
+        schema.word_solution = d.word.word if d.word else None
+        results.append(schema.dict())
+
     return APIResponse(
         status="success",
-        data={"distributions": [DistributionSchema.from_orm(d).dict() for d in dists]},
+        data={"distributions": results},
         meta={"count": str(len(dists))}
     )
 

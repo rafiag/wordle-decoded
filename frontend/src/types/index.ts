@@ -146,6 +146,7 @@ export interface SentimentTimelinePoint {
   neu_count: number
   neg_count: number
   very_neg_count: number
+  total_tweets?: number
 }
 
 export interface SentimentTopWord {

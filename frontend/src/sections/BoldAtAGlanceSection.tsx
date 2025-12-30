@@ -32,7 +32,6 @@ export default function BoldAtAGlanceSection() {
     return (
         <section id="at-a-glance" className="mb-20 pt-10">
             <div className="section-header">
-                <div className="section-eyebrow">Overview</div>
                 <h2 className="section-title">At a Glance</h2>
                 <p className="section-description">
                     The big picture: key metrics from over 500 days of Wordle puzzles, tweets, and player performance.
@@ -59,28 +58,28 @@ export default function BoldAtAGlanceSection() {
                     icon="😊"
                     value={stats?.community_mood.mood_label || '---'}
                     label={stats ? `Community Mood (${stats.community_mood.positive_pct.toFixed(2)}% positive)` : 'Community Mood'}
-                    variant="green"
+                    variant="gray"
                     isLoading={loading}
                 />
                 <StatCard
                     icon="🎉"
                     value={stats?.easiest_word.word || '---'}
                     label={stats ? `Easiest Word (${stats.easiest_word.avg_guesses.toFixed(2)} guesses, ${stats.easiest_word.success_rate.toFixed(2)}% success)` : 'Easiest Word'}
-                    variant="green"
+                    variant="gray"
                     isLoading={loading}
                 />
                 <StatCard
                     icon="🔥"
                     value={stats?.hardest_word.word || '---'}
                     label={stats ? `Hardest Word (${stats.hardest_word.avg_guesses.toFixed(2)} guesses, ${stats.hardest_word.success_rate.toFixed(2)}% success)` : 'Hardest Word'}
-                    variant="red"
+                    variant="gray"
                     isLoading={loading}
                 />
                 <StatCard
                     icon="🌟"
                     value={stats?.most_viral.word || '---'}
-                    label={stats ? `Most Viral (${stats.most_viral.tweet_volume.toLocaleString()} tweets)` : 'Most Viral'}
-                    variant="yellow"
+                    label={stats ? `Most Viral (${stats.most_viral.tweet_volume.toLocaleString()} tweets, +${stats.most_viral.percent_increase}% vs avg)` : 'Most Viral'}
+                    variant="gray"
                     isLoading={loading}
                 />
             </div>

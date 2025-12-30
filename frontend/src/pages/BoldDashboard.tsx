@@ -25,8 +25,8 @@ export default function BoldDashboard() {
 
                 <BoldAtAGlanceSection />
                 <BoldDifficultySection />
-                <BoldPatternsSection />
                 <BoldSentimentSection />
+                <BoldPatternsSection />
                 <BoldNYTEffectSection />
                 <ViralSection />
                 <BoldTrapsSection />

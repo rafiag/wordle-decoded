@@ -41,9 +41,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         // Calculate total for percentage display
         const total = payload.reduce((sum: number, entry: any) => sum + (entry.value || 0), 0);
 
+        const data = payload[0].payload;
         return (
-            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-3 rounded shadow-lg">
-                <p className="font-bold text-[var(--text-primary)] mb-2">{label}</p>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-3 rounded shadow-lg min-w-[200px]">
+                <p className="font-bold text-[var(--text-primary)] mb-1">{label}</p>
+
+                {/* Extra Info */}
+                <div className="mb-3 text-xs text-[var(--text-secondary)] border-b border-[var(--border-color)] pb-2">
+                    <div className="flex justify-between">
+                        <span>Solution:</span>
+                        <span className="font-bold text-[var(--text-primary)] uppercase">{data.word_solution || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                        <span>Total data:</span>
+                        <span className="font-mono text-[var(--text-primary)]">{total.toLocaleString()}</span>
+                    </div>
+                </div>
+
                 {payload.map((entry: any, index: number) => {
                     const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0.0';
                     return (
@@ -55,9 +69,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                         </div>
                     );
                 })}
-                <div className="mt-2 pt-2 border-t border-[var(--border-color)] text-xs text-[var(--text-secondary)]">
-                    Total: {total.toLocaleString()} tweets
-                </div>
             </div>
         );
     }
@@ -197,7 +208,8 @@ export default function BoldDifficultySection() {
             '5/6': d.guess_5,
             '6/6': d.guess_6,
             'Failed': d.failed,
-            difficultyLabel: d.difficultyLabel
+            difficultyLabel: d.difficultyLabel,
+            word_solution: d.word_solution
         }));
     }, [processedData, dailyFilter]);
 
@@ -273,7 +285,6 @@ export default function BoldDifficultySection() {
     return (
         <section id="difficulty" className="mb-20 pt-10">
             <div className="section-header">
-                <div className="section-eyebrow" style={{ color: 'var(--accent-cyan)' }}>Feature 2</div>
                 <h2 className="section-title">Difficulty & Distribution</h2>
                 <p className="section-description">
                     Analyze how difficulty affects guess distribution and global performance.
@@ -345,7 +356,11 @@ export default function BoldDifficultySection() {
 
                     <div className="flex-grow">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={dailyChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <BarChart
+                                data={dailyChartData}
+                                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                stackOffset="expand"
+                            >
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.3} />
                                 <XAxis
                                     dataKey="date"
@@ -356,7 +371,12 @@ export default function BoldDifficultySection() {
                                         return `${d.getMonth() + 1}/${d.getDate()}`;
                                     }}
                                 />
-                                <YAxis stroke="var(--text-muted)" fontSize={12} />
+                                <YAxis
+                                    stroke="var(--text-muted)"
+                                    fontSize={12}
+                                    tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
+                                    domain={[0, 1]}
+                                />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ paddingTop: '10px' }} />
                                 {['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'].map((key) => (
@@ -374,7 +394,7 @@ export default function BoldDifficultySection() {
             </div>
 
             {/* Row 2: Streak Chart (Full width) */}
-            <div className="card mb-8 h-[350px] flex flex-col">
+            <div className="card mb-8 h-[450px] flex flex-col">
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h3 className="text-lg font-bold">Difficulty Streaks (Last 90 Days)</h3>
@@ -471,7 +491,7 @@ export default function BoldDifficultySection() {
                         <button
                             onClick={() => setRankingMode('easiest')}
                             className={`px-4 py-1 rounded text-sm font-bold transition-all ${rankingMode === 'easiest'
-                                ? 'bg-[var(--accent-secondary)] text-black'
+                                ? 'bg-[var(--accent-lime)] text-black'
                                 : 'text-[var(--text-secondary)] hover:text-white'
                                 }`}
                         >
@@ -487,7 +507,9 @@ export default function BoldDifficultySection() {
                                 <th className="p-3 text-left">Word</th>
                                 <th className="p-3 text-right">Date</th>
                                 <th className="p-3 text-right">Avg Guesses</th>
-                                <th className="p-3 text-right">Difficulty</th>
+                                <th className="p-3 text-right transition-colors" style={{ color: rankingMode === 'hardest' ? 'var(--accent-coral)' : (rankingMode === 'easiest' ? 'var(--accent-lime)' : 'inherit') }}>
+                                    Difficulty {rankingMode === 'hardest' ? '↓' : (rankingMode === 'easiest' && '↑')}
+                                </th>
                                 <th className="p-3 text-right">Success Rate</th>
                             </tr>
                         </thead>
@@ -503,11 +525,11 @@ export default function BoldDifficultySection() {
                                         <span
                                             className="px-2 py-1 rounded text-xs font-bold"
                                             style={{
-                                                backgroundColor: word.difficulty_rating > 6 ? '#FF4444' : (word.difficulty_rating > 3 ? '#FFA500' : '#00FF88'),
+                                                backgroundColor: word.difficulty_rating >= 7 ? '#FF6B9D' : (word.difficulty_rating >= 4 ? '#FFA500' : '#00FF88'),
                                                 color: '#000'
                                             }}
                                         >
-                                            {word.difficulty_rating?.toFixed(1)}
+                                            {word.difficulty_rating} / 10
                                         </span>
                                     </td>
                                     <td className="p-3 text-right font-mono text-[var(--text-secondary)]">

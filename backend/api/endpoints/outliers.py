@@ -151,9 +151,12 @@ def get_outlier_highlights(db: Session = Depends(get_db)):
     # 1. Highest Volume (Max total_tweets from Distribution)
     max_vol = db.query(Distribution, Word).join(Word).order_by(Distribution.total_tweets.desc()).first()
     
-    # 2. Most Frustrating (Highest difficulty_rating for now, or could use sentiment)
-    # Let's use Difficulty Rating from Word table as a proxy for "Hardest/Frustrating"
-    max_diff = db.query(Word).order_by(Word.difficulty_rating.desc()).first()
+    # 2. Most Frustrating (Highest Frustration Index)
+    # Using TweetSentiment.frustration_index as the primary metric
+    max_diff_res = db.query(Word, TweetSentiment.frustration_index)\
+        .join(TweetSentiment)\
+        .order_by(TweetSentiment.frustration_index.desc(), TweetSentiment.avg_sentiment.desc())\
+        .first()
     
     # 3. Easiest (Lowest difficulty_rating)
     min_diff = db.query(Word).filter(Word.difficulty_rating > 0).order_by(Word.difficulty_rating.asc()).first()
@@ -176,8 +179,11 @@ def get_outlier_highlights(db: Session = Depends(get_db)):
         vol_card = format_card("Highest Volume", word, "Tweets", dist.total_tweets, "Most discussed Wordle day")
         
     diff_card = None
-    if max_diff:
-        diff_card = format_card("Most Frustrating", max_diff, "Difficulty Score", max_diff.difficulty_rating, "Players struggled the most")
+    if max_diff_res:
+        word_obj, frust_val = max_diff_res
+        # Format as percentage
+        frust_pct = f"{round((frust_val or 0) * 100, 1)}%"
+        diff_card = format_card("Most Frustrating", word_obj, "Frustration Index", frust_pct, "Players struggled the most")
         
     easy_card = None
     if min_diff:

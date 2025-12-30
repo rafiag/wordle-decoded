@@ -55,7 +55,6 @@ export default function ViralSection() {
     return (
         <section id="viral" className="mb-20 pt-10 scroll-mt-20">
             <div className="section-header">
-                <div className="section-eyebrow">Feature 6</div>
                 <h2 className="section-title">Viral Moments</h2>
                 <p className="section-description">
                     Days when Wordle broke the internet. Unusual tweet volume spikes and search interest surges reveal the most controversial puzzles.
