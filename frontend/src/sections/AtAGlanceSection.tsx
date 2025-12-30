@@ -17,8 +17,9 @@ export default function AtAGlanceSection() {
                 setLoading(true);
                 const data = await statsApi.getAtAGlanceStats();
                 setStats(data);
-            } catch (err: any) {
-                setError(err.message || 'Failed to load statistics');
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to load statistics';
+                setError(message);
             } finally {
                 setLoading(false);
             }

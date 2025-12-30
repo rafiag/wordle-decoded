@@ -87,11 +87,6 @@ export const statsApi = {
     return response.data.data
   },
 
-  getOverviewStats: async () => {
-    const response = await apiClient.get('/analytics/overview')
-    return response.data.data
-  },
-
   // Distributions
   getDistributions: async (limit: number = 365) => {
     const response = await apiClient.get(`/distributions?limit=${limit}`)

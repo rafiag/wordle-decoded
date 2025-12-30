@@ -31,7 +31,7 @@ const sectionCategories = [
         icon: '📰',
         title: 'Special Events',
         description: 'Notable moments',
-        path: '/interactive',
+        path: '/deep-dive',
         sections: [
             { path: '/deep-dive#nyt', name: 'NYT Effect', desc: 'Did NYT make it harder?' },
             { path: '/deep-dive#outliers', name: 'Viral Days', desc: 'Unusual tweet activity' },
