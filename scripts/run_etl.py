@@ -11,36 +11,43 @@ logger = logging.getLogger("ETL_Runner")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.etl.extract import load_kaggle_games_raw, load_kaggle_tweets_raw, load_wordle_guesses, load_solutions_map
-from backend.etl.transform import transform_games_data, transform_games_from_tweets, transform_tweets_data, transform_pattern_data, transform_outlier_data, transform_trap_data, transform_global_stats_data
+from backend.etl.transform import transform_games_data, transform_tweets_data, transform_pattern_data, transform_outlier_data, transform_trap_data, transform_global_stats_data
 from backend.etl.load import load_games_data, load_tweets_data, load_patterns_data, load_outliers_data, load_trap_data, load_global_stats
 
-def run_games_etl():
-    """Runs the Games Data ETL process - NOW USING TWEETS DATA."""
-    logger.info("Starting Games ETL (Tweet-based)...")
+def run_games_etl(date_filter=None):
+    """Runs the Games Data ETL process using wordle_games.csv."""
+    logger.info("Starting Games ETL...")
     
-    # Load solutions map
-    solutions_map = load_solutions_map()
+    # Load raw games from CSV
+    raw_games = load_kaggle_games_raw()
     
-    # Load raw tweets
-    raw_tweets = load_kaggle_tweets_raw()
+    # Transform games data
+    transformed_games = transform_games_data(raw_games)
     
-    # Transform using new tweet-based approach
-    transformed_games = transform_games_from_tweets(raw_tweets, solutions_map)
+    # Apply date filter if provided
+    if date_filter is not None:
+        logger.info(f"Filtering games to {len(date_filter)} common dates...")
+        transformed_games = transformed_games[transformed_games['date'].isin(date_filter)]
     
     # Load to database
     load_games_data(transformed_games)
-    logger.info("Games Data ETL Success (Tweet-based).")
+    logger.info(f"Games Data ETL Success ({len(transformed_games)} games loaded).")
     
-    # Return None for raw_games since we're not loading it anymore
-    return None, transformed_games
+    return raw_games, transformed_games
 
-def run_tweets_etl():
-    """Runs the Tweets Data ETL process."""
+def run_tweets_etl(date_filter=None):
+    """Runs the Tweets Data ETL process for sentiment analysis."""
     logger.info("Starting Tweets ETL...")
     raw_tweets = load_kaggle_tweets_raw()
     transformed_tweets = transform_tweets_data(raw_tweets)
+    
+    # Apply date filter if provided
+    if date_filter is not None:
+        logger.info(f"Filtering tweets to {len(date_filter)} common dates...")
+        transformed_tweets = transformed_tweets[transformed_tweets['date'].isin(date_filter)]
+    
     load_tweets_data(transformed_tweets)
-    logger.info("Tweets Data ETL Success.")
+    logger.info(f"Tweets Data ETL Success ({len(transformed_tweets)} tweets loaded).")
     return transformed_tweets
 
 def run_patterns_etl(raw_games=None):
@@ -128,11 +135,36 @@ def main():
     transformed_games = None
     transformed_tweets = None
     outliers_df = None
+    common_dates = None
 
-    # 1. Games Data (NOW FROM TWEETS)
+    # Calculate date intersection if running both games and tweets
+    if args.all:
+        try:
+            logger.info("Calculating date intersection...")
+            # Load both datasets to get dates
+            temp_games = load_kaggle_games_raw()
+            temp_tweets = load_kaggle_tweets_raw()
+            
+            # Transform to get dates
+            temp_games_df = transform_games_data(temp_games)
+            temp_tweets_df = transform_tweets_data(temp_tweets)
+            
+            # Calculate intersection
+            games_dates = set(temp_games_df['date'].unique())
+            tweets_dates = set(temp_tweets_df['date'].unique())
+            common_dates = list(games_dates.intersection(tweets_dates))
+            
+            logger.info(f"Found {len(common_dates)} common dates between datasets")
+            logger.info(f"Games date range: {len(games_dates)} dates")
+            logger.info(f"Tweets date range: {len(tweets_dates)} dates")
+        except Exception as e:
+            logger.error(f"Failed to calculate date intersection: {e}", exc_info=True)
+            common_dates = None
+
+    # 1. Games Data (FROM WORDLE_GAMES.CSV)
     if args.all or args.games:
         try:
-            raw_games, transformed_games = run_games_etl()  # Uses tweets now
+            raw_games, transformed_games = run_games_etl(common_dates)
         except Exception as e:
             logger.error(f"Games ETL/Load Failed: {e}", exc_info=True)
     
@@ -150,9 +182,9 @@ def main():
         if transformed_games is None:
             try:
                 logger.info("Running games transform for outliers dependency...")
-                raw_tweets = load_kaggle_tweets_raw()
-                solutions_map = load_solutions_map()
-                transformed_games = transform_games_from_tweets(raw_tweets, solutions_map)
+                if raw_games is None:
+                    raw_games = load_kaggle_games_raw()
+                transformed_games = transform_games_data(raw_games)
             except Exception as e:
                 logger.error(f"Failed to transform games: {e}", exc_info=True)
 
@@ -160,7 +192,7 @@ def main():
     if args.all or args.tweets or args.outliers:
         try:
             if args.tweets or args.all:
-                transformed_tweets = run_tweets_etl()
+                transformed_tweets = run_tweets_etl(common_dates)
             else:
                 logger.info("Loading and transforming tweets (dependency)...")
                 raw_tweets = load_kaggle_tweets_raw()
@@ -194,9 +226,9 @@ def main():
         try:
             logger.info("Starting Global Stats ETL...")
             if transformed_games is None:
-                raw_tweets = load_kaggle_tweets_raw()
-                solutions_map = load_solutions_map()
-                transformed_games = transform_games_from_tweets(raw_tweets, solutions_map)
+                if raw_games is None:
+                    raw_games = load_kaggle_games_raw()
+                transformed_games = transform_games_data(raw_games)
             
             if transformed_tweets is None:
                 raw_tweets = load_kaggle_tweets_raw()

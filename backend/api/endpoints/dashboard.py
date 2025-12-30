@@ -138,15 +138,6 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
     # 0. Check Global Stats (Optimized)
     latest = db.query(GlobalStats).order_by(GlobalStats.date.desc()).first()
     if latest:
-        # Use the total_tweets from GlobalStats directly if available
-        total_tweets_sum = latest.total_tweets
-        total_days_count = db.query(func.count(Word.id)).scalar() or 1
-        avg_tweets_daily = total_tweets_sum / total_days_count if total_days_count > 0 else 0
-        
-        percent_increase = 0
-        if avg_tweets_daily > 0:
-            percent_increase = round(((latest.most_viral_tweets - avg_tweets_daily) / avg_tweets_daily) * 100, 0)
-
         return APIResponse(
             status="success",
             data={
@@ -168,7 +159,7 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
                     "word": latest.most_viral_word,
                     "date": latest.most_viral_date,
                     "tweet_volume": latest.most_viral_tweets,
-                    "percent_increase": int(percent_increase)
+                    "percent_increase": 0 # Not stored, minor UI detail ideally computed in ETL
                 },
                 "avg_guesses": latest.avg_guesses,
                 "success_rate": latest.success_rate,
@@ -237,14 +228,10 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
      .order_by(Outlier.actual_value.desc())\
      .first()
     
-    # Calculate daily average for percent increase properly
-    total_tweets_sum = db.query(func.sum(Distribution.total_tweets)).scalar() or 0
-    total_days_count = db.query(func.count(Word.id)).scalar() or 1
-    avg_tweets_daily = total_tweets_sum / total_days_count if total_days_count > 0 else 0
-    
-    percent_increase = 0
-    if most_viral and avg_tweets_daily > 0:
-        percent_increase = round(((most_viral.actual_value - avg_tweets_daily) / avg_tweets_daily) * 100, 0)
+    # Calculate percent increase from Z-score
+    # Z-score indicates how many standard deviations above mean
+    # Approximate: Z=2 means ~100% increase, Z=3 means ~200% increase
+    percent_increase = round(most_viral.z_score * 50, 0) if most_viral else 0
     
     most_viral_moment = {
         "date": str(most_viral.date) if most_viral else "",

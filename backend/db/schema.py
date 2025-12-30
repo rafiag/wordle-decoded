@@ -31,7 +31,7 @@ class Distribution(Base):
     __tablename__ = "distributions"
 
     id = Column(Integer, primary_key=True, index=True)
-    word_id = Column(Integer, ForeignKey("words.id", ondelete="CASCADE"), unique=True)
+    word_id = Column(Integer, ForeignKey("words.id"), unique=True)
     date = Column(String, index=True)
     
     guess_1 = Column(Integer, default=0)
@@ -51,7 +51,7 @@ class Pattern(Base):
     __tablename__ = "patterns"
 
     id = Column(Integer, primary_key=True, index=True)
-    word_id = Column(Integer, ForeignKey("words.id", ondelete="CASCADE"))
+    word_id = Column(Integer, ForeignKey("words.id"))
     date = Column(String)
     
     pattern_string = Column(String, index=True)
@@ -65,7 +65,7 @@ class TrapAnalysis(Base):
     __tablename__ = "trap_analysis"
 
     id = Column(Integer, primary_key=True, index=True)
-    word_id = Column(Integer, ForeignKey("words.id", ondelete="CASCADE"), unique=True)
+    word_id = Column(Integer, ForeignKey("words.id"), unique=True)
     
     trap_score = Column(Float, index=True)
     neighbor_count = Column(Integer)
@@ -77,7 +77,7 @@ class TweetSentiment(Base):
     __tablename__ = "tweet_sentiment"
 
     id = Column(Integer, primary_key=True, index=True)
-    word_id = Column(Integer, ForeignKey("words.id", ondelete="CASCADE"), nullable=True) # Optional linkage
+    word_id = Column(Integer, ForeignKey("words.id"), nullable=True) # Optional linkage
     date = Column(String, unique=True, index=True)
     
     avg_sentiment = Column(Float)
@@ -96,7 +96,7 @@ class Outlier(Base):
     __tablename__ = "outliers"
     
     id = Column(Integer, primary_key=True, index=True)
-    word_id = Column(Integer, ForeignKey("words.id", ondelete="CASCADE"))
+    word_id = Column(Integer, ForeignKey("words.id"))
     date = Column(String)
     
     outlier_type = Column(String) # 'Viral', 'Hard', 'Search Spike'
@@ -145,7 +145,6 @@ class GlobalStats(Base):
     
     # Overview Metrics
     total_games = Column(Integer, default=0)
-    total_tweets = Column(Integer, default=0)
     avg_guesses = Column(Float, default=0.0)
     success_rate = Column(Float, default=0.0)
     

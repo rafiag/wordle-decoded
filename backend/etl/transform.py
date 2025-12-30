@@ -743,16 +743,6 @@ def transform_global_stats_data(games_df: pd.DataFrame, tweets_df: pd.DataFrame,
     total_wins = (games_df['success_rate'] * games_df['total_tweets']).sum()
     success_rate = (total_wins / total_volume * 100) if total_volume > 0 else 0.0
     
-    # [FIX] Clamp success rate to a realistic maximum for the Hero section 
-    # if the sample size is low and biased. 
-    # Most Wordle success rates historically are between 94-98%.
-    # If we have millions of tweets, we trust it, but if it's 100.0 exactly, 
-    # it's usually suspicious for a global metric.
-    if success_rate > 99.9:
-        logger.info(f"Success rate {success_rate:.2f}% seems skewed. Clamping for Hero visibility.")
-        success_rate = 94.6 # A realistic average baseline
-
-    
     # 2. Key Highlights
     # Hardest Word
     if not games_df.empty:
@@ -788,16 +778,12 @@ def transform_global_stats_data(games_df: pd.DataFrame, tweets_df: pd.DataFrame,
         positive_days = (tweets_df['avg_sentiment'] > 0).sum()
         positive_pct = (positive_days / len(tweets_df)) * 100
         
-        if positive_pct > 90:
-            mood_label = "Positive"
-        elif positive_pct > 70:
+        if positive_pct > 70:
             mood_label = "Mostly Positive"
-        elif positive_pct > 50:
-            mood_label = "Neutral"
-        elif positive_pct > 30:
+        elif positive_pct < 30:
             mood_label = "Mostly Negative"
         else:
-            mood_label = "Negative"
+            mood_label = "Mixed"
     else:
         avg_sentiment = 0.0
         positive_pct = 0.0
@@ -820,7 +806,6 @@ def transform_global_stats_data(games_df: pd.DataFrame, tweets_df: pd.DataFrame,
         "date": datetime.now().strftime("%Y-%m-%d"),
         
         "total_games": int(total_games),
-        "total_tweets": int(total_volume),
         "avg_guesses": float(avg_guesses),
         "success_rate": float(success_rate),
         
