@@ -62,8 +62,7 @@ def load_games_data(df: pd.DataFrame):
         
         ids_to_process = [d['id'] for d in words_data]
         
-        # Clean existing
-        db.query(Distribution).filter(Distribution.word_id.in_(ids_to_process)).delete(synchronize_session=False)
+        # Clean existing - Cascading will handle dependent tables (Distribution, Sentiment, etc.)
         db.query(Word).filter(Word.id.in_(ids_to_process)).delete(synchronize_session=False)
         db.flush()
         
