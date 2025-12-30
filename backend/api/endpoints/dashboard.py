@@ -234,10 +234,10 @@ def get_at_a_glance_stats(db: Session = Depends(get_db)):
     
     positive_pct = (positive_days / total_days * 100) if total_days > 0 else 0
     
-    # Classify mood
-    if avg_sentiment > 0.1:
+    # Classify mood based on positive percentage (Option A alignment)
+    if positive_pct > 70:
         mood_label = "Mostly Positive"
-    elif avg_sentiment < -0.1:
+    elif positive_pct < 30:
         mood_label = "Mostly Negative"
     else:
         mood_label = "Mixed"
