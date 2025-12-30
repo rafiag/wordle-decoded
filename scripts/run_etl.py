@@ -10,19 +10,29 @@ logger = logging.getLogger("ETL_Runner")
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.etl.extract import load_kaggle_games_raw, load_kaggle_tweets_raw, load_wordle_guesses
-from backend.etl.transform import transform_games_data, transform_tweets_data, transform_pattern_data, transform_outlier_data, transform_trap_data, transform_global_stats_data
+from backend.etl.extract import load_kaggle_games_raw, load_kaggle_tweets_raw, load_wordle_guesses, load_solutions_map
+from backend.etl.transform import transform_games_data, transform_games_from_tweets, transform_tweets_data, transform_pattern_data, transform_outlier_data, transform_trap_data, transform_global_stats_data
 from backend.etl.load import load_games_data, load_tweets_data, load_patterns_data, load_outliers_data, load_trap_data, load_global_stats
 
 def run_games_etl():
-    """Runs the Games Data ETL process."""
-    logger.info("Starting Games ETL...")
-    raw_games = load_kaggle_games_raw()
-    transformed_games = transform_games_data(raw_games)
+    """Runs the Games Data ETL process - NOW USING TWEETS DATA."""
+    logger.info("Starting Games ETL (Tweet-based)...")
+    
+    # Load solutions map
+    solutions_map = load_solutions_map()
+    
+    # Load raw tweets
+    raw_tweets = load_kaggle_tweets_raw()
+    
+    # Transform using new tweet-based approach
+    transformed_games = transform_games_from_tweets(raw_tweets, solutions_map)
+    
+    # Load to database
     load_games_data(transformed_games)
-    logger.info("Games Data ETL Success.")
-    logger.info("Games Data ETL Success.")
-    return raw_games, transformed_games
+    logger.info("Games Data ETL Success (Tweet-based).")
+    
+    # Return None for raw_games since we're not loading it anymore
+    return None, transformed_games
 
 def run_tweets_etl():
     """Runs the Tweets Data ETL process."""
@@ -36,7 +46,10 @@ def run_tweets_etl():
 def run_patterns_etl(raw_games=None):
     """Runs the Patterns Data ETL process."""
     logger.info("Starting Patterns ETL...")
+    # Patterns still need raw game data for emoji patterns
+    # Keep loading from wordle_games.csv for now as backup
     if raw_games is None:
+        logger.info("WARNING: Patterns ETL still requires wordle_games.csv for emoji grid parsing.")
         logger.info("Loading raw games data for patterns...")
         raw_games = load_kaggle_games_raw()
     
@@ -116,19 +129,32 @@ def main():
     transformed_tweets = None
     outliers_df = None
 
-    # 1. Games Data (and load raw for others)
-    if args.all or args.games or args.patterns or args.outliers or args.traps:
+    # 1. Games Data (NOW FROM TWEETS)
+    if args.all or args.games:
         try:
-            # If we are only running games, we do full ETL.
-            # If we are running others, we rely on raw_games, so let's fetch it once.
-            if args.games or args.all:
-                 raw_games, transformed_games = run_games_etl()
-            else:
-                 logger.info("Loading raw games (dependency)...")
-                 raw_games = load_kaggle_games_raw()
-                 transformed_games = transform_games_data(raw_games)
+            raw_games, transformed_games = run_games_etl()  # Uses tweets now
         except Exception as e:
             logger.error(f"Games ETL/Load Failed: {e}", exc_info=True)
+    
+    # For patterns/traps that still need raw games CSV (emoji grids)
+    if args.patterns or args.traps:
+        if raw_games is None:
+            try:
+                logger.info("Loading raw games CSV for patterns/traps (emoji grids required)...")
+                raw_games = load_kaggle_games_raw()
+            except Exception as e:
+                logger.error(f"Failed to load raw games: {e}", exc_info=True)
+    
+    # For outliers that need transformed games
+    if args.outliers:
+        if transformed_games is None:
+            try:
+                logger.info("Running games transform for outliers dependency...")
+                raw_tweets = load_kaggle_tweets_raw()
+                solutions_map = load_solutions_map()
+                transformed_games = transform_games_from_tweets(raw_tweets, solutions_map)
+            except Exception as e:
+                logger.error(f"Failed to transform games: {e}", exc_info=True)
 
     # 2. Tweets Data
     if args.all or args.tweets or args.outliers:
@@ -168,8 +194,9 @@ def main():
         try:
             logger.info("Starting Global Stats ETL...")
             if transformed_games is None:
-                if raw_games is None: raw_games = load_kaggle_games_raw()
-                transformed_games = transform_games_data(raw_games)
+                raw_tweets = load_kaggle_tweets_raw()
+                solutions_map = load_solutions_map()
+                transformed_games = transform_games_from_tweets(raw_tweets, solutions_map)
             
             if transformed_tweets is None:
                 raw_tweets = load_kaggle_tweets_raw()

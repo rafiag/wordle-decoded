@@ -97,3 +97,25 @@ def load_wordle_guesses() -> list[str]:
         
     logger.info(f"Loaded {len(words)} words from validation list.")
     return words
+
+def load_solutions_map() -> dict:
+    """
+    Loads the Wordle solutions map (Game ID -> {date, word}).
+    This lightweight JSON file replaces wordle_games.csv for target word lookups.
+    Returns:
+        dict: Mapping of Game ID (as string) to {date, word}
+    """
+    import json
+    
+    # Use BASE_DIR instead of RAW_DATA_DIR since this is processed data
+    solutions_path = Path(os.getenv("DATA_DIR", "data")) / "processed" / "wordle_solutions.json"
+    
+    if not solutions_path.exists():
+        logger.error(f"Solutions map not found at {solutions_path}. Please run scripts/extract_solutions.py first.")
+        return {}
+    
+    with open(solutions_path, 'r') as f:
+        solutions = json.load(f)
+    
+    logger.info(f"Loaded {len(solutions)} solutions from {solutions_path}")
+    return solutions
