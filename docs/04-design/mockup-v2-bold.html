@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Data Explorer - Bold Mockup V2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Color System - Data Noir Palette */
+            --bg-primary: #0a0e27;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+
+            --accent-cyan: #00d9ff;
+            --accent-coral: #ff6b9d;
+            --accent-lime: #00ff88;
+            --accent-orange: #ffa500;
+            --accent-purple: #a855f7;
+
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666;
+
+            --border-color: #2a2a4e;
+            --glow-cyan: rgba(0, 217, 255, 0.3);
+            --glow-coral: rgba(255, 107, 157, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--glow-cyan) 0%, transparent 70%);
+            top: -300px;
+            right: -200px;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--glow-coral) 0%, transparent 70%);
+            bottom: -200px;
+            left: -100px;
+            z-index: 0;
+            animation: pulse 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.1);
+            }
+        }
+
+        .hero-content {
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: clamp(48px, 8vw, 120px);
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(20px, 3vw, 32px);
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            font-weight: 400;
+        }
+
+        .hero-stat {
+            display: inline-block;
+            padding: 16px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid var(--accent-cyan);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-stat-number {
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            display: block;
+        }
+
+        .hero-stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Overview Cards in Hero */
+        .overview-container {
+            margin-top: 80px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .overview-title {
+            font-size: 18px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .overview-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .overview-card:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 217, 255, 0.05);
+            transform: translateY(-4px);
+        }
+
+        .overview-card-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .overview-card-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+        }
+
+        /* Scroll Nudge Separator */
+        .scroll-nudge {
+            text-align: center;
+            margin: 60px 0;
+            padding: 32px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .scroll-nudge-text {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .scroll-arrow {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-left: 2px solid var(--accent-cyan);
+            border-bottom: 2px solid var(--accent-cyan);
+            transform: rotate(-45deg);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0) rotate(-45deg);
+            }
+
+            40% {
+                transform: translateY(-10px) rotate(-45deg);
+            }
+
+            60% {
+                transform: translateY(-5px) rotate(-45deg);
+            }
+        }
+
+        /* Section Styling */
+        section {
+            min-height: 100vh;
+            padding: 120px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header {
+            margin-bottom: 64px;
+        }
+
+        .section-eyebrow {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-coral);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: clamp(36px, 5vw, 72px);
+            margin-bottom: 16px;
+        }
+
+        .section-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+
+        /* Card System */
+        .card {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .card-glow {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 40px var(--glow-cyan);
+        }
+
+        /* At a Glance - Stat Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-cyan);
+        }
+
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .stat-value {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 48px;
+            margin-top: 32px;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: var(--accent-cyan);
+            transform: translateY(-50%);
+        }
+
+        .chart-placeholder::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-coral);
+            border-radius: 50%;
+            top: 30%;
+            left: 30%;
+            box-shadow:
+                200px 80px 0 var(--accent-lime),
+                400px 20px 0 var(--accent-orange),
+                600px 100px 0 var(--accent-purple);
+        }
+
+        /* Pattern Input Section */
+        .pattern-input-area {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pattern-input-blocks {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 32px 0;
+        }
+
+        .pattern-block {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-secondary);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+        }
+
+        .pattern-block:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px var(--glow-cyan);
+        }
+
+        .pattern-block.state-0 {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-color);
+        }
+
+        .pattern-block.state-1 {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: var(--accent-orange);
+        }
+
+        .pattern-block.state-2 {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--accent-lime);
+        }
+
+        .pattern-results {
+            display: none;
+            /* Shown after analysis */
+            margin-top: 48px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pattern-result-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .pattern-display-large {
+            font-size: 32px;
+            letter-spacing: 8px;
+            margin-bottom: 16px;
+        }
+
+        .pattern-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .pattern-metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .metric-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            display: block;
+        }
+
+        .metric-card-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .pattern-flow-list {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .flow-header {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .flow-row:last-child {
+            border-bottom: none;
+        }
+
+        .flow-pattern-display {
+            font-size: 24px;
+            letter-spacing: 4px;
+        }
+
+        .flow-prob {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-lime);
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 20px 48px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--glow-cyan);
+        }
+
+        /* NYT Effect Split */
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .split-panel {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+        }
+
+        .split-panel-before {
+            border-color: var(--text-muted);
+        }
+
+        .split-panel-after {
+            border-color: var(--accent-coral);
+        }
+
+        .split-header {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            color: var(--text-secondary);
+        }
+
+        .split-metric {
+            font-size: 72px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .split-panel-before .split-metric {
+            color: var(--text-secondary);
+        }
+
+        .split-panel-after .split-metric {
+            color: var(--accent-coral);
+        }
+
+        .split-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Viral Moments Carousel */
+        .viral-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .viral-card {
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .viral-card:hover {
+            border-color: var(--accent-orange);
+            transform: scale(1.05);
+        }
+
+        .viral-date {
+            font-size: 14px;
+            color: var(--accent-orange);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .viral-word {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .viral-metric {
+            font-size: 32px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+
+        .viral-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Letter Trap Heatmap */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .heatmap-letter {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .heatmap-value {
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        /* Intensity colors for heatmap */
+        .intensity-low {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--accent-lime);
+        }
+
+        .intensity-medium {
+            background: rgba(255, 165, 0, 0.1);
+            border-color: var(--accent-orange);
+        }
+
+        .intensity-high {
+            background: rgba(255, 107, 157, 0.2);
+            border-color: var(--accent-coral);
+        }
+
+        /* Footer */
+        footer {
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-title {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tech-badge {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            section {
+                min-height: auto;
+                padding: 80px 0;
+            }
+
+            .split-container {
+                grid-template-columns: 1fr;
+            }
+
+            .heatmap-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-purple);
+        }
+
+        /* Scroll Navigation Bar with Progress Line */
+        .scroll-nav {
+            position: fixed;
+            top: 50%;
+            right: 32px;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Progress line background */
+        .scroll-nav::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: var(--border-color);
+            z-index: 0;
+        }
+
+        /* Progress line fill */
+        .scroll-nav::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 10px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+            z-index: 1;
+            transition: height 0.3s ease;
+            height: 0%;
+        }
+
+        .scroll-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.4;
+            position: relative;
+            z-index: 2;
+        }
+
+        .scroll-nav-item:hover {
+            opacity: 1;
+        }
+
+        .scroll-nav-item.active {
+            opacity: 1;
+        }
+
+        .scroll-nav-item.viewed {
+            opacity: 0.6;
+        }
+
+        /* Dot styling */
+        .scroll-nav-item .nav-dot {
+            width: 12px;
+            height: 12px;
+            min-width: 12px;
+            border-radius: 50%;
+            background: var(--border-color);
+            border: 2px solid var(--bg-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: none;
+            position: relative;
+            z-index: 3;
+        }
+
+        .scroll-nav-item:hover .nav-dot {
+            background: var(--accent-cyan);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px var(--glow-cyan);
+        }
+
+        .scroll-nav-item.active .nav-dot {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px var(--glow-cyan);
+            transform: scale(1.5);
+        }
+
+        .scroll-nav-item.viewed .nav-dot {
+            background: var(--accent-cyan);
+            opacity: 0.6;
+        }
+
+        /* Label styling */
+        .scroll-nav-item .nav-label {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .scroll-nav-item:hover .nav-label {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        .scroll-nav-item.active .nav-label {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            background: rgba(0, 217, 255, 0.1);
+            font-size: 11px;
+            padding: 8px 14px;
+        }
+
+        .scroll-nav-item.viewed .nav-label {
+            opacity: 0.7;
+        }
+
+        /* Hide scroll nav on mobile */
+        @media (max-width: 768px) {
+            .scroll-nav {
+                display: none;
+            }
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Scroll Navigation Bar -->
+    <nav class="scroll-nav">
+        <div class="scroll-nav-item" data-label="At a Glance" data-target="glance">
+            <div class="nav-dot"></div>
+            <div class="nav-label">At a Glance</div>
+        </div>
+        <div class="scroll-nav-item" data-label="Difficulty" data-target="difficulty">
+            <div class="nav-dot"></div>
+            <div class="nav-label">Difficulty</div>
+        </div>
+        <div class="scroll-nav-item" data-label="Guesses" data-target="guesses">
+            <div class="nav-dot"></div>
+            <div class="nav-label">Guesses</div>
+        </div>
+        <div class="scroll-nav-item" data-label="Pattern" data-target="pattern">
+            <div class="nav-dot"></div>
+            <div class="nav-label">Pattern</div>
+        </div>
+        <div class="scroll-nav-item" data-label="NYT Effect" data-target="nyt-effect">
+            <div class="nav-dot"></div>
+            <div class="nav-label">NYT Effect</div>
+        </div>
+        <div class="scroll-nav-item" data-label="Viral" data-target="viral">
+            <div class="nav-dot"></div>
+            <div class="nav-label">Viral</div>
+        </div>
+        <div class="scroll-nav-item" data-label="Traps" data-target="traps">
+            <div class="nav-dot"></div>
+            <div class="nav-label">Traps</div>
+        </div>
+    </nav>
+
+    <!-- Landing / Hero Section (Hidden from Nav) -->
+    <section id="hero" style="min-height: 80vh; padding: 120px 0 60px 0;">
+        <div class="container">
+            <div style="text-align: center;">
+                <div class="hero-eyebrow">Data Exploration Dashboard</div>
+                <h1 class="hero-title">WORDLE<br>DECODED</h1>
+                <p class="hero-subtitle">You've played the game. Now see the data.</p>
+            </div>
+
+            <!-- Scroll Nudge Separator -->
+            <div class="scroll-nudge" style="margin-bottom: 0;">
+                <div class="scroll-nudge-text">Scroll to Explore</div>
+                <div class="scroll-arrow"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- At a Glance -->
+    <section id="glance">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Overview</div>
+                <h2 class="section-title">At a Glance</h2>
+                <p class="section-description">
+                    The big picture: key metrics from over 500 days of Wordle puzzles, tweets, and player performance.
+                </p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value mono">540</div>
+                    <div class="stat-label">Total Words</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value mono">SLAVE</div>
+                    <div class="stat-label">Hardest Word</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value mono">+12%</div>
+                    <div class="stat-label">NYT Difficulty Increase</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-value mono">23</div>
+                    <div class="stat-label">Viral Moments</div>
+                </div>
+            </div>
+
+            <!-- Overview Cards for Quick Navigation -->
+            <div class="overview-container" style="margin-top: 64px;">
+                <div class="overview-title">Jump to Section</div>
+                <div class="overview-grid">
+                    <div class="overview-card" data-target="difficulty">
+                        <div class="overview-card-icon">📉</div>
+                        <div class="overview-card-title">Difficulty</div>
+                    </div>
+                    <div class="overview-card" data-target="guesses">
+                        <div class="overview-card-icon">📈</div>
+                        <div class="overview-card-title">Guesses</div>
+                    </div>
+                    <div class="overview-card" data-target="pattern">
+                        <div class="overview-card-icon">🔍</div>
+                        <div class="overview-card-title">Pattern</div>
+                    </div>
+                    <div class="overview-card" data-target="nyt-effect">
+                        <div class="overview-card-icon">📰</div>
+                        <div class="overview-card-title">NYT Effect</div>
+                    </div>
+                    <div class="overview-card" data-target="viral">
+                        <div class="overview-card-icon">⚡</div>
+                        <div class="overview-card-title">Viral</div>
+                    </div>
+                    <div class="overview-card" data-target="traps">
+                        <div class="overview-card-icon">🎯</div>
+                        <div class="overview-card-title">Traps</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Difficulty Timeline -->
+    <section id="difficulty">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Feature 1</div>
+                <h2 class="section-title">The Difficulty Timeline</h2>
+                <p class="section-description">
+                    How word rarity correlates with player performance over time. Watch the difficulty curve evolve
+                    across 500+ puzzles.
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    <span style="z-index: 1;">📉 Interactive Line Chart: Word Frequency vs Avg Guesses</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guess Distribution -->
+    <section id="guesses">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Feature 2</div>
+                <h2 class="section-title">How America Guesses</h2>
+                <p class="section-description">
+                    The distribution of guess counts reveals patterns in player behavior. Most solve in 4 guesses—how do
+                    you stack up?
+                </p>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    <span style="z-index: 1;">📊 Stacked Area Chart: 1/6, 2/6, 3/6, 4/6, 5/6, 6/6, X/6</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pattern Detective -->
+    <section id="pattern">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Feature 3</div>
+                <h2 class="section-title">Pattern Detective</h2>
+                <p class="section-description">
+                    Input your Wordle pattern (emoji sequence) and discover how common your path to victory was.
+                </p>
+            </div>
+
+            <div class="pattern-input-area">
+                <div class="pattern-input-blocks" id="interactive-blocks">
+                    <div class="pattern-block state-0" data-index="0">⬜</div>
+                    <div class="pattern-block state-1" data-index="1">🟨</div>
+                    <div class="pattern-block state-0" data-index="2">⬜</div>
+                    <div class="pattern-block state-0" data-index="3">⬜</div>
+                    <div class="pattern-block state-2" data-index="4">🟩</div>
+                </div>
+                <button class="btn" id="btn-analyze">Analyze Pattern</button>
+            </div>
+
+            <div class="pattern-results" id="analysis-results">
+                <div class="pattern-result-header">
+                    <div class="pattern-display-large" id="result-pattern">⬜🟨⬜⬜🟩</div>
+                    <p style="color: var(--text-secondary);">Analyzing results for this starting sequence</p>
+                </div>
+
+                <div class="pattern-metrics-grid">
+                    <div class="pattern-metric-card">
+                        <span class="metric-card-value">73.2%</span>
+                        <span class="metric-card-label">Success Rate</span>
+                    </div>
+                    <div class="pattern-metric-card">
+                        <span class="metric-card-value">12.4K</span>
+                        <span class="metric-card-label">Sample Size</span>
+                    </div>
+                    <div class="pattern-metric-card">
+                        <span class="metric-card-value">4.1</span>
+                        <span class="metric-card-label">Avg Guesses</span>
+                    </div>
+                </div>
+
+                <div class="pattern-flow-list">
+                    <div class="flow-header">Most Likely Next Steps</div>
+                    <div class="flow-row">
+                        <span class="flow-pattern-display">⬜🟨🟩⬜🟩</span>
+                        <span class="flow-prob">42.1%</span>
+                    </div>
+                    <div class="flow-row">
+                        <span class="flow-pattern-display">🟩🟩🟩🟩🟩</span>
+                        <span class="flow-prob">12.4%</span>
+                    </div>
+                    <div class="flow-row">
+                        <span class="flow-pattern-display">⬜⬜⬜🟩🟩</span>
+                        <span class="flow-prob">8.7%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NYT Effect -->
+    <section id="nyt-effect">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Feature 4</div>
+                <h2 class="section-title">The NYT Effect</h2>
+                <p class="section-description">
+                    When the New York Times acquired Wordle in June 2022, everything changed. See the before/after
+                    impact on difficulty.
+                </p>
+            </div>
+
+            <div class="split-container">
+                <div class="split-panel split-panel-before">
+                    <div class="split-header">⬅️ Before NYT (Jan-May 2022)</div>
+                    <div class="split-metric mono">3.87</div>
+                    <div class="split-label">Average Guesses</div>
+                </div>
+
+                <div class="split-panel split-panel-after">
+                    <div class="split-header">➡️ After NYT (Jun 2022+)</div>
+                    <div class="split-metric mono">4.12</div>
+                    <div class="split-label">Average Guesses</div>
+                </div>
+            </div>
+
+            <div class="chart-container" style="margin-top: 32px;">
+                <div class="chart-placeholder">
+                    <span style="z-index: 1;">📊 Before/After Comparison Chart</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Viral Moments -->
+    <section id="viral">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Feature 5</div>
+                <h2 class="section-title">Viral Moments</h2>
+                <p class="section-description">
+                    Days when Wordle broke the internet. Unusual tweet volume spikes and search interest surges reveal
+                    the most controversial puzzles.
+                </p>
+            </div>
+
+            <div class="viral-grid">
+                <div class="viral-card">
+                    <div class="viral-date">Feb 15, 2022</div>
+                    <div class="viral-word">AROMA</div>
+                    <div class="viral-metric mono">340K</div>
+                    <div class="viral-description">Tweets (3.2x average)</div>
+                </div>
+
+                <div class="viral-card">
+                    <div class="viral-date">Mar 3, 2022</div>
+                    <div class="viral-word">TROPE</div>
+                    <div class="viral-metric mono">298K</div>
+                    <div class="viral-description">Tweets (2.8x average)</div>
+                </div>
+
+                <div class="viral-card">
+                    <div class="viral-date">May 9, 2022</div>
+                    <div class="viral-word">HOMER</div>
+                    <div class="viral-metric mono">412K</div>
+                    <div class="viral-description">Tweets (3.9x average)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Letter Traps -->
+    <section id="traps">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-eyebrow">Feature 6</div>
+                <h2 class="section-title">Letter Traps</h2>
+                <p class="section-description">
+                    Which letter patterns trip up players the most? This heatmap reveals the trickiest letter positions
+                    and combinations.
+                </p>
+            </div>
+
+            <div class="heatmap-grid">
+                <div class="heatmap-cell intensity-low">
+                    <div class="heatmap-letter">S_</div>
+                    <div class="heatmap-value">+0.3</div>
+                </div>
+                <div class="heatmap-cell intensity-high">
+                    <div class="heatmap-letter">_OUGH</div>
+                    <div class="heatmap-value">+1.8</div>
+                </div>
+                <div class="heatmap-cell intensity-medium">
+                    <div class="heatmap-letter">_ATE</div>
+                    <div class="heatmap-value">+0.9</div>
+                </div>
+                <div class="heatmap-cell intensity-low">
+                    <div class="heatmap-letter">_ER</div>
+                    <div class="heatmap-value">+0.4</div>
+                </div>
+                <div class="heatmap-cell intensity-high">
+                    <div class="heatmap-letter">_OUND</div>
+                    <div class="heatmap-value">+1.6</div>
+                </div>
+                <div class="heatmap-cell intensity-medium">
+                    <div class="heatmap-letter">_ING</div>
+                    <div class="heatmap-value">+1.1</div>
+                </div>
+                <div class="heatmap-cell intensity-low">
+                    <div class="heatmap-letter">_LY</div>
+                    <div class="heatmap-value">+0.5</div>
+                </div>
+                <div class="heatmap-cell intensity-high">
+                    <div class="heatmap-letter">_ATCH</div>
+                    <div class="heatmap-value">+1.7</div>
+                </div>
+                <div class="heatmap-cell intensity-medium">
+                    <div class="heatmap-letter">_OW</div>
+                    <div class="heatmap-value">+0.8</div>
+                </div>
+                <div class="heatmap-cell intensity-low">
+                    <div class="heatmap-letter">_ED</div>
+                    <div class="heatmap-value">+0.6</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <h3 class="footer-title">Built with Data + Design</h3>
+            <p class="footer-text">
+                A portfolio project exploring Wordle patterns through 500+ days of gameplay data, tweets, and search
+                trends.
+            </p>
+            <div class="tech-stack">
+                <span class="tech-badge">Python</span>
+                <span class="tech-badge">React</span>
+                <span class="tech-badge">PostgreSQL</span>
+                <span class="tech-badge">FastAPI</span>
+                <span class="tech-badge">D3.js</span>
+                <span class="tech-badge">Docker</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Navigation Functionality
+        const navItems = document.querySelectorAll('.scroll-nav-item');
+        const sections = document.querySelectorAll('section');
+        const navItemsArray = Array.from(navItems);
+        const scrollNav = document.querySelector('.scroll-nav');
+        const overviewCards = document.querySelectorAll('.overview-card');
+
+        // Click navigation for nav items
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetId = item.getAttribute('data-target');
+                let targetSection;
+
+                if (targetId === 'hero') {
+                    targetSection = document.querySelector('.hero');
+                } else {
+                    targetSection = document.getElementById(targetId);
+                }
+
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Click navigation for overview cards
+        overviewCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const targetId = card.getAttribute('data-target');
+                const targetSection = document.getElementById(targetId);
+
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Interactive Pattern Blocks
+        const states = ['⬜', '🟨', '🟩'];
+        const blocks = document.querySelectorAll('.pattern-block');
+        const btnAnalyze = document.getElementById('btn-analyze');
+        const resultsArea = document.getElementById('analysis-results');
+
+        blocks.forEach(block => {
+            block.addEventListener('click', () => {
+                let currentState = states.indexOf(block.textContent);
+                let nextState = (currentState + 1) % states.length;
+                block.textContent = states[nextState];
+                block.className = `pattern-block state-${nextState}`;
+            });
+        });
+
+        if (btnAnalyze) {
+            btnAnalyze.addEventListener('click', () => {
+                const currentPattern = Array.from(blocks).map(b => b.textContent).join('');
+                document.getElementById('result-pattern').textContent = currentPattern;
+                resultsArea.style.display = 'block';
+
+                // Re-trigger scroll state update because the page height might change
+                setTimeout(updateActiveNav, 100);
+
+                // Scroll to results smoothly
+                resultsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+        }
+
+        // Update active state and show prev/current/next on scroll
+        function updateActiveNav() {
+            let currentSection = '';
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+            // Check sections
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    currentSection = section.id;
+                }
+            });
+
+            // Find current index
+            let currentIndex = -1;
+            navItems.forEach((item, index) => {
+                if (item.getAttribute('data-target') === currentSection) {
+                    currentIndex = index;
+                }
+            });
+
+            // Update nav items - show all sections with different states
+            navItems.forEach((item, index) => {
+                item.classList.remove('active', 'viewed');
+
+                if (index === currentIndex && currentIndex !== -1) {
+                    // Current section
+                    item.classList.add('active');
+                } else if (currentIndex !== -1 && index < currentIndex) {
+                    // Already viewed sections
+                    item.classList.add('viewed');
+                }
+                // Future sections or landing state (currentIndex === -1) remain with default styling
+            });
+
+            // Update progress line
+            if (navItems.length > 0) {
+                const progressPercent = currentIndex === -1 ? 0 : (currentIndex / (navItems.length - 1)) * 100;
+                // Update the ::after pseudo-element height via inline style
+                scrollNav.style.setProperty('--progress-height', progressPercent + '%');
+                // Actually apply the height to the after element
+                const style = document.createElement('style');
+                style.textContent = `.scroll-nav::after { height: ${progressPercent}% !important; }`;
+                // Remove old dynamic style if exists
+                const oldStyle = document.getElementById('progress-style');
+                if (oldStyle) oldStyle.remove();
+                style.id = 'progress-style';
+                document.head.appendChild(style);
+            }
+        }
+
+        // Throttle scroll events for performance
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            scrollTimeout = setTimeout(updateActiveNav, 50);
+        });
+
+        // Initial call
+        updateActiveNav();
+    </script>
+
+</body>
+
+</html>

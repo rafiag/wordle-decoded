@@ -48,6 +48,7 @@ Wordle Decoded is an interactive data exploration dashboard that reveals the pat
 
 **Visual Design:**
 - Wordle brand color migration (green/yellow) with SSOT pattern for easy theme updates
+- Design system documentation: `docs/04-design/design-system.md`
 - Accessibility patterns (icons, line styles) for color-blind users
 - Plain language chart titles and descriptions for non-technical users
 

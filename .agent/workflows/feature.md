@@ -24,5 +24,5 @@ description: Implement a new feature following the project's engineering standar
     - Create a directory `docs/<feature-name>/`.
     - Add `README.md` (high-level overview and setup).
     - Add `<FEATURE_NAME>.md` (technical specs, architecture, and API details).
-    - Update all relevant document `FEATURE-PLAN.md`, `TECHINICAL-SPEC.md`, `README.md`, and `CLAUDE.MD` to make sure feature status is updated and new document reference is added. 
+    - Update all relevant documents `FEATURE-PLAN.md`, `TECHINICAL-SPEC.md`, `README.md`, `CLAUDE.MD`, and add reference to the design system documentation `docs/04-design/design-system.md` to ensure consistency. 
 6. **Show Results**: Demonstrate the working feature to the user, explaining both technical and user-facing perspectives.

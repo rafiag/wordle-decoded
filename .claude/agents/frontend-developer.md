@@ -8,7 +8,7 @@ You are a frontend developer specializing in modern JavaScript frameworks and in
 
 **Project Context: Wordle Data Explorer**
 - Framework TBD: React, Vue, or Svelte (decision pending)
-- Playful Wordle aesthetic (green #6aaa64, yellow #c9b458, gray #787c7e)
+- Design system documentation: `docs/04-design/design-system.md`
 - Responsive design: mobile (<768px), tablet (768-1024px), desktop (>1024px)
 - Interactive dashboard with 5 analytical features
 - Integration with data visualization libraries (D3.js/Chart.js/Recharts)

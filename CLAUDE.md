@@ -21,20 +21,6 @@
 - When decisions are needed: provide clear pros/cons including complexity and user experience impact
 
 ### Constraints & Requirements
-- **Scope:** MVP with 5 core analytical features ✅ COMPLETE, now in Phase 2 (UX Polish)
-- **Design:** Playful and colorful (Wordle aesthetic), responsive (mobile/tablet/desktop), color-blind friendly with patterns
-- **Interactivity:** Click to filter/drill down, hover tooltips (keyboard navigation removed from scope)
-- **Phase 1 (MVP):** ✅ **COMPLETE**
-  1. Database & data pipeline foundation ✅
-  2. Dashboard application foundation ✅
-  3. Word difficulty analysis (Feature 1.3) ✅
-  4. Guess distribution visualizations (Feature 1.4) ✅
-  5. Sentiment analysis engine & charts (Feature 1.9) ✅
-  6. Pattern-based performance analysis (Feature 1.5) ✅
-  7. NYT Effect analysis (Feature 1.6) ✅
-  8. Outlier/viral day detection (Feature 1.7) ✅
-  9. Trap pattern analysis (Feature 1.8) ✅
-- **Phase 2:** UX/UI polish (single-page dashboard, Wordle color migration with SSOT, mobile responsiveness, accessibility)
 - **Development Environment:** Docker Compose
 
 ### Key Commands
@@ -265,6 +251,7 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
   - **Phase 2 Migration:** Reverting from blue/orange to Wordle green/yellow with accessibility patterns (icons, line styles)
   - **SSOT Pattern:** All colors defined in `frontend/src/theme/colors.ts` for easy updates
 - **Style:** Modern, clean, data-focused but approachable and fun
+- **Design System:** Documentation available at `docs/04-design/design-system.md`
 - **Information Architecture:** Single-page scrollable dashboard (Phase 2 migration from multi-page tabs)
 - **Interactivity:** Click to filter/drill down, hover/tap for tooltips (keyboard navigation for charts not in scope)
 - **Accessibility:** Color-blind friendly via patterns + colors, WCAG 2.1 AA contrast ratios, ARIA labels
