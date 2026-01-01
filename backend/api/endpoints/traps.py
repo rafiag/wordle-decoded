@@ -22,10 +22,12 @@ def get_top_traps(
     for t in traps:
         results.append({
             "word": t.word.word,
-            "date": t.word.date,
+            "date": str(t.word.date) if t.word.date else None,
             "trap_score": t.trap_score,
             "neighbor_count": t.neighbor_count,
-            "deadly_neighbors": json.loads(t.deadly_neighbors) if t.deadly_neighbors else []
+            "deadly_neighbors": json.loads(t.deadly_neighbors) if t.deadly_neighbors else [],
+            "avg_guesses": float(t.word.avg_guess_count) if t.word.avg_guess_count else None,
+            "success_rate": float(t.word.success_rate) if t.word.success_rate else None
         })
         
     return APIResponse(
@@ -51,8 +53,11 @@ def get_trap_by_word(word: str, db: Session = Depends(get_db)):
             status="success",
             data={
                 "word": word.upper(),
+                "date": str(word_obj.date) if word_obj.date else None,
                 "is_trap": False,
-                "message": "This word has no significant trap characteristics."
+                "message": "This word has no significant trap characteristics.",
+                "avg_guesses": float(word_obj.avg_guess_count) if word_obj.avg_guess_count else None,
+                "success_rate": float(word_obj.success_rate) if word_obj.success_rate else None
             }
         )
         
@@ -60,9 +65,12 @@ def get_trap_by_word(word: str, db: Session = Depends(get_db)):
         status="success",
         data={
             "word": word.upper(),
+            "date": str(word_obj.date) if word_obj.date else None,
             "is_trap": True,
             "trap_score": trap.trap_score,
             "neighbor_count": trap.neighbor_count,
-            "deadly_neighbors": json.loads(trap.deadly_neighbors) if trap.deadly_neighbors else []
+            "deadly_neighbors": json.loads(trap.deadly_neighbors) if trap.deadly_neighbors else [],
+            "avg_guesses": float(word_obj.avg_guess_count) if word_obj.avg_guess_count else None,
+            "success_rate": float(word_obj.success_rate) if word_obj.success_rate else None
         }
     )

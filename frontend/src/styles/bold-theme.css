@@ -961,6 +961,276 @@
 }
 
 /* ===========================
+   Trap Section Styles
+   =========================== */
+
+/* Trap Section Layout */
+.theme-bold .trap-section-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    height: 700px;
+}
+
+@media (min-width: 1024px) {
+    .theme-bold .trap-section-grid {
+        grid-template-columns: 5fr 7fr;
+    }
+}
+
+/* Trap Leaderboard Card */
+.theme-bold .trap-leaderboard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.theme-bold .trap-leaderboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.theme-bold .trap-leaderboard-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.theme-bold .trap-chart-container {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+}
+
+.theme-bold .trap-info-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Trap Detail Card */
+.theme-bold .trap-detail-card {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+}
+
+.theme-bold .trap-detail-glow {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 165, 0, 0.05);
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    margin-top: -100px;
+    margin-right: -100px;
+}
+
+.theme-bold .trap-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+}
+
+.theme-bold .trap-detail-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent-orange);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-bold .trap-detail-word {
+    font-size: 60px;
+    font-weight: 900;
+    color: var(--text-primary);
+    letter-spacing: -2px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.theme-bold .trap-detail-date-box {
+    text-align: right;
+    background: var(--bg-primary);
+    padding: 16px 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.theme-bold .trap-detail-date-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.theme-bold .trap-detail-date-value {
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Trap Lock Visualization */
+.theme-bold .trap-lock-visual {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 280px;
+    /* Reduced from 400px */
+    background: rgba(10, 14, 39, 0.5);
+    border-radius: 16px;
+    border: 2px dashed var(--border-color);
+    margin-bottom: 16px;
+    /* Reduced from 24px */
+    padding: 24px;
+    /* Reduced from 32px */
+}
+
+.theme-bold .trap-lock-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    /* Reduced from 48px */
+}
+
+.theme-bold .trap-lock-tile {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-secondary);
+    border: 3px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.theme-bold .trap-lock-tile.is-variable {
+    border-color: var(--accent-orange);
+    background: rgba(255, 165, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.2);
+}
+
+.theme-bold .trap-lock-tile.is-variable.active {
+    background: var(--accent-orange);
+    color: var(--bg-primary);
+    transform: scale(1.05);
+}
+
+.theme-bold .trap-keys-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    /* Reduced from 16px */
+    font-weight: 700;
+}
+
+.theme-bold .trap-keys-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    /* Slightly tighter gap */
+    justify-content: center;
+    max-width: 600px;
+}
+
+.theme-bold .trap-key {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: all 0.2s ease;
+}
+
+.theme-bold .trap-key:hover,
+.theme-bold .trap-key.active {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    background: rgba(0, 217, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.2);
+}
+
+.theme-bold .trap-key.is-trap-word {
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
+}
+
+.theme-bold .trap-key.is-trap-word:hover,
+.theme-bold .trap-key.is-trap-word.active {
+    background: rgba(255, 165, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.2);
+}
+
+/* Trap Empty State */
+.theme-bold .trap-empty-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--text-muted);
+}
+
+.theme-bold .trap-empty-state svg {
+    opacity: 0.2;
+}
+
+.theme-bold .trap-empty-state span {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* ===========================
    Stats Grid & Cards
    =========================== */
 .theme-bold .stats-grid {
@@ -1048,6 +1318,7 @@
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }

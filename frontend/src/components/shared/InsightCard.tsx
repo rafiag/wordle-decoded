@@ -7,9 +7,9 @@ interface InsightCardProps {
  * Reusable insight card component for key findings.
  * Features gradient background and cyan accent border.
  */
-export default function InsightCard({ title, children }: InsightCardProps) {
+export default function InsightCard({ title, children, style }: InsightCardProps & { style?: React.CSSProperties }) {
     return (
-        <div className="insight-card">
+        <div className="insight-card" style={style}>
             <div className="insight-badge">💡 Key Finding</div>
             <h4 className="insight-title">{title}</h4>
             <div className="insight-content">{children}</div>
@@ -22,6 +22,7 @@ export default function InsightCard({ title, children }: InsightCardProps) {
                     padding: 1.5rem;
                     margin-top: 2rem;
                 }
+// ... rest of the file ...
 
                 .insight-badge {
                     display: inline-block;

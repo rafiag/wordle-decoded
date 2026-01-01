@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 const SECTIONS = [
     { id: 'at-a-glance', label: 'At a Glance' },
     { id: 'difficulty', label: 'Difficulty' },
+    { id: 'trap-words', label: 'Trap Words' },
     { id: 'sentiment', label: 'Sentiment' },
     { id: 'nyt-effect', label: 'NYT Effect' },
     { id: 'word-highlights', label: 'Word Highlights' },

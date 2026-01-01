@@ -84,6 +84,8 @@ export interface Trap {
   trap_score: number
   neighbor_count: number
   deadly_neighbors: string[]
+  avg_guesses?: number
+  success_rate?: number
 }
 
 export interface OutlierScatterPoint {

@@ -1,11 +1,12 @@
 import React from 'react';
 import BoldHeroSection from '../sections/BoldHeroSection';
-import BoldSentimentSection from '../sections/BoldSentimentSection';
 import BoldAtAGlanceSection from '../sections/BoldAtAGlanceSection';
 import BoldDifficultySection from '../sections/BoldDifficultySection';
-import BoldPatternsSection from '../sections/BoldPatternsSection';
+import BoldTrapsSection from '../sections/BoldTrapsSection';
+import BoldSentimentSection from '../sections/BoldSentimentSection';
 import BoldNYTEffectSection from '../sections/BoldNYTEffectSection';
 import BoldWordHighlightsSection from '../sections/BoldWordHighlightsSection';
+import BoldPatternsSection from '../sections/BoldPatternsSection';
 
 /**
  * BoldDashboard - The main page for the V2 design.
@@ -23,6 +24,7 @@ export default function BoldDashboard() {
                 <BoldAtAGlanceSection />
                 <BoldDifficultySection />
                 <BoldSentimentSection />
+                <BoldTrapsSection />
                 <BoldNYTEffectSection />
                 <BoldWordHighlightsSection />
                 <BoldPatternsSection />
