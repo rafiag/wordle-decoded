@@ -5,8 +5,8 @@ import BoldSentimentSection from '../sections/BoldSentimentSection';
 import ViralSection from '../sections/ViralSection';
 import BoldDifficultySection from '../sections/BoldDifficultySection';
 import BoldPatternsSection from '../sections/BoldPatternsSection';
+import BoldNYTEffectSection from '../sections/BoldNYTEffectSection';
 import {
-    BoldNYTEffectSection,
     BoldTrapsSection
 } from '../sections/BoldPlaceholderSections';
 

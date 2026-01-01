@@ -25,18 +25,6 @@ export const BoldPatternsSection = () => (
     </section>
 );
 
-export const BoldNYTEffectSection = () => (
-    <section id="nyt-effect" className="mb-20 scroll-mt-20">
-        <div className="section-header">
-            <h2 className="section-title">The NYT Effect</h2>
-            <p className="section-description">
-                When the New York Times acquired Wordle in June 2022, everything changed. See the before/after impact on difficulty.
-            </p>
-        </div>
-        <Placeholder title="Before vs After Stats" color="#ffffff" />
-    </section>
-);
-
 export const BoldTrapsSection = () => (
     <section id="traps" className="mb-20 scroll-mt-20">
         <div className="section-header">

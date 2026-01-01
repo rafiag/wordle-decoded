@@ -54,6 +54,11 @@ export const statsApi = {
     return response.data
   },
 
+  getNYTPeriods: async (): Promise<any> => {
+    const response = await apiClient.get('/nyt/periods')
+    return response.data
+  },
+
 
 
   // Feature 1.7: Outliers

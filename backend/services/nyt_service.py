@@ -1,39 +1,63 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 from scipy import stats
 import numpy as np
 
-from backend.db.schema import Word, Distribution
+from backend.db.schema import Word, Distribution, TweetSentiment
 from backend.api.schemas import NYTMetrics, NYTComparison, StatTestResult, NYTTimelinePoint
 
 class NYTService:
     ACQUISITION_DATE = "2022-02-10"
 
+    # Define pre-acquisition baseline period (1 month before)
+    PRE_START = "2021-12-31"
+    PRE_END = "2022-01-31"
+
+    # Define post-acquisition periods
+    POST_1M_END = "2022-02-29"  # 1 month after
+    POST_3M_END = "2022-04-30"  # 3 months after
+    POST_6M_END = "2022-07-31"  # 6 months after
+
     def __init__(self, db: Session):
         self.db = db
 
     def _get_data(self):
-        """Fetches and aligns Word and Distribution data."""
-        # Join words and distributions
-        query = select(Word, Distribution).join(Distribution, Word.id == Distribution.word_id)
+        """Fetches and aligns Word, Distribution, and TweetSentiment data."""
+        # Join words, distributions, and sentiment
+        query = (
+            select(Word, Distribution, TweetSentiment)
+            .join(Distribution, Word.id == Distribution.word_id)
+            .outerjoin(TweetSentiment, Word.date == TweetSentiment.date)
+        )
         results = self.db.execute(query).all()
-        
+
         data = []
-        for word, dist in results:
+        for word, dist, sentiment in results:
             if not word.date or not word.avg_guess_count:
                 continue
-                
+
+            # Calculate success rate from distribution data
+            total_attempts = (
+                (dist.guess_1 or 0) + (dist.guess_2 or 0) + (dist.guess_3 or 0) +
+                (dist.guess_4 or 0) + (dist.guess_5 or 0) + (dist.guess_6 or 0) + (dist.failed or 0)
+            )
+            success_count = total_attempts - (dist.failed or 0)
+            success_rate = (success_count / total_attempts * 100) if total_attempts > 0 else 0.0
+
             data.append({
                 "date": word.date,
                 "word": word.word,
                 "avg_guesses": word.avg_guess_count,
                 "difficulty": word.difficulty_rating,
-                "success_rate": word.success_rate,
+                "success_rate": success_rate,
+                "sentiment": sentiment.avg_sentiment if sentiment else None,
+                "frustration": sentiment.frustration_index if sentiment else None,
+                "daily_tweets": dist.total_tweets,
                 "era": "Pre-NYT" if word.date < self.ACQUISITION_DATE else "Post-NYT"
             })
-            
+
         return pd.DataFrame(data)
 
     @staticmethod
@@ -44,14 +68,14 @@ class NYTService:
 
     def get_comparison_summary(self) -> NYTComparison:
         df = self._get_data()
-        
+
         if df.empty:
             empty_metrics = NYTMetrics(
-                avg_guesses=0, avg_difficulty=0, avg_success_rate=0, 
+                avg_guesses=0, avg_difficulty=0, avg_success_rate=0,
                 total_games=0, variance_guesses=0
             )
             return NYTComparison(
-                before=empty_metrics, after=empty_metrics, 
+                before=empty_metrics, after=empty_metrics,
                 diff_guesses=0, diff_difficulty=0
             )
 
@@ -64,7 +88,7 @@ class NYTService:
                     avg_guesses=0, avg_difficulty=0, avg_success_rate=0,
                     total_games=0, variance_guesses=0
                 )
-            
+
             return NYTMetrics(
                 avg_guesses=self._clean_float(sub_df['avg_guesses'].mean()),
                 avg_difficulty=self._clean_float(sub_df['difficulty'].mean()),
@@ -82,6 +106,98 @@ class NYTService:
             diff_guesses=after_metrics.avg_guesses - before_metrics.avg_guesses,
             diff_difficulty=after_metrics.avg_difficulty - before_metrics.avg_difficulty
         )
+
+    def get_period_comparison(self) -> dict:
+        """
+        Returns metrics for before and multiple post-acquisition periods.
+        Used for the NYT Effect table display.
+        """
+        df = self._get_data()
+
+        if df.empty:
+            return {
+                "before": {},
+                "one_month": {},
+                "three_month": {},
+                "six_month": {}
+            }
+
+        # Filter by periods
+        before_df = df[(df['date'] >= self.PRE_START) & (df['date'] <= self.PRE_END)]
+        one_month_df = df[(df['date'] >= self.ACQUISITION_DATE) & (df['date'] <= self.POST_1M_END)]
+        three_month_df = df[(df['date'] >= self.ACQUISITION_DATE) & (df['date'] <= self.POST_3M_END)]
+        six_month_df = df[(df['date'] >= self.ACQUISITION_DATE) & (df['date'] <= self.POST_6M_END)]
+
+        def calc_period_metrics(period_df, baseline_df):
+            """Calculate metrics and percentage changes vs baseline."""
+            if period_df.empty:
+                return {}
+
+            baseline_success_rate = baseline_df['success_rate'].mean() if not baseline_df.empty else 0
+            baseline_difficulty = baseline_df['difficulty'].mean() if not baseline_df.empty else 0
+            baseline_sentiment = baseline_df['sentiment'].mean() if not baseline_df.empty else 0
+            baseline_tweets = baseline_df['daily_tweets'].mean() if not baseline_df.empty else 0
+
+            avg_success_rate = self._clean_float(period_df['success_rate'].mean())
+            avg_difficulty = self._clean_float(period_df['difficulty'].mean())
+            avg_sentiment = self._clean_float(period_df['sentiment'].mean())
+            avg_tweets = self._clean_float(period_df['daily_tweets'].mean())
+
+            # Calculate percentage changes
+            success_change = ((avg_success_rate - baseline_success_rate) / baseline_success_rate * 100) if baseline_success_rate else 0
+            diff_change = ((avg_difficulty - baseline_difficulty) / baseline_difficulty * 100) if baseline_difficulty else 0
+            sent_change = ((avg_sentiment - baseline_sentiment) / abs(baseline_sentiment) * 100) if baseline_sentiment else 0
+            tweet_change = ((avg_tweets - baseline_tweets) / baseline_tweets * 100) if baseline_tweets else 0
+
+            # Run t-tests for significance
+            success_sig = self._is_significant(baseline_df['success_rate'], period_df['success_rate'])
+            diff_sig = self._is_significant(baseline_df['difficulty'], period_df['difficulty'])
+            sent_sig = self._is_significant(baseline_df['sentiment'], period_df['sentiment'])
+            tweet_sig = self._is_significant(baseline_df['daily_tweets'], period_df['daily_tweets'])
+
+            return {
+                "success_rate": float(avg_success_rate),
+                "avg_difficulty": float(avg_difficulty),
+                "avg_sentiment": float(avg_sentiment),
+                "avg_daily_tweets": float(avg_tweets / 1000),  # Convert to thousands
+                "success_rate_change_pct": float(success_change),
+                "difficulty_change_pct": float(diff_change),
+                "sentiment_change_pct": float(sent_change),
+                "tweet_change_pct": float(tweet_change),
+                "success_rate_significant": bool(success_sig),
+                "difficulty_significant": bool(diff_sig),
+                "sentiment_significant": bool(sent_sig),
+                "tweet_significant": bool(tweet_sig)
+            }
+
+        # Calculate baseline metrics (no changes vs itself)
+        before_metrics = {
+            "success_rate": float(self._clean_float(before_df['success_rate'].mean())),
+            "avg_difficulty": float(self._clean_float(before_df['difficulty'].mean())),
+            "avg_sentiment": float(self._clean_float(before_df['sentiment'].mean())),
+            "avg_daily_tweets": float(self._clean_float(before_df['daily_tweets'].mean()) / 1000)
+        }
+
+        return {
+            "before": before_metrics,
+            "one_month": calc_period_metrics(one_month_df, before_df),
+            "three_month": calc_period_metrics(three_month_df, before_df),
+            "six_month": calc_period_metrics(six_month_df, before_df)
+        }
+
+    def _is_significant(self, baseline_series, period_series) -> bool:
+        """Run t-test and return if p < 0.05."""
+        baseline_clean = baseline_series.dropna()
+        period_clean = period_series.dropna()
+
+        if len(baseline_clean) < 2 or len(period_clean) < 2:
+            return False
+
+        try:
+            _, p_val = stats.ttest_ind(baseline_clean, period_clean, equal_var=False)
+            return bool(p_val < 0.05)  # Convert numpy.bool to Python bool
+        except:
+            return False
 
     def run_statistical_tests(self) -> dict[str, StatTestResult]:
         df = self._get_data()
@@ -113,7 +229,7 @@ class NYTService:
             significant=u_p_val < 0.05,
             interpretation="Guess distributions differ." if u_p_val < 0.05 else "Guess distributions similar."
         )
-        
+
         # 3. Levene's Test - Guesses
         l_stat, l_p_val = stats.levene(pre_guesses, post_guesses)
         results['levene_variance'] = StatTestResult(
@@ -158,10 +274,10 @@ class NYTService:
         df = self._get_data()
         if df.empty:
             return []
-            
+
         # Sort by date
         df = df.sort_values('date')
-        
+
         timeline = []
         for _, row in df.iterrows():
             timeline.append(NYTTimelinePoint(
@@ -171,5 +287,5 @@ class NYTService:
                 avg_guesses=row['avg_guesses'],
                 difficulty=int(row['difficulty']) if pd.notna(row['difficulty']) else None
             ))
-            
+
         return timeline

@@ -48,5 +48,14 @@ def get_nyt_timeline(db: Session = Depends(get_db)):
     """
     service = NYTService(db)
     timeline = service.get_timeline()
-    
+
     return timeline
+
+@router.get("/periods")
+def get_nyt_period_comparison(db: Session = Depends(get_db)):
+    """
+    Returns metrics for before and multiple post-acquisition periods (1m, 3m, 6m).
+    Used for NYT Effect table display.
+    """
+    service = NYTService(db)
+    return service.get_period_comparison()

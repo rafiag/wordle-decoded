@@ -39,11 +39,9 @@ This document defines the visual language and UI components for the **Wordle Dat
 | **Base body** | `Inter`, sans‑serif | 400 | `clamp(14px, 1.2vw, 18px)` |
 | **Headings (h1‑h3)** | `Space Grotesk`, sans‑serif | 700 | `clamp(36px, 5vw, 72px)` (h2) / `clamp(48px, 8vw, 120px)` (h1) |
 | **Monospace** | `JetBrains Mono` | 700 | variable (used for stats) |
-| **Eyebrow** | `Inter` | 600 | `14px` (uppercase) |
 | **Button** | `Inter` | 600 | `16px` |
 
 ### Guidelines
-- Use **uppercase** for eyecatchers (eyebrow, nav labels).
 - Apply **gradient text** for hero titles using accent cyan → purple.
 - Monospace is reserved for numeric values and code‑like displays.
 
@@ -137,7 +135,6 @@ This document defines the visual language and UI components for the **Wordle Dat
 
 <header class="hero">
   <div class="hero-content">
-    <div class="hero-eyebrow">Data Exploration Dashboard</div>
     <h1 class="hero-title">WORDLE<br>DECODED</h1>
     <p class="hero-subtitle">You've played the game. Now see the data.</p>
     <div class="hero-stat">
