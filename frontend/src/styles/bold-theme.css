@@ -19,6 +19,7 @@
 
     --border-color: #2a2a4e;
     --glow-cyan: rgba(0, 217, 255, 0.3);
+    --glow-coral: rgba(255, 107, 157, 0.3);
 
     /* Fonts */
     --font-heading: 'Space Grotesk', sans-serif;
@@ -89,9 +90,9 @@
 /* Component Utility Classes (Scoped) */
 .theme-bold .card {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    padding: 1.5rem;
+    border: 3px solid var(--border-color);
+    border-radius: 16px;
+    padding: 32px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
@@ -105,8 +106,8 @@
 .theme-bold .btn-primary {
     background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
     color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
+    padding: 20px 48px;
+    border-radius: 12px;
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -393,6 +394,7 @@
 
 /* Section Text Constraints (Mockup: 700px) */
 .theme-bold .section-header {
+    text-align: center;
     margin-bottom: 48px;
 }
 
@@ -407,7 +409,7 @@
     color: var(--text-secondary);
     max-width: 700px;
     line-height: 1.6;
-    margin-bottom: 0;
+    margin: 0 auto;
 }
 
 .theme-bold .section-eyebrow {
@@ -480,15 +482,15 @@
 }
 
 .theme-bold .pattern-block {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     background: var(--bg-secondary);
     border: 3px solid var(--border-color);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: 40px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
@@ -501,9 +503,9 @@
     }
 
     .theme-bold .pattern-block {
-        width: 56px;
-        height: 56px;
-        font-size: 28px;
+        width: 64px;
+        height: 64px;
+        font-size: 32px;
     }
 }
 
@@ -956,4 +958,133 @@
 
 .theme-bold .text-muted {
     color: var(--text-muted);
+}
+
+/* ===========================
+   Stats Grid & Cards
+   =========================== */
+.theme-bold .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+@media (min-width: 1024px) {
+    .theme-bold .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.theme-bold .stat-card {
+    background: var(--bg-card);
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
+}
+
+.theme-bold .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+    border-color: var(--accent-cyan);
+}
+
+/* Stat Card Variants */
+.theme-bold .stat-card-green {
+    border-top: 4px solid var(--accent-lime);
+}
+
+.theme-bold .stat-card-yellow {
+    border-top: 4px solid var(--accent-orange);
+}
+
+.theme-bold .stat-card-gray {
+    border-top: 4px solid var(--accent-cyan);
+}
+
+.theme-bold .stat-card-red {
+    border-top: 4px solid var(--accent-coral);
+}
+
+/* Stat Card Elements */
+.theme-bold .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.theme-bold .stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-lime));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-bold .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Skeleton Loading State */
+.theme-bold .skeleton {
+    background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ===========================
+   Chart Placeholder
+   =========================== */
+.theme-bold .chart-placeholder {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 48px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--border-color);
+}
+
+.theme-bold .placeholder-content {
+    text-align: center;
+}
+
+.theme-bold .placeholder-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.theme-bold .chart-placeholder h3 {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+}
+
+.theme-bold .chart-placeholder p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
 }

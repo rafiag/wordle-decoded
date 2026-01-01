@@ -5,9 +5,9 @@ const SECTIONS = [
     { id: 'at-a-glance', label: 'At a Glance' },
     { id: 'difficulty', label: 'Difficulty' },
     { id: 'sentiment', label: 'Sentiment' },
-    { id: 'pattern', label: 'Pattern' },
     { id: 'nyt-effect', label: 'NYT Effect' },
-    { id: 'word-highlights', label: 'WOrd Highlights' },
+    { id: 'word-highlights', label: 'Word Highlights' },
+    { id: 'pattern', label: 'Pattern' },
 ];
 
 export default function ScrollNav({ containerId }: { containerId?: string }) {
