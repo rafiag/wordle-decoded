@@ -115,20 +115,26 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
         ).join(Word, TweetSentiment.word_id == Word.id)\
          .filter(Word.avg_guess_count.isnot(None))
         
+        # Collect sort criteria
+        sort_criteria = []
+        
         # Primary Sort
         if order_desc:
-            q = q.order_by(sort_col.desc())
+            sort_criteria.append(sort_col.desc())
         else:
-            q = q.order_by(sort_col.asc())
+            sort_criteria.append(sort_col.asc())
 
         # Secondary Sort (if provided)
         if secondary_sort_col is not None:
              if secondary_order_desc:
-                 q = q.order_by(secondary_sort_col.desc())
+                 sort_criteria.append(secondary_sort_col.desc())
              else:
-                 q = q.order_by(secondary_sort_col.asc())
+                 sort_criteria.append(secondary_sort_col.asc())
+        
+        # Tertiary Sort (Date) for stable tie-breaking
+        sort_criteria.append(Word.date.desc())
             
-        return q.limit(limit).all()
+        return q.order_by(*sort_criteria).limit(limit).all()
 
     # Frustrating: Frustration Index desc, then by Sentiment score desc
     top_hated_raw = get_top_list(

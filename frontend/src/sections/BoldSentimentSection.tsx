@@ -127,7 +127,7 @@ const TableRow = memo(({ item, idx }: any) => (
             {(item.frustration * 100).toFixed(2)}%
         </td>
         <td className="p-3 text-right font-bold" style={{ color: 'var(--accent-lime)' }}>
-            {(item.sentiment).toFixed(2)}
+            {(item.sentiment).toFixed(3)}
         </td>
         <td className="p-3 text-right text-[var(--text-secondary)]">
             {(item.total_tweets).toLocaleString()}
