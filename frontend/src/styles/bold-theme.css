@@ -416,3 +416,216 @@
     color: var(--accent-coral);
     margin-bottom: 12px;
 }
+
+/* ===========================
+   Pattern Section
+   =========================== */
+
+/* Vertical Stack Layout - Input on top, Results below */
+.theme-bold .pattern-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    margin-top: 32px;
+}
+
+/* Pattern Input Area */
+.theme-bold .pattern-input-area {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.theme-bold .pattern-input-area h3 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.theme-bold .pattern-input-area p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Pattern Input Row - Horizontal layout with button */
+.theme-bold .pattern-input-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* Pattern Input Blocks */
+.theme-bold .pattern-input-blocks {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ensure button aligns to center and has consistent height */
+.theme-bold .pattern-input-row > .btn {
+    align-self: center;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0 1.5rem;
+}
+
+.theme-bold .pattern-block {
+    width: 64px;
+    height: 64px;
+    background: var(--bg-secondary);
+    border: 3px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .theme-bold .pattern-input-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .theme-bold .pattern-block {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+    }
+}
+
+.theme-bold .pattern-block:hover {
+    transform: scale(1.05);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px var(--glow-cyan);
+}
+
+.theme-bold .pattern-block:focus {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 2px;
+}
+
+/* Block States */
+.theme-bold .pattern-block.state-0 {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+}
+
+.theme-bold .pattern-block.state-1 {
+    background: rgba(255, 165, 0, 0.1);
+    border-color: var(--accent-orange);
+}
+
+.theme-bold .pattern-block.state-2 {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: var(--accent-lime);
+}
+
+/* Pattern Results */
+.theme-bold .pattern-results {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.theme-bold .pattern-result-header {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.theme-bold .pattern-result-header h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0;
+    color: var(--text-primary);
+}
+
+/* Pattern Metrics Grid */
+.theme-bold .pattern-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+    .theme-bold .pattern-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+.theme-bold .pattern-metric-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.theme-bold .metric-card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.theme-bold .metric-card-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+}
+
+/* Pattern Flow List */
+.theme-bold .pattern-flow-list {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 32px;
+}
+
+.theme-bold .flow-header {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.theme-bold .flow-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.theme-bold .flow-row:last-child {
+    border-bottom: none;
+}
+
+.theme-bold .flow-pattern-display {
+    font-size: 24px;
+    letter-spacing: 4px;
+    font-family: var(--font-mono);
+}
+
+.theme-bold .flow-prob {
+    font-family: var(--font-mono);
+    color: var(--accent-lime);
+    font-weight: 600;
+    font-size: 16px;
+}
