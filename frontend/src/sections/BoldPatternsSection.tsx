@@ -42,7 +42,7 @@ export default function BoldPatternsSection() {
     const hasResults = analyzedPattern !== null;
 
     return (
-        <section id="pattern" className="section">
+        <section id="pattern" className="mb-20 pt-10 scroll-mt-20">
             <div className="container">
                 {/* Section Header */}
                 <div className="section-header">
