@@ -86,10 +86,6 @@ export default function BoldPatternsSection() {
                                 </button>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Results Card */}
-                    <div className="card">
                         <div className="pattern-results">
                             <div className="pattern-result-header">
                                 <h3>Analysis Results</h3>

@@ -129,7 +129,14 @@ export const statsApi = {
   getAtAGlanceStats: async (): Promise<AtAGlanceStats> => {
     const response = await apiClient.get('/dashboard/at-a-glance')
     return response.data.data
+  },
+
+  // Word Explorer
+  getWordDetails: async (word: string): Promise<import('@/types').WordDetails> => {
+    const response = await apiClient.get(`/words/${word.toLowerCase()}/details`)
+    return response.data.data.details
   }
 }
 
 export default apiClient
+

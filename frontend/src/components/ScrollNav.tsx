@@ -7,8 +7,7 @@ const SECTIONS = [
     { id: 'sentiment', label: 'Sentiment' },
     { id: 'pattern', label: 'Pattern' },
     { id: 'nyt-effect', label: 'NYT Effect' },
-    { id: 'viral', label: 'Viral' },
-    { id: 'traps', label: 'Traps' },
+    { id: 'word-highlights', label: 'WOrd Highlights' },
 ];
 
 export default function ScrollNav({ containerId }: { containerId?: string }) {
@@ -80,13 +79,13 @@ export default function ScrollNav({ containerId }: { containerId?: string }) {
 
     // Calculate progress for the line fill
     const activeIndex = SECTIONS.findIndex(s => s.id === activeSection);
-    const progressPercent = activeIndex === -1 ? 0 : (activeIndex / (SECTIONS.length - 1)) * 100;
+    const progressScale = activeIndex === -1 ? 0 : activeIndex / (SECTIONS.length - 1);
 
     return (
         <nav
             className="scroll-nav"
             style={{
-                '--progress-height': `${progressPercent}%`
+                '--progress-scale': progressScale
             } as React.CSSProperties}
         >
             {SECTIONS.map((section, index) => {

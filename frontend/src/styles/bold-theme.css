@@ -287,11 +287,13 @@
     position: absolute;
     left: 5px;
     top: 10px;
+    bottom: 10px;
     width: 2px;
     background: linear-gradient(180deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
     z-index: 1;
-    transition: height 0.3s ease;
-    height: var(--progress-height, 0%);
+    transition: all 0.3s ease;
+    transform: scaleY(var(--progress-scale, 0));
+    transform-origin: top;
 }
 
 .theme-bold .scroll-nav-item {
@@ -467,7 +469,7 @@
 }
 
 /* Ensure button aligns to center and has consistent height */
-.theme-bold .pattern-input-row > .btn {
+.theme-bold .pattern-input-row>.btn {
     align-self: center;
     height: 64px;
     display: flex;
@@ -628,4 +630,330 @@
     color: var(--accent-lime);
     font-weight: 600;
     font-size: 16px;
+}
+
+/* ===========================
+   Word Highlights Section
+   =========================== */
+
+/* Highlight Cards Grid */
+.theme-bold .highlight-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+@media (max-width: 1024px) {
+    .theme-bold .highlight-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-bold .highlight-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Highlight Card Base */
+.theme-bold .highlight-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-bold .highlight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    opacity: 0.8;
+}
+
+.theme-bold .highlight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Card Variants */
+.theme-bold .highlight-card-coral::before {
+    background: linear-gradient(90deg, var(--accent-coral), var(--accent-orange));
+}
+
+.theme-bold .highlight-card-coral:hover {
+    border-color: var(--accent-coral);
+}
+
+.theme-bold .highlight-card-cyan::before {
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-lime));
+}
+
+.theme-bold .highlight-card-cyan:hover {
+    border-color: var(--accent-cyan);
+}
+
+.theme-bold .highlight-card-purple::before {
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-coral));
+}
+
+.theme-bold .highlight-card-purple:hover {
+    border-color: var(--accent-purple);
+}
+
+/* Card Header */
+.theme-bold .highlight-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.theme-bold .highlight-card-icon {
+    font-size: 24px;
+}
+
+.theme-bold .highlight-card-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+}
+
+/* Featured Word */
+.theme-bold .highlight-card-word {
+    font-size: 42px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    letter-spacing: 4px;
+}
+
+/* Stats */
+.theme-bold .highlight-card-stats {
+    margin-bottom: 12px;
+}
+
+.theme-bold .highlight-stat-primary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.theme-bold .highlight-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+}
+
+.theme-bold .highlight-stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.theme-bold .highlight-stat-secondary {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Description */
+.theme-bold .highlight-card-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ===========================
+   Word Explorer Section
+   =========================== */
+
+.theme-bold .word-explorer-section {
+    margin-top: 48px;
+}
+
+.theme-bold .word-explorer-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.theme-bold .word-explorer-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+/* Word Input */
+.theme-bold .word-explorer-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.theme-bold .word-explorer-input {
+    width: 200px;
+    height: 64px;
+    background: var(--bg-secondary);
+    border: 3px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0 16px;
+    font-size: 28px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.theme-bold .word-explorer-input::placeholder {
+    color: var(--text-muted);
+    letter-spacing: 8px;
+}
+
+.theme-bold .word-explorer-input:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px var(--glow-cyan);
+}
+
+.theme-bold .word-explorer-char-count {
+    position: absolute;
+    right: -36px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.theme-bold .word-explorer-hint {
+    font-size: 12px;
+    color: var(--accent-coral);
+    margin-top: 8px;
+    text-align: center;
+}
+
+/* Word Display */
+.theme-bold .word-explorer-word-display {
+    font-size: 48px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 24px;
+    letter-spacing: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.theme-bold .word-explorer-badge {
+    font-size: 12px;
+    font-family: var(--font-body);
+    background: rgba(0, 255, 136, 0.15);
+    color: var(--accent-lime);
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0;
+}
+
+/* Word Date Display */
+.theme-bold .word-explorer-date {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-family: var(--font-mono);
+}
+
+/* Word Explorer Metrics - 2 rows x 3 columns */
+.theme-bold .word-explorer-metrics {
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 0;
+}
+
+@media (max-width: 1024px) {
+    .theme-bold .word-explorer-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-bold .word-explorer-metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Trap Analysis Section */
+.theme-bold .word-explorer-trap-section {
+    background: rgba(255, 107, 157, 0.08);
+    border: 1px solid rgba(255, 107, 157, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+}
+
+.theme-bold .word-explorer-trap-section h4 {
+    font-size: 14px;
+    color: var(--accent-coral);
+    margin-bottom: 12px;
+}
+
+.theme-bold .word-explorer-trap-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.theme-bold .word-explorer-trap-stats strong {
+    color: var(--text-primary);
+}
+
+.theme-bold .word-explorer-neighbors {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.theme-bold .word-explorer-neighbors strong {
+    color: var(--text-primary);
+}
+
+/* Error State */
+.theme-bold .word-explorer-error {
+    background: rgba(255, 107, 157, 0.1);
+    border: 1px solid var(--accent-coral);
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: var(--accent-coral);
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Empty State */
+.theme-bold .word-explorer-empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.theme-bold .text-muted {
+    color: var(--text-muted);
 }

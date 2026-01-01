@@ -166,3 +166,22 @@ export interface SentimentResponse {
   top_hated: SentimentTopWord[]
   top_loved: SentimentTopWord[]
 }
+
+// Word Explorer Details
+export interface WordDetails {
+  word: string
+  date: string
+  difficulty_rating: number | null
+  difficulty_label: string | null
+  success_rate: number | null
+  avg_guess_count: number | null
+  tweet_volume: number | null
+  sentiment_score: number | null
+  frustration_index: number | null
+  trap_score: number | null
+  neighbor_count: number | null
+  deadly_neighbors: string[] | null
+  is_outlier: boolean
+  outlier_z_score: number | null
+}
+
