@@ -46,7 +46,6 @@ export default function BoldPatternsSection() {
             <div className="container">
                 {/* Section Header */}
                 <div className="section-header">
-                    <div className="section-eyebrow">🔍 Interactive</div>
                     <h2 className="section-title">Pattern Detective</h2>
                     <p className="section-description">
                         Input your Wordle pattern (emoji sequence) and discover how common your path to victory was.

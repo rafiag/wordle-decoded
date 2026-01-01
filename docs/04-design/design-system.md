@@ -83,7 +83,6 @@ This document defines the visual language and UI components for the **Wordle Dat
 - Optional **stat cards** inside hero (`.hero-stat`).
 
 ### 4. Section Header
-- Eyebrow (`.section-eyebrow`): uppercase, accent coral, small size.
 - Title (`.section-title`): clamp size, primary text.
 - Description (`.section-description`): secondary text, max‑width 700 px.
 
