@@ -40,7 +40,7 @@ export default function BoldTrapsSection() {
         }
     }, [topTraps, selectedWord]);
 
-    if (isLoadingTop) return <div className="p-12 text-center text-[var(--text-muted)]">Loading Trap Data...</div>;
+    if (isLoadingTop) return <div className="p-12 text-center text-[var(--text-secondary)]">Loading Trap Data...</div>;
     if (isErrorTop) return <div className="p-12 text-center text-[var(--accent-coral)]">Error loading traps: {(errorTop as Error).message}</div>;
 
     return (

@@ -26,7 +26,7 @@ export function AggregateDistributionChart({ data }: AggregateDistributionChartP
                     >
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border-color)" opacity={0.3} />
                         <XAxis type="number" stroke="var(--text-secondary)" fontSize={12} tickFormatter={percentageFormatter} domain={[0, 1]} />
-                        <YAxis dataKey="name" type="category" stroke="var(--text-muted)" fontSize={12} width={60} />
+                        <YAxis dataKey="name" type="category" stroke="var(--text-secondary)" fontSize={12} width={60} />
                         <Tooltip
                             content={<GuessDistributionTooltip />}
                             isAnimationActive={false}

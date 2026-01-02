@@ -67,7 +67,7 @@ export function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartP
                                 return `${d.getMonth() + 1}/${d.getDate()}`;
                             }}
                         />
-                        <YAxis stroke="var(--text-muted)" fontSize={12} allowDecimals={false} />
+                        <YAxis stroke="var(--text-secondary)" fontSize={12} allowDecimals={false} />
                         <Tooltip
                             cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                             content={<StreakTooltip />}

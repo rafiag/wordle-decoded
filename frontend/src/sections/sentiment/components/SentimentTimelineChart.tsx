@@ -28,7 +28,7 @@ export function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" opacity={0.3} vertical={false} />
                         <XAxis dataKey="date" hide />
                         <YAxis
-                            stroke="var(--text-muted)"
+                            stroke="var(--text-secondary)"
                             fontSize={12}
                             tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
                             domain={[0, 1]}

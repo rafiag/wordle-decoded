@@ -44,7 +44,7 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
                             }}
                         />
                         <YAxis
-                            stroke="var(--text-muted)"
+                            stroke="var(--text-secondary)"
                             fontSize={12}
                             tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
                             domain={[0, 1]}

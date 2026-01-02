@@ -127,7 +127,7 @@ export default function BoldNYTEffectSection() {
                 }
 
                 .change-neutral {
-                    color: var(--text-muted);
+                    color: var(--text-secondary);
                 }
 
                 @media (max-width: 768px) {

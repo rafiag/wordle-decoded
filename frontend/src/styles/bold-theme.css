@@ -777,7 +777,7 @@
 
 .theme-bold .highlight-stat-secondary {
     font-size: 13px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 /* Description */
@@ -834,7 +834,7 @@
 }
 
 .theme-bold .word-explorer-input::placeholder {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     letter-spacing: 8px;
 }
 
@@ -848,7 +848,7 @@
     position: absolute;
     right: -36px;
     font-size: 11px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-family: var(--font-mono);
 }
 
@@ -962,12 +962,12 @@
 .theme-bold .word-explorer-empty {
     text-align: center;
     padding: 48px 24px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
 .theme-bold .text-muted {
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 /* ===========================
@@ -1022,7 +1022,7 @@
     padding-top: 16px;
     border-top: 1px solid var(--border-color);
     font-size: 12px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1094,7 +1094,7 @@
 .theme-bold .trap-detail-date-label {
     font-size: 10px;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-transform: uppercase;
     margin-bottom: 4px;
 }
@@ -1165,7 +1165,7 @@
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     margin-bottom: 12px;
     /* Reduced from 16px */
     font-weight: 700;
@@ -1225,7 +1225,7 @@
     align-items: center;
     justify-content: center;
     gap: 16px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .theme-bold .trap-empty-state svg {
@@ -1363,7 +1363,7 @@
 }
 
 .theme-bold .chart-placeholder p {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
