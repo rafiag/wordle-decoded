@@ -60,17 +60,7 @@ def get_words(
         meta={"limit": str(limit), "skip": str(skip)}
     )
 
-@router.get("/{word_str}", response_model=APIResponse)
-def get_word_details(word_str: str, db: Session = Depends(get_db)):
-    word = db.query(Word).filter(Word.word == word_str.upper()).first()
-    if not word:
-        raise HTTPException(status_code=404, detail="Word not found")
-        
-    return APIResponse(
-        status="success",
-        data={"word": WordSchema.from_orm(word).dict()},
-        meta={}
-    )
+
 
 @router.get("/stats/difficulty", response_model=APIResponse)
 def get_difficulty_stats(db: Session = Depends(get_db)):

@@ -26,7 +26,7 @@ def get_difficulty_label(rating: float) -> str:
 def get_mood_label(positive_pct: float) -> str:
     """
     Returns a unified mood label based on the percentage of positive tweets.
-    
+
     Logic (V2 Standard):
     - > 90%: Positive
     - > 70%: Mostly Positive
@@ -44,3 +44,27 @@ def get_mood_label(positive_pct: float) -> str:
         return "Mostly Negative"
     else:
         return "Negative"
+
+def calculate_success_rate(dist_result) -> float:
+    """
+    Calculate success rate from distribution aggregate result.
+
+    Args:
+        dist_result: SQLAlchemy result object with g1-g6 and fail attributes
+
+    Returns:
+        Success rate as percentage (0-100)
+    """
+    total = sum([
+        dist_result.g1 or 0,
+        dist_result.g2 or 0,
+        dist_result.g3 or 0,
+        dist_result.g4 or 0,
+        dist_result.g5 or 0,
+        dist_result.g6 or 0,
+        dist_result.fail or 0
+    ])
+    if total == 0:
+        return 0.0
+    success = total - (dist_result.fail or 0)
+    return (success / total) * 100

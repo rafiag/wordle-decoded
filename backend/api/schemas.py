@@ -12,7 +12,7 @@ class WordSchema(BaseModel):
     success_rate: Optional[float] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class DistributionSchema(BaseModel):
     word_id: int
@@ -28,7 +28,7 @@ class DistributionSchema(BaseModel):
     avg_guesses: Optional[float] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class StatTestResult(BaseModel):
     test_name: str
@@ -57,9 +57,7 @@ class NYTTimelinePoint(BaseModel):
     avg_guesses: float
     difficulty: Optional[int]
 
-class NYTEffectResponse(BaseModel):
-    summary: NYTComparison
-    tests: Dict[str, StatTestResult]
+
 
 class NYTFullAnalysis(BaseModel):
     summary: NYTComparison
