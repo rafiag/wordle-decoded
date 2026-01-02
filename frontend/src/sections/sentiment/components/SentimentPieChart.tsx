@@ -1,10 +1,11 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, LegendPayload } from 'recharts';
 import { SENTIMENT_COLORS_ARRAY } from '../../../theme/colors';
 import { SentimentDistributionItem } from '../hooks/useSentimentDistribution';
+import { TooltipProps } from '../../../types';
 
 const PIE_COLORS = SENTIMENT_COLORS_ARRAY;
 
-const PieTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: SentimentDistributionItem }[] }) => {
+const PieTooltip = ({ active, payload }: TooltipProps<SentimentDistributionItem>) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         const percentage = data.total ? ((data.value / data.total) * 100).toFixed(2) : '0.00';
@@ -32,9 +33,9 @@ interface SentimentPieChartProps {
 
 export function SentimentPieChart({ data }: SentimentPieChartProps) {
     return (
-        <div className="card h-[450px] flex flex-col">
+        <div className="card h-[450px] flex flex-col relative">
             <h3 className="text-lg font-bold mb-4">Sentiment Distribution</h3>
-            <div className="flex-grow min-h-0">
+            <div className="flex-grow min-h-0 relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart margin={{ top: 40, right: 10, bottom: 10, left: 10 }}>
                         <Pie
@@ -79,7 +80,11 @@ export function SentimentPieChart({ data }: SentimentPieChartProps) {
                                 <Cell key={`cell-${index}`} fill={PIE_COLORS[index]} stroke="rgba(0,0,0,0.5)" />
                             ))}
                         </Pie>
-                        <Tooltip content={<PieTooltip />} />
+                        <Tooltip
+                            content={<PieTooltip />}
+                            isAnimationActive={false}
+                            wrapperStyle={{ zIndex: 1000 }}
+                        />
                         <Legend
                             iconType="circle"
                             wrapperStyle={{ paddingTop: '20px', paddingBottom: '20px' }}

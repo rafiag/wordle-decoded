@@ -27,20 +27,22 @@ export function TopWordsTable({ words, rankingMode, onRankingModeChange }: TopWo
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b border-[var(--border-color)] text-[var(--text-secondary)]">
+                            <th className="p-3 text-left">#</th>
                             <th className="p-3 text-left">Word</th>
                             <th className="p-3 text-right">Date</th>
                             <th className="p-3 text-right">Avg Guesses</th>
                             <th className="p-3 text-right transition-colors" style={{ color: rankingMode === 'hardest' ? 'var(--accent-coral)' : (rankingMode === 'easiest' ? 'var(--accent-lime)' : 'inherit') }}>
                                 Difficulty {rankingMode === 'hardest' ? '↓' : (rankingMode === 'easiest' && '↑')}
                             </th>
-                            <th className="p-3 text-right">Success Rate</th>
+                            <th className="p-3 text-right">Success</th>
                         </tr>
                     </thead>
                     <tbody>
                         {words.slice(0, 5).map((word: WordRanking, idx: number) => (
                             <tr key={idx} className="border-b border-[var(--border-color)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                                <td className="p-3 font-bold text-lg">{word.word}</td>
-                                <td className="p-3 text-right text-[var(--text-secondary)] font-mono">{word.date}</td>
+                                <td className="p-3 text-[var(--accent-cyan)] font-mono">#{idx + 1}</td>
+                                <td className="p-3 font-bold">{word.word}</td>
+                                <td className="p-3 text-right text-[var(--text-secondary)] font-mono text-sm">{word.date}</td>
                                 <td className="p-3 text-right font-mono text-[var(--accent-cyan)] font-bold">
                                     {word.avg_guess_count?.toFixed(2)}
                                 </td>

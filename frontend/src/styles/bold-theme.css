@@ -99,6 +99,7 @@
     padding: 32px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    position: relative;
 }
 
 .theme-bold .card:hover {
@@ -215,6 +216,11 @@
     border-bottom: 2px solid var(--accent-cyan);
     transform: rotate(-45deg);
     animation: bounce 2s infinite;
+}
+
+/* Global Recharts Fixes */
+.recharts-tooltip-wrapper {
+    transition: none !important;
 }
 
 /* Custom Scrollbar */
@@ -1035,6 +1041,13 @@
     display: flex;
     flex-direction: column;
     backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-bold .trap-detail-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-orange);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 165, 0, 0.15);
 }
 
 .theme-bold .trap-detail-glow {
@@ -1049,6 +1062,12 @@
     pointer-events: none;
     margin-top: -100px;
     margin-right: -100px;
+    transition: all 0.6s ease;
+}
+
+.theme-bold .trap-detail-card:hover .trap-detail-glow {
+    background: rgba(255, 165, 0, 0.12);
+    transform: scale(1.2) translate(-20px, 20px);
 }
 
 .theme-bold .trap-detail-header {
@@ -1412,6 +1431,7 @@
 }
 
 @media (max-width: 768px) {
+
     .theme-bold .grid-2-col,
     .theme-bold .grid-3-col {
         grid-template-columns: 1fr;

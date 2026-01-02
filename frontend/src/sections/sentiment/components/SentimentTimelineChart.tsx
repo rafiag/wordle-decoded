@@ -12,14 +12,14 @@ interface SentimentTimelineChartProps {
 
 export function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
     return (
-        <div className="card flex flex-col">
+        <div className="card flex flex-col relative">
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="text-lg font-bold">Daily Sentiment Trend (Last 90 Days)</h3>
                 </div>
             </div>
 
-            <div className="flex-grow">
+            <div className="flex-grow relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={data}
@@ -33,7 +33,11 @@ export function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
                             tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
                             domain={[0, 1]}
                         />
-                        <Tooltip content={<SentimentTooltip />} />
+                        <Tooltip
+                            content={<SentimentTooltip />}
+                            isAnimationActive={false}
+                            wrapperStyle={{ zIndex: 1000 }}
+                        />
                         <Legend
                             iconType="square"
                             wrapperStyle={{ paddingTop: '20px' }}

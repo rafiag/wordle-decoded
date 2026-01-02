@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { ProcessedDay, DifficultyLabel } from './useProcessedDifficultyData';
+import { ProcessedDay, DifficultyLabel } from '../../../types';
 
 export interface StreakChartDataItem {
+    [key: string]: any;
     date: string;
     easyStreak: number | null;
     hardStreak: number | null;

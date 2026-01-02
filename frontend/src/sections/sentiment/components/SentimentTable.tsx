@@ -12,7 +12,7 @@ const TableRow = memo(({ item, idx }: { item: SentimentTopWord; idx: number }) =
             <span
                 className="px-2 py-1 rounded text-xs font-bold"
                 style={{
-                    backgroundColor: (item.difficulty || 0) >= 7 ? THEME_COLORS.sentiment.very_neg : ((item.difficulty || 0) >= 4 ? THEME_COLORS.sentiment.neg : THEME_COLORS.sentiment.pos),
+                    backgroundColor: (item.difficulty || 0) >= 7 ? THEME_COLORS.guess.Failed : ((item.difficulty || 0) >= 4 ? THEME_COLORS.guess['5/6'] : THEME_COLORS.guess['2/6']),
                     color: THEME_COLORS.ui.black
                 }}
             >
@@ -20,7 +20,7 @@ const TableRow = memo(({ item, idx }: { item: SentimentTopWord; idx: number }) =
             </span>
         </td>
         <td className="p-3 text-right font-mono text-[var(--text-secondary)]">
-            {(item.success_rate * 100).toFixed(2)}%
+            {(item.success_rate * 100).toFixed(1)}%
         </td>
         <td className="p-3 text-right font-bold text-[var(--accent-coral)]">
             {(item.frustration * 100).toFixed(2)}%

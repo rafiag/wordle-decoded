@@ -4,7 +4,7 @@ import { GuessDistributionTooltip } from '../../../components/charts/ChartToolti
 import { FilterToggle } from '../../../components/shared/FilterToggle';
 import InsightCard from '../../../components/shared/InsightCard';
 import { DailyChartDataItem } from '../hooks/useDailyChartData';
-import { DifficultyLabel } from '../hooks/useProcessedDifficultyData';
+import { DifficultyLabel } from '../../../types';
 
 const GUESS_COLORS = THEME_COLORS.guess;
 
@@ -16,7 +16,7 @@ interface DailyDistributionChartProps {
 
 export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: DailyDistributionChartProps) {
     return (
-        <div className="card h-[450px] flex flex-col col-span-2">
+        <div className="card h-[450px] flex flex-col col-span-2 relative">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Daily Guess Distribution (90 Days)</h3>
                 <FilterToggle
@@ -26,7 +26,7 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
                 />
             </div>
 
-            <div className="flex-grow">
+            <div className="flex-grow relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={data}
@@ -49,7 +49,11 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
                             tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
                             domain={[0, 1]}
                         />
-                        <Tooltip content={<GuessDistributionTooltip />} />
+                        <Tooltip
+                            content={<GuessDistributionTooltip />}
+                            isAnimationActive={false}
+                            wrapperStyle={{ zIndex: 1000 }}
+                        />
                         <Legend wrapperStyle={{ paddingTop: '10px' }} />
                         {['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'].map((key) => (
                             <Bar

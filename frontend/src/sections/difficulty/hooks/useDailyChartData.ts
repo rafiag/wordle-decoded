@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { ProcessedDay, DifficultyLabel } from './useProcessedDifficultyData';
+import { ProcessedDay, DifficultyLabel } from '../../../types';
 
 export interface DailyChartDataItem {
+    [key: string]: any;
     date: string;
     '1/6': number;
     '2/6': number;

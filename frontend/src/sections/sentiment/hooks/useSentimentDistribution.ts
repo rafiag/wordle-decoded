@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 export interface SentimentDistributionItem {
+    [key: string]: any;
     name: string;
     value: number;
     total: number;

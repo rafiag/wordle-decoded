@@ -19,7 +19,7 @@ export function TrapLeaderboard({ traps, selectedWord, onSelectWord }: TrapLeade
                 </h3>
             </div>
 
-            <div className="trap-chart-container">
+            <div className="trap-chart-container relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         layout="vertical"
@@ -33,7 +33,12 @@ export function TrapLeaderboard({ traps, selectedWord, onSelectWord }: TrapLeade
                             type="category"
                             hide
                         />
-                        <Tooltip content={<TrapTooltip />} cursor={false} />
+                        <Tooltip
+                            content={<TrapTooltip />}
+                            isAnimationActive={false}
+                            wrapperStyle={{ zIndex: 1000 }}
+                            cursor={false}
+                        />
                         <Bar
                             dataKey="neighbor_count"
                             radius={[0, 6, 6, 0]}

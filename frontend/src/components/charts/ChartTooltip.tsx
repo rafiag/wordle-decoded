@@ -204,19 +204,49 @@ export function TrapTooltip({
       <p className="font-bold text-[var(--text-primary)] mb-2 uppercase tracking-wide text-sm">
         {data.word || 'N/A'}
       </p>
-      <div className="text-xs text-[var(--text-secondary)] space-y-1">
-        <div className="flex justify-between">
+      <div className="text-xs text-[var(--text-secondary)] space-y-2">
+        <div className="flex justify-between border-b border-[var(--border-color)] pb-1 mb-1">
           <span>Trap Score:</span>
           <span className="font-mono font-bold" style={{ color: payload[0].color }}>
             {data.trap_score?.toFixed(1) || '0.0'}
           </span>
         </div>
-        {data.neighbor_count !== undefined && (
-          <div className="flex justify-between">
-            <span>Neighbors:</span>
-            <span className="font-mono text-[var(--text-primary)]">
-              {data.neighbor_count}
+
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase opacity-60">Avg Guesses</span>
+            <span className="font-mono text-[var(--text-primary)] font-bold">
+              {data.avg_guesses?.toFixed(2) || 'N/A'}
             </span>
+          </div>
+          <div className="flex flex-col text-right">
+            <span className="text-[10px] uppercase opacity-60">Success Rate</span>
+            <span className="font-mono text-[var(--accent-lime)] font-bold">
+              {data.success_rate !== undefined ? `${(data.success_rate * 100).toFixed(1)}%` : 'N/A'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-between pt-1 border-t border-[var(--border-color)]">
+          <span>Neighbors:</span>
+          <span className="font-mono text-[var(--text-primary)] font-bold">
+            {data.neighbor_count}
+          </span>
+        </div>
+
+        {data.deadly_neighbors && data.deadly_neighbors.length > 0 && (
+          <div className="pt-1">
+            <span className="text-[10px] uppercase opacity-60 block mb-1">Deadly Variants:</span>
+            <div className="flex flex-wrap gap-1">
+              {data.deadly_neighbors.slice(0, 5).map((n: string) => (
+                <span key={n} className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded text-[10px] font-mono text-[var(--text-primary)] border border-[var(--border-color)]">
+                  {n}
+                </span>
+              ))}
+              {data.deadly_neighbors.length > 5 && (
+                <span className="text-[10px] opacity-60">+{data.deadly_neighbors.length - 5} more</span>
+              )}
+            </div>
           </div>
         )}
       </div>

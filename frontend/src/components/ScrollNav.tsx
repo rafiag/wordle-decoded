@@ -49,7 +49,7 @@ export default function ScrollNav({ containerId }: { containerId?: string }) {
             // If no section matched but we are near bottom, maybe select last? 
             // Or if we are near top? For now stick to mockup logic.
 
-            if (current) setActiveSection(current);
+            setActiveSection(current);
         };
 
         if (container) {

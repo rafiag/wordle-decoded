@@ -14,9 +14,9 @@ export function AggregateDistributionChart({ data }: AggregateDistributionChartP
     const percentageFormatter = (val: number) => `${(val * 100).toFixed(0)}%`;
 
     return (
-        <div className="card h-[450px] flex flex-col">
+        <div className="card h-[450px] flex flex-col relative">
             <h3 className="text-lg font-bold mb-4">Overall Distribution</h3>
-            <div className="flex-grow">
+            <div className="flex-grow relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         layout="vertical"
@@ -27,7 +27,11 @@ export function AggregateDistributionChart({ data }: AggregateDistributionChartP
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border-color)" opacity={0.3} />
                         <XAxis type="number" stroke="var(--text-secondary)" fontSize={12} tickFormatter={percentageFormatter} domain={[0, 1]} />
                         <YAxis dataKey="name" type="category" stroke="var(--text-muted)" fontSize={12} width={60} />
-                        <Tooltip content={<GuessDistributionTooltip />} />
+                        <Tooltip
+                            content={<GuessDistributionTooltip />}
+                            isAnimationActive={false}
+                            wrapperStyle={{ zIndex: 1000 }}
+                        />
                         <Legend wrapperStyle={{ paddingTop: '10px' }} iconSize={10} />
                         {LEGEND_ORDER.map((key) => (
                             <Bar
