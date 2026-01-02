@@ -11,7 +11,7 @@ interface TrapDetailCardProps {
 export function TrapDetailCard({ trap }: TrapDetailCardProps) {
     return (
         <div className="trap-detail-card">
-            <div className="trap-detail-glow"></div>
+
 
             <div className="trap-detail-header mb-0">
                 <div>

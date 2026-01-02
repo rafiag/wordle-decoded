@@ -1,15 +1,16 @@
 interface InsightCardProps {
     title: string;
     children: React.ReactNode;
+    className?: string;
 }
 
 /**
  * Reusable insight card component for key findings.
  * Features gradient background and cyan accent border.
  */
-export default function InsightCard({ title, children, style }: InsightCardProps & { style?: React.CSSProperties }) {
+export default function InsightCard({ title, children, style, className = '' }: InsightCardProps & { style?: React.CSSProperties }) {
     return (
-        <div className="insight-card" style={style}>
+        <div className={`insight-card ${className}`} style={style}>
             <div className="insight-badge">💡 {title}</div>
             <div className="insight-content">{children}</div>
 

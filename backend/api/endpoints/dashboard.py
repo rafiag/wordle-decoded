@@ -4,7 +4,7 @@ from sqlalchemy import func
 from typing import Dict, Any, List
 from backend.db.database import get_db
 from backend.db.schema import Distribution, TweetSentiment, Outlier, Word, GlobalStats
-from backend.api.schemas import APIResponse, DashboardInitResponse
+from backend.api.schemas import APIResponse
 from backend.api.utils import calculate_success_rate
 from backend.services.aggregations import get_distribution_totals
 
@@ -131,106 +131,6 @@ def _get_avg_guesses_overall(db: Session) -> float:
         .filter(Word.avg_guess_count.isnot(None))\
         .scalar() or 0.0
 
-@router.get("/init", response_model=APIResponse)
-def get_dashboard_init(db: Session = Depends(get_db)):
-    """
-    Get initial data for the dashboard in a single request.
-    Aggregates:
-    - Analytics Overview (Hero Section)
-    - Aggregate Distributions (Chart)
-    - Difficulty Stats (Timeline)
-    """
-    
-    # 1. Overview Query
-    # Total unique puzzles (count of unique words/dates)
-    total_puzzles = db.query(func.count(Word.id)).scalar() or 0
-
-    # Total player tweets analyzed
-    total_tweets = db.query(func.sum(Distribution.total_tweets)).scalar() or 0
-
-    # Actual average guesses across all puzzles
-    avg_guesses = db.query(func.avg(Word.avg_guess_count)).filter(Word.avg_guess_count.isnot(None)).scalar() or 0.0
-
-    # Average sentiment (-1 to 1)
-    avg_sentiment = db.query(func.avg(TweetSentiment.avg_sentiment)).scalar() or 0.0
-
-    # Viral events count
-    viral_count = db.query(func.count(Outlier.id)).filter(Outlier.outlier_type.ilike('%viral%')).scalar() or 0
-
-    # Hardest word (highest avg guess count) with stats
-    hardest_word_query = db.query(Word.word, Word.avg_guess_count, Word.success_rate)\
-        .filter(Word.avg_guess_count.isnot(None))\
-        .order_by(Word.avg_guess_count.desc())\
-        .first()
-
-    hardest_word = hardest_word_query.word if hardest_word_query else "N/A"
-    hardest_word_guesses = round(hardest_word_query.avg_guess_count, 1) if hardest_word_query else 0.0
-    # Convert success_rate from fraction (0.0-1.0) to percentage (0-100)
-    hardest_word_success = round(hardest_word_query.success_rate * 100, 1) if (hardest_word_query and hardest_word_query.success_rate) else 0.0
-
-    # 2. Aggregate Distribution Query (also used for success rate calculation)
-    dist_res = get_distribution_totals(db)
-    
-    # Calculate success rate from distribution data
-    success_rate = calculate_success_rate(dist_res) if dist_res else 0.0
-
-    if dist_res:
-        dist_data = {
-            "guess_1": int(dist_res.g1 or 0),
-            "guess_2": int(dist_res.g2 or 0),
-            "guess_3": int(dist_res.g3 or 0),
-            "guess_4": int(dist_res.g4 or 0),
-            "guess_5": int(dist_res.g5 or 0),
-            "guess_6": int(dist_res.g6 or 0),
-            "failed": int(dist_res.fail or 0),
-            "total_games": int(dist_res.total_games or 0)
-        }
-    else:
-        dist_data = {
-            "guess_1": 0, "guess_2": 0, "guess_3": 0,
-            "guess_4": 0, "guess_5": 0, "guess_6": 0,
-            "failed": 0, "total_games": 0
-        }
-
-    # Build overview data with all metrics
-    overview_data = {
-        "total_puzzles": int(total_puzzles),
-        "total_tweets": int(total_tweets),
-        "avg_guesses": float(avg_guesses),
-        "avg_sentiment": float(avg_sentiment),
-        "viral_events_count": int(viral_count),
-        "hardest_word": hardest_word,
-        "hardest_word_guesses": hardest_word_guesses,
-        "hardest_word_success": hardest_word_success,
-        "success_rate": round(success_rate, 1)
-    }
-
-    # 3. Difficulty Stats Query
-    diff_stats = db.query(
-        Word.date, 
-        Word.difficulty_rating, 
-        Word.avg_guess_count,
-        Word.frequency_score
-    ).filter(Word.avg_guess_count.isnot(None))\
-     .order_by(Word.date).all()
-     
-    diff_points = [
-        {
-            "date": s.date,
-            "difficulty": s.difficulty_rating,
-            "avg_guesses": s.avg_guess_count,
-            "frequency": s.frequency_score
-        } for s in diff_stats
-    ]
-
-    return APIResponse(
-        status="success",
-        data={
-            "overview": overview_data,
-            "distribution": dist_data,
-            "difficulty": diff_points
-        }
-    )
 
 @router.get("/at-a-glance", response_model=APIResponse)
 def get_at_a_glance_stats(db: Session = Depends(get_db)):

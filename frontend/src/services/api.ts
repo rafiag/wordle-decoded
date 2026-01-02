@@ -81,11 +81,6 @@ export const statsApi = {
     return response.data.data
   },
 
-  // Dashboard Optimization
-  getDashboardInit: async () => {
-    const response = await apiClient.get('/dashboard/init')
-    return response.data.data
-  },
 
   // Analytics
   getSentimentData: async () => {

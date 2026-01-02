@@ -121,8 +121,4 @@ class OutlierHighlights(BaseModel):
     most_frustrating: Optional[HighlightCard]
     easiest: Optional[HighlightCard]
 
-class DashboardInitResponse(BaseModel):
-    overview: OverviewStats
-    distribution: AggregateDistribution
-    difficulty: List[Dict[str, Any]] # Or a specific model if we had one for stats points
 
