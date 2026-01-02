@@ -1,4 +1,4 @@
-import React from 'react';
+
 import BoldHeroSection from '../sections/BoldHeroSection';
 import BoldAtAGlanceSection from '../sections/BoldAtAGlanceSection';
 import BoldDifficultySection from '../sections/BoldDifficultySection';

@@ -429,10 +429,10 @@ export default function BoldDifficultySection() {
                                 <button
                                     key={filter}
                                     onClick={() => setDailyFilter(filter as 'Overall' | DifficultyLabel)}
-                                    className={`px - 3 py - 1 text - xs font - bold rounded transition - colors ${dailyFilter === filter
+                                    className={`px-3 py-1 text-xs font-bold rounded transition-colors ${dailyFilter === filter
                                         ? 'bg-[var(--accent-cyan)] text-black'
                                         : 'text-[var(--text-secondary)] hover:text-white'
-                                        } `}
+                                        }`}
                                 >
                                     {filter}
                                 </button>

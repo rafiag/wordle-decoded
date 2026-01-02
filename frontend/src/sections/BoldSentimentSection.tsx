@@ -330,8 +330,8 @@ export default function BoldSentimentSection() {
                     </p>
 
                     <div className="mt-8 pt-8 border-t border-[var(--border-color)]">
-                        <p className="text-xs text-[var(--text-secondary)] font-bold mb-6 uppercase tracking-wider">Breakdown by Difficulty</p>
-                        <div className="flex justify-between px-6">
+                        <div className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider">Breakdown by Difficulty</div>
+                        <div className="flex justify-around gap-12 px-2 pt-8">
                             <div>
                                 <div className="text-xs text-[var(--text-secondary)] mb-1">Easy</div>
                                 <div className="text-xl font-mono font-bold" style={{ color: V2_COLORS.pos }}>{frustrationBreakdown.Easy}%</div>
