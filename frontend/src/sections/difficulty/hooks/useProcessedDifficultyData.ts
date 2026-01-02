@@ -23,9 +23,10 @@ export function useProcessedDifficultyData(
             const diff = difficultyMap.get(d.date);
             let difficultyLabel: DifficultyLabel = 'Unknown';
             if (diff !== undefined) {
-                if (diff <= 3) difficultyLabel = 'Easy';
+                if (diff <= 4) difficultyLabel = 'Easy';
                 else if (diff <= 6) difficultyLabel = 'Medium';
-                else if (diff > 6) difficultyLabel = 'Hard';
+                else if (diff <= 8) difficultyLabel = 'Hard';
+                else difficultyLabel = 'Expert';
             }
 
             return {

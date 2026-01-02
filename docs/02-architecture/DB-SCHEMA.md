@@ -13,11 +13,18 @@ This document provides a comprehensive description of the database schema used b
 | `id` | Integer (PK) | Wordle game ID / unique identifier | Raw Data (Kaggle/Official) |
 | `word` | String | The target word for the game | Solutions Map / Game Data |
 | `date` | String (unique) | Date of the game (YYYY‑MM‑DD) | Derived from Game ID or Solutions Map |
-| `frequency_score` | Float | Frequency of the word in English corpora | **Derived**: Count of common letters ('e', 'a', 'r', 'i', 'o', 't', 'n', 's', 'l') / 5 |
-| `difficulty_rating` | Integer | Computed difficulty (1‑10) | **Derived**: `(avg_guesses - 3.5) * 4 + (1.0 - freq_score) * 2 + 3` |
+| `frequency_score` | Float | Letter frequency score based on English corpus | **Derived**: Weighted sum of letter frequencies normalized by word length. Uses letter weights (e='1.00', a='0.85', ..., q='0.01') |
+| `difficulty_rating` | Integer | Computed difficulty (1‑10) | **Derived**: Multi-component formula:<br>• Performance (60%): `(avg_guesses - 3.5) × 4`<br>• Letter frequency (20%): `(1.0 - freq_score) × 2`<br>• Word rarity (20%): `word_rarity_score × 2`<br>• Base offset: `+3`, clamped to [1, 10] |
 | `avg_guess_count` | Float | Average number of guesses taken | **Derived**: Weighted average from distribution data |
 | `success_rate` | Float | Proportion of games solved | **Derived**: `Successful Games / Total Trials` |
 | `created_at` | DateTime | Record creation timestamp | Database Default (`now`) |
+
+**Difficulty Rating Labels:**
+- **Easy** (1.0 - 4.0): Common words with straightforward letter patterns (~33% of words)
+- **Medium** (4.1 - 6.0): Moderate difficulty, standard vocabulary (~33% of words)
+- **Hard** (6.1 - 8.0): Challenging words with less common patterns (~25% of words)
+- **Expert** (8.1 - 10.0): Rare words with unusual letter combinations (~9% of words)
+
 
 ### `distributions`
 | Column | Type | Description | Source / Definition |

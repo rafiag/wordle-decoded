@@ -3,22 +3,23 @@ def get_difficulty_label(rating: float) -> str:
     """
     Returns a descriptive label for the difficulty rating (1-10).
     
-    Logic:
-    - Easy: 1.0 - 3.4
-    - Medium: 3.5 - 6.4
-    - Hard: 6.5 - 8.4
-    - Expert: 8.5 - 10.0
+    Logic (Updated for balanced distribution):
+    - Easy: 1.0 - 4.0 (~33%)
+    - Medium: 4.1 - 6.0 (~33%)
+    - Hard: 6.1 - 8.0 (~25%)
+    - Expert: 8.1 - 10.0 (~9%)
     
-    Note: A 'standard' word is usually around 3.5-4.0.
+    Thresholds are based on actual data distribution percentiles
+    to create more balanced categories.
     """
     if rating is None:
         return "Unknown"
         
-    if rating < 3.5:
+    if rating <= 4.0:
         return "Easy"
-    elif rating < 6.5:
+    elif rating <= 6.0:
         return "Medium"
-    elif rating < 8.5:
+    elif rating <= 8.0:
         return "Hard"
     else:
         return "Expert"

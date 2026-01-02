@@ -1,6 +1,6 @@
 // Difficulty-related Types
 
-export type DifficultyLabel = 'Easy' | 'Medium' | 'Hard' | 'Unknown';
+export type DifficultyLabel = 'Easy' | 'Medium' | 'Hard' | 'Expert' | 'Unknown';
 
 export interface DifficultyStat {
   date: string;

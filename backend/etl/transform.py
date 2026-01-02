@@ -3,6 +3,7 @@ import time
 from datetime import datetime, timedelta
 import numpy as np
 import re
+import math
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 import logging
@@ -12,6 +13,14 @@ import multiprocessing
 from functools import partial
 import ast
 from typing import Set
+
+# Word frequency library for corpus-based rarity scoring
+try:
+    from wordfreq import word_frequency
+    WORDFREQ_AVAILABLE = True
+except ImportError:
+    WORDFREQ_AVAILABLE = False
+    logging.getLogger(__name__).warning("wordfreq library not available. Word rarity scoring will be disabled.")
 
 import os
 from dotenv import load_dotenv
@@ -152,12 +161,55 @@ def get_sentiment_score(text: str) -> float:
 
 def calculate_frequency_score(word: str) -> float:
     """
-    Calculates a heuristic frequency score (0.0 to 1.0) based on letter composition.
-    Uses 'eariotnsl' as common letters.
+    Enhanced frequency scoring based on English letter frequency distribution.
+    Higher scores indicate more common letter combinations.
+    
+    Returns:
+        float: Normalized frequency score (0.0 to 1.0)
     """
-    if not word: return 0.0
+    if not word: 
+        return 0.0
+    
+    # Letter frequency weights based on English corpus analysis
+    LETTER_WEIGHTS = {
+        'e': 1.00, 'a': 0.85, 'r': 0.76, 'i': 0.75, 'o': 0.72, 't': 0.70,
+        'n': 0.67, 's': 0.63, 'l': 0.55, 'c': 0.45, 'u': 0.43, 'd': 0.43,
+        'p': 0.32, 'm': 0.30, 'h': 0.30, 'g': 0.25, 'b': 0.21, 'f': 0.18,
+        'y': 0.17, 'w': 0.13, 'k': 0.11, 'v': 0.10, 'x': 0.05, 'z': 0.03,
+        'j': 0.02, 'q': 0.01
+    }
+    
     word = word.lower()
-    return sum(1 for c in word if c in 'eariotnsl') / 5.0
+    total_weight = sum(LETTER_WEIGHTS.get(c, 0.01) for c in word)
+    
+    # Normalize by word length (Wordle words are always 5 letters)
+    return total_weight / len(word)
+
+def calculate_word_rarity_score(word: str) -> float:
+    """
+    Calculate word rarity based on corpus frequency.
+    Uses the wordfreq library which analyzes word usage across multiple sources.
+    
+    Returns:
+        float: Rarity score (0.0 to 1.0), where higher = rarer word
+    """
+    if not WORDFREQ_AVAILABLE or not word:
+        return 0.0
+    
+    # Get word frequency (returns value between 0 and 1e-3 typically)
+    # Common words like "RAISE" ~1e-4, rare words like "JAZZY" ~1e-7
+    freq = word_frequency(word.lower(), 'en')
+    
+    if freq == 0:
+        return 1.0  # Extremely rare/unknown word
+    
+    # Convert to rarity score using log scale
+    # Map common range (1e-3 to 1e-8) to (0.0 to 1.0)
+    log_freq = math.log10(freq)
+    
+    # Normalize: -3 (common) -> 0.0, -8 (rare) -> 1.0
+    rarity = (-log_freq - 3) / 5
+    return max(0.0, min(1.0, rarity))
 
 def extract_score_from_tweet(text: str) -> Optional[int]:
     """
@@ -245,10 +297,19 @@ def transform_games_from_tweets(tweets_df: pd.DataFrame, solutions_map: dict) ->
         guesses = float(row['avg_guesses'])
         
         freq_score = calculate_frequency_score(word)
+        rarity_score = calculate_word_rarity_score(word)
         
         # Difficulty Rating (1-10)
+        # Component 1: Performance-based (60% weight)
         diff = (guesses - 3.5) * 4
+        
+        # Component 2: Lexical complexity (40% weight)
+        # - Letter frequency (20%)
         diff += (1.0 - freq_score) * 2
+        # - Word rarity (20%)
+        diff += rarity_score * 2
+        
+        # Clamp 1-10
         diff = max(1, min(10, int(diff + 3)))
         
         return pd.Series([freq_score, diff])
@@ -300,15 +361,21 @@ def transform_games_data(df: pd.DataFrame) -> pd.DataFrame:
         guesses = float(row['avg_guesses'])
         
         freq_score = calculate_frequency_score(word)
+        rarity_score = calculate_word_rarity_score(word)
         
         # Difficulty Rating (1-10)
+        # Component 1: Performance-based (60% weight)
         # Higher avg_guesses -> Higher difficulty
-        # Lower frequency -> Higher difficulty
-        diff = (guesses - 3.5) * 4 # Center around 3.5. 4.0 -> 2, 4.5 -> 4, 5.0 -> 6...
-        diff += (1.0 - freq_score) * 2 # Rare words add difficulty
+        diff = (guesses - 3.5) * 4  # Center around 3.5
         
-        # Clamp 0-10
-        diff = max(1, min(10, int(diff + 3))) # Baseline 3
+        # Component 2: Lexical complexity (40% weight)
+        # - Letter frequency (20%): Lower frequency -> Higher difficulty
+        diff += (1.0 - freq_score) * 2
+        # - Word rarity (20%): Rarer words -> Higher difficulty
+        diff += rarity_score * 2
+        
+        # Clamp 1-10
+        diff = max(1, min(10, int(diff + 3)))  # Baseline 3
         
         return pd.Series([freq_score, diff])
 

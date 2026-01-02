@@ -42,11 +42,21 @@ def get_words(
     # Sorting logic
     # Sorting logic
     if sort == "avg_guess_count":
-        # Hardest/Easiest Logic: Difficulty then Success Rate
+        # Hardest/Easiest Logic: Difficulty then Avg Guesses then Success Rate
         if order == "desc":
-            query = query.order_by(Word.difficulty_rating.desc(), Word.success_rate.desc())
+            # Hardest: High difficulty, High guesses, Low success
+            query = query.order_by(
+                Word.difficulty_rating.desc(), 
+                Word.avg_guess_count.desc(),
+                Word.success_rate.asc()
+            )
         else:
-            query = query.order_by(Word.difficulty_rating.asc(), Word.success_rate.asc())
+            # Easiest: Low difficulty, Low guesses, High success
+            query = query.order_by(
+                Word.difficulty_rating.asc(), 
+                Word.avg_guess_count.asc(),
+                Word.success_rate.desc()
+            )
     elif order == "desc":
         query = query.order_by(getattr(Word, sort).desc())
     else:

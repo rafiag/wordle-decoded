@@ -16,21 +16,21 @@ class TestDifficultyLabel:
     def test_easy_label(self):
         assert get_difficulty_label(1.0) == "Easy"
         assert get_difficulty_label(2.5) == "Easy"
-        assert get_difficulty_label(3.4) == "Easy"
+        assert get_difficulty_label(4.0) == "Easy"
 
     def test_medium_label(self):
-        assert get_difficulty_label(3.5) == "Medium"
+        assert get_difficulty_label(4.1) == "Medium"
         assert get_difficulty_label(5.0) == "Medium"
-        assert get_difficulty_label(6.4) == "Medium"
+        assert get_difficulty_label(6.0) == "Medium"
 
     def test_hard_label(self):
-        assert get_difficulty_label(6.5) == "Hard"
-        assert get_difficulty_label(7.5) == "Hard"
-        assert get_difficulty_label(8.4) == "Hard"
+        assert get_difficulty_label(6.1) == "Hard"
+        assert get_difficulty_label(7.0) == "Hard"
+        assert get_difficulty_label(8.0) == "Hard"
 
     def test_expert_label(self):
-        assert get_difficulty_label(8.5) == "Expert"
-        assert get_difficulty_label(9.5) == "Expert"
+        assert get_difficulty_label(8.1) == "Expert"
+        assert get_difficulty_label(9.0) == "Expert"
         assert get_difficulty_label(10.0) == "Expert"
 
     def test_none_rating(self):
