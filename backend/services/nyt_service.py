@@ -16,20 +16,24 @@ from backend.api.schemas import NYTMetrics, NYTComparison, StatTestResult, NYTTi
 class NYTService:
     ACQUISITION_DATE = os.getenv("NYT_ACQUISITION_DATE", "2022-02-01")
 
-    # Define pre-acquisition baseline period (1 month before)
-    PRE_START = "2021-12-31"
-    PRE_END = "2022-01-31"
-
-    # Define post-acquisition periods
-    POST_1M_END = "2022-02-29"  # 1 month after
-    POST_3M_END = "2022-04-30"  # 3 months after
-    POST_6M_END = "2022-07-31"  # 6 months after
+    # Period boundaries from environment (with defaults for backward compatibility)
+    PRE_START = os.getenv("NYT_PRE_START", "2021-12-31")
+    PRE_END = os.getenv("NYT_PRE_END", "2022-01-31")
+    POST_1M_END = os.getenv("NYT_POST_1M_END", "2022-02-29")
+    POST_3M_END = os.getenv("NYT_POST_3M_END", "2022-04-30")
+    POST_6M_END = os.getenv("NYT_POST_6M_END", "2022-07-31")
 
     def __init__(self, db: Session):
         self.db = db
+        self._df_cache = None  # Cache for DataFrame to avoid repeated queries
 
-    def _get_data(self):
-        """Fetches and aligns Word, Distribution, and TweetSentiment data."""
+    def _get_data(self) -> pd.DataFrame:
+        """Fetches and aligns Word, Distribution, and TweetSentiment data.
+        Uses cached DataFrame if available to avoid redundant queries.
+        """
+        if self._df_cache is not None:
+            return self._df_cache
+        
         # Join words, distributions, and sentiment
         query = (
             select(Word, Distribution, TweetSentiment)
@@ -63,7 +67,8 @@ class NYTService:
                 "era": "Pre-NYT" if word.date < self.ACQUISITION_DATE else "Post-NYT"
             })
 
-        return pd.DataFrame(data)
+        self._df_cache = pd.DataFrame(data)
+        return self._df_cache
 
     @staticmethod
     def _clean_float(val):
@@ -201,7 +206,10 @@ class NYTService:
         try:
             _, p_val = stats.ttest_ind(baseline_clean, period_clean, equal_var=False)
             return bool(p_val < 0.05)  # Convert numpy.bool to Python bool
-        except:
+        except (ValueError, TypeError) as e:
+            # Log the error for debugging but don't fail the entire analysis
+            import logging
+            logging.warning(f"Statistical test failed: {e}")
             return False
 
     def run_statistical_tests(self) -> dict[str, StatTestResult]:
