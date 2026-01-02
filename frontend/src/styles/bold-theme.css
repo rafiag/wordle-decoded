@@ -1363,3 +1363,71 @@
     color: var(--text-muted);
     font-size: 0.875rem;
 }
+
+/* ===========================
+   Utility Classes for Common Patterns
+   =========================== */
+
+/* Background Glows - Reusable ambient effects */
+.theme-bold .background-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+}
+
+.theme-bold .background-glow--coral {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.theme-bold .background-glow--orange {
+    background: rgba(249, 115, 22, 0.1);
+}
+
+.theme-bold .background-glow--cyan {
+    background: rgba(0, 217, 255, 0.1);
+}
+
+.theme-bold .background-glow--lime {
+    background: rgba(0, 255, 136, 0.1);
+}
+
+/* Grid Layouts - Common grid patterns */
+.theme-bold .grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+}
+
+.theme-bold .grid-3-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .theme-bold .grid-3-col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-bold .grid-2-col,
+    .theme-bold .grid-3-col {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Section Containers */
+.theme-bold .section-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-bold .section-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+}

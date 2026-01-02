@@ -3,6 +3,7 @@ import type {
   PatternStats,
   PatternFlow,
   NYTFullAnalysis,
+  NYTPeriods,
   Trap,
   OutliersOverview,
   AtAGlanceStats
@@ -54,7 +55,7 @@ export const statsApi = {
     return response.data
   },
 
-  getNYTPeriods: async (): Promise<any> => {
+  getNYTPeriods: async (): Promise<NYTPeriods> => {
     const response = await apiClient.get('/nyt/periods')
     return response.data
   },

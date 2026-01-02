@@ -596,16 +596,18 @@ Impact     │                                              │
 | BE-003 | ✅ Complete | Claude | 2026-01-02 |
 | BE-004 | ✅ Complete | Claude | 2026-01-02 |
 | BE-005 | ✅ Complete | Claude | 2026-01-02 |
-| FE-001 | 📋 Open | - | - |
-| FE-002 | 📋 Open | - | - |
-| FE-003 | 📋 Open | - | - |
-| FE-004 | 📋 Open | - | - |
-| FE-005 | 📋 Open | - | - |
-| FE-006 | 📋 Open | - | - |
-| FE-007 | 📋 Open | - | - |
-| FE-008 | 📋 Open | - | - |
+| FE-001 | ✅ Complete | Claude | 2026-01-02 |
+| FE-002 | ✅ Complete | Claude | 2026-01-02 |
+| FE-003 | ✅ Complete | Claude | 2026-01-02 |
+| FE-004 | ✅ Complete | Claude | 2026-01-02 |
+| FE-005 | ✅ Complete | Claude | 2026-01-02 |
+| FE-006 | ✅ Complete | Claude | 2026-01-02 |
+| FE-007 | ✅ Complete | Claude | 2026-01-02 |
+| FE-008 | ✅ Complete | Claude | 2026-01-02 |
 
 ---
+
+## FE-003 & FE-004 Implementation Summary (Completed 2026-01-02)
 
 ## Backend Refactoring Summary (Completed 2026-01-02)
 
@@ -654,3 +656,391 @@ All 5 backend issues have been successfully resolved:
 ### Additional Improvements
 - **Endpoint Cleanup**: Removed 6 obsolete API endpoints (verified no frontend dependencies)
 - **At-a-Glance Optimization**: Verified endpoint uses pre-computed `global_stats` table efficiently
+
+---
+
+## Frontend Refactoring Summary (Completed 2026-01-02)
+
+4 frontend issues have been successfully resolved (quick wins and high-impact moderate effort):
+
+### ✅ FE-002: Create Reusable ChartTooltip Component
+- **Created**: `frontend/src/components/charts/ChartTooltip.tsx` with flexible, generic tooltip component
+- **Implemented**: 4 reusable tooltip variants:
+  - `ChartTooltip` - Generic base component with render props pattern
+  - `GuessDistributionTooltip` - Preset for difficulty charts
+  - `SentimentTooltip` - Preset for sentiment charts
+  - `TrapTooltip` - Preset for trap word charts
+- **Updated**: Removed duplicated CustomTooltip code from 3 section files
+- **Impact**: Eliminated ~120 lines of duplicated tooltip code, consistent UX across sections
+
+### ✅ FE-005: Centralize Color Constants
+- **Created**: `frontend/src/theme/colors.ts` with centralized theme configuration
+- **Exported**: Type-safe color constants for all theme colors:
+  - `THEME_COLORS.guess` - Guess distribution colors (1/6 through Failed)
+  - `THEME_COLORS.sentiment` - Sentiment analysis colors (very_neg through very_pos)
+  - `THEME_COLORS.accent` - Accent colors mapped from CSS variables
+  - `SENTIMENT_COLORS_ARRAY` and `GUESS_COLORS_ARRAY` - Ordered arrays for charts
+- **Updated**: BoldDifficultySection and BoldSentimentSection to use centralized colors
+- **Impact**: Single source of truth for colors, easier theme updates, eliminated color duplication
+
+### ✅ FE-006: Extract FilterToggle Component
+- **Created**: `frontend/src/components/shared/FilterToggle.tsx` - Generic type-safe filter toggle component
+- **Features**: Supports custom active colors, flexible option types, consistent styling
+- **Updated**: Replaced 4 filter toggle implementations across sections:
+  - BoldDifficultySection: Daily filter (Overall/Easy/Medium/Hard) and ranking mode (hardest/easiest)
+  - BoldSentimentSection: Ranking mode (hated/loved)
+- **Impact**: Eliminated ~60 lines of duplicated button group code, consistent filter UX
+
+### ✅ FE-007: Add API Type Safety
+- **Created**: `NYTPeriodStats` and `NYTPeriods` interfaces in `frontend/src/types/index.ts`
+- **Fixed**: Replaced `any` type in `getNYTPeriods()` API function with proper `NYTPeriods` type
+- **Impact**: Full type safety for NYT periods endpoint, prevents runtime type errors
+
+---
+
+### ✅ FE-001: Split Monolithic Section Components
+
+**Completed:** 2026-01-02
+
+Successfully refactored 4 monolithic section components (569-294 lines each) into modular, maintainable structures.
+
+#### 1. BoldDifficultySection (569 → 86 lines, -85% reduction)
+
+**Created Structure:**
+```
+frontend/src/sections/difficulty/
+├── index.tsx (86 lines) - Orchestration layer
+├── hooks/
+│   ├── useProcessedDifficultyData.ts - Data joining & labeling
+│   ├── useAggregateData.ts - Bucket aggregation logic
+│   ├── useDailyChartData.ts - 90-day filtering
+│   └── useStreakData.ts - Streak calculation
+└── components/
+    ├── AggregateDistributionChart.tsx - Horizontal stacked bar
+    ├── DailyDistributionChart.tsx - Daily view with filters
+    ├── StreakChart.tsx - Difficulty momentum visualization
+    └── TopWordsTable.tsx - Ranking table
+```
+
+**Impact:**
+- 9 focused files (avg 60 lines each) vs 1 monolithic file (569 lines)
+- Custom hooks enable isolated testing of data processing logic
+- Chart components now reusable and independently testable
+- Main component reduced to pure orchestration (86 lines)
+
+#### 2. BoldSentimentSection (422 → 49 lines, -88% reduction)
+
+**Created Structure:**
+```
+frontend/src/sections/sentiment/
+├── index.tsx (49 lines) - Orchestration layer
+├── hooks/
+│   ├── useSentimentDistribution.ts - Ordered distribution processing
+│   └── useSentimentTopWords.ts - Ranking mode selection
+└── components/
+    ├── SentimentPieChart.tsx - Donut chart with custom tooltip
+    ├── SentimentTimelineChart.tsx - Daily stacked bar
+    ├── FrustrationMeter.tsx - Index display with breakdown
+    └── SentimentTable.tsx - Memoized table rows
+```
+
+**Impact:**
+- 7 focused files vs 1 monolithic file
+- Extracted PieTooltip as inline component within chart
+- Memoized TableRow component for performance optimization
+- Clear separation of data transformation and presentation
+
+#### 3. BoldTrapsSection (281 → 80 lines, -72% reduction)
+
+**Created Structure:**
+```
+frontend/src/sections/traps/
+├── index.tsx (80 lines) - Orchestration layer
+├── components/
+│   ├── TrapPatternLock.tsx - Interactive pattern visualization
+│   ├── TrapLeaderboard.tsx - Bar chart with selection
+│   └── TrapDetailCard.tsx - Detailed trap analysis
+└── utils/
+    └── patternUtils.ts - Pattern mask calculation
+```
+
+**Impact:**
+- 5 focused files vs 1 monolithic file
+- Extracted pattern logic into reusable utility function
+- Interactive components now independently testable
+- Clearer component boundaries and responsibilities
+
+#### 4. BoldNYTEffectSection (294 → 154 lines, -48% reduction)
+
+**Created Structure:**
+```
+frontend/src/sections/nyt-effect/
+├── index.tsx (154 lines) - Orchestration + styles
+├── components/
+│   ├── NYTMetricsTable.tsx - Comparison table structure
+│   └── MetricCell.tsx - Cell with change indicators
+└── utils/
+    └── formatters.ts - Change formatting & value helpers
+```
+
+**Impact:**
+- 4 focused files vs 1 monolithic file
+- Formatting logic centralized and testable
+- MetricCell component eliminates repetition
+- Styles still colocated in main component (scoped to section)
+
+#### Overall Results
+
+**File Count:** 4 monolithic files → 25 focused files (avg 60 lines/file)
+
+**Line Count Reduction:**
+| Section | Before | After | Reduction |
+|---------|--------|-------|-----------|
+| BoldDifficultySection | 569 | 86 | -85% |
+| BoldSentimentSection | 422 | 49 | -88% |
+| BoldTrapsSection | 281 | 80 | -72% |
+| BoldNYTEffectSection | 294 | 154 | -48% |
+| **Total** | **1,566** | **369** | **-76%** |
+
+**Benefits Achieved:**
+- ✅ Dramatically improved maintainability and testability
+- ✅ Easier to optimize individual components (better memoization boundaries)
+- ✅ Better IDE performance with smaller files
+- ✅ Enables component reuse (ChartTooltip, FilterToggle already shared)
+- ✅ Clear separation of concerns (data processing → hooks, UI → components)
+- ✅ Zero user-facing changes - purely internal refactoring
+- ✅ Hot module replacement verified working (no build errors)
+
+**Backward Compatibility:**
+- ✅ All imports updated in [BoldDashboard.tsx](../../frontend/src/pages/BoldDashboard.tsx)
+- ✅ No breaking changes to component APIs
+- ✅ All functionality preserved exactly as before
+
+### ✅ FE-003: Centralize Type Definitions
+
+**Completed:** 2026-01-02
+
+Successfully reorganized scattered type definitions into a clean, modular structure.
+
+#### Created Type Modules
+
+```
+frontend/src/types/
+├── index.ts           # Central re-export hub
+├── api.ts             # API response types (OverviewStats, AtAGlanceStats, WordDetails)
+├── difficulty.ts      # Difficulty types (DifficultyLabel, DifficultyStat, DistributionStat, ProcessedDay, WordRanking)
+├── sentiment.ts       # Sentiment types (SentimentAggregates, SentimentTimelinePoint, SentimentTopWord, SentimentResponse)
+├── nyt.ts             # NYT Effect types (NYTStats, NYTPeriodStats, NYTPeriods, etc.)
+├── patterns.ts        # Pattern analysis types (PatternStats, PatternFlow)
+├── outliers.ts        # Outlier detection types (Outlier, OutlierScatterPoint, OutliersOverview)
+├── traps.ts           # Trap word types (Trap)
+└── charts.ts          # Chart/visualization types (TooltipProps, ChartDataPoint)
+```
+
+#### Updated Imports
+
+- Removed duplicate type definitions from hooks (`useProcessedDifficultyData.ts`)
+- Removed duplicate exports from components (`TopWordsTable.tsx`)
+- Updated section index files to import from centralized types
+- Maintained backward compatibility with existing code
+
+#### Benefits Achieved
+
+- ✅ Single source of truth for all type definitions
+- ✅ Easier to find and update types by domain
+- ✅ Eliminated type duplication across 4+ files
+- ✅ Improved IDE autocomplete and type inference
+- ✅ Better organization for future development
+
+---
+
+### ✅ FE-004: Standardize Styling Approaches
+
+**Completed:** 2026-01-02
+
+Successfully standardized styling patterns across components, moving from mixed inline styles to consistent utility classes.
+
+#### New CSS Utility Classes Added
+
+**Background Glows** (reusable ambient effects):
+```css
+.background-glow
+.background-glow--coral
+.background-glow--orange
+.background-glow--cyan
+.background-glow--lime
+```
+
+**Grid Layouts** (responsive grid patterns):
+```css
+.grid-2-col  /* 1fr 2fr grid with responsive breakpoints */
+.grid-3-col  /* 3-column grid with responsive breakpoints */
+```
+
+**Section Containers**:
+```css
+.section-container  /* Positioned container with overflow hidden */
+.section-inner      /* Max-width inner wrapper with padding */
+```
+
+#### Components Updated
+
+**Converted inline styles to Tailwind/CSS classes:**
+
+1. **[traps/index.tsx](../../frontend/src/sections/traps/index.tsx)**
+   - Background glow effects → utility classes
+   - Section wrapper → `section-container` + `section-inner`
+   - Loading/error states → Tailwind utilities
+
+2. **[difficulty/index.tsx](../../frontend/src/sections/difficulty/index.tsx)**
+   - Grid layout → `grid-3-col` utility class
+   - Maintained responsive behavior
+
+3. **[sentiment/index.tsx](../../frontend/src/sections/sentiment/index.tsx)**
+   - Grid layouts → `grid-2-col` utility class
+   - Consistent spacing with `mb-8`
+
+4. **[nyt-effect/index.tsx](../../frontend/src/sections/nyt-effect/index.tsx)**
+   - Z-index inline style → `relative z-10` classes
+
+5. **[difficulty/components/StreakChart.tsx](../../frontend/src/sections/difficulty/components/StreakChart.tsx)**
+   - Color inline styles → `text-[var(--accent-*)]` classes
+   - Dynamic tooltip colors preserved (legitimate inline use)
+
+6. **[difficulty/components/DailyDistributionChart.tsx](../../frontend/src/sections/difficulty/components/DailyDistributionChart.tsx)**
+   - Grid column span → `col-span-2` class
+
+7. **[sentiment/components/FrustrationMeter.tsx](../../frontend/src/sections/sentiment/components/FrustrationMeter.tsx)**
+   - Margin → `mb-[14px]` class
+   - Color styles → `text-[var(--accent-*)]` classes
+
+8. **[sentiment/components/SentimentTable.tsx](../../frontend/src/sections/sentiment/components/SentimentTable.tsx)**
+   - Color inline styles → CSS variable classes
+
+9. **[traps/components/TrapDetailCard.tsx](../../frontend/src/sections/traps/components/TrapDetailCard.tsx)**
+   - Margin → `mb-0`, `mt-0` classes
+   - Icon sizing → `w-4 h-4` classes
+
+10. **[traps/components/TrapLeaderboard.tsx](../../frontend/src/sections/traps/components/TrapLeaderboard.tsx)**
+    - Cursor/transition → `cursor-pointer transition-all duration-300`
+    - Icon sizing → `w-4 h-4` class
+
+#### Styling Standards Established
+
+**Preferred approach:**
+1. **CSS utility classes** for reusable patterns (`.grid-2-col`, `.background-glow`)
+2. **Tailwind classes** for common utilities (`flex`, `gap-6`, `text-center`)
+3. **CSS variables** for theme colors (`var(--accent-cyan)`, `var(--text-secondary)`)
+4. **Inline styles ONLY for** truly dynamic values (chart colors from data, conditional calculations)
+
+**Reserved inline style use cases:**
+- Dynamic chart colors from payload data
+- Conditional styles based on runtime values
+- SVG-specific attributes that require inline values
+
+#### Benefits Achieved
+
+- ✅ Consistent styling patterns across all components
+- ✅ Reduced inline style usage by ~70%
+- ✅ Better code readability and maintainability
+- ✅ Easier theme updates via CSS variables
+- ✅ Improved responsive design with utility classes
+- ✅ Clear distinction between static and dynamic styles
+
+#### Metrics
+
+- **Files Updated:** 10 component files
+- **Inline Styles Removed:** ~35 instances
+- **New Utility Classes:** 8 reusable classes
+- **Build Status:** ✅ No errors or warnings
+
+---
+
+### ✅ FE-008: Extract Inline Tooltip Rendering Functions
+
+**Completed:** 2026-01-02
+
+Successfully extracted inline tooltip rendering function to prevent unnecessary re-renders.
+
+#### Changes Made
+
+**Updated File:** [difficulty/components/StreakChart.tsx](../../frontend/src/sections/difficulty/components/StreakChart.tsx)
+
+**Refactoring:**
+1. **Extracted StreakTooltip Component** (lines 14-35)
+   - Moved 20+ lines of inline JSX to named component
+   - Added proper TypeScript typing with `TooltipProps<StreakChartDataItem>`
+   - Component now defined outside render function to prevent re-creation
+
+2. **Updated Tooltip Usage** (line 73)
+   - Changed from inline arrow function to `content={<StreakTooltip />}`
+   - Simplified Tooltip prop from 25 lines to 1 line
+
+**Before:**
+```tsx
+<Tooltip
+  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+  content={({ active, payload, label }) => {
+    // 20+ lines of inline JSX logic
+  }}
+/>
+```
+
+**After:**
+```tsx
+function StreakTooltip({ active, payload, label }: TooltipProps<StreakChartDataItem>) {
+  // Extracted logic with proper typing
+}
+
+<Tooltip
+  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+  content={<StreakTooltip />}
+/>
+```
+
+#### Benefits Achieved
+
+- ✅ Prevents component re-creation on each render (performance optimization)
+- ✅ Improved code readability and separation of concerns
+- ✅ Better testability - tooltip logic can now be tested independently
+- ✅ Proper TypeScript typing for tooltip props
+- ✅ Consistent with other extracted tooltip patterns (ChartTooltip, GuessDistributionTooltip, etc.)
+
+#### Impact
+
+- **Performance:** Eliminated unnecessary component re-creation during parent re-renders
+- **Maintainability:** Tooltip logic now clearly separated and easier to modify
+- **Code Reduction:** Main component render reduced from 99 to ~75 lines
+
+---
+
+## 🎉 Code Review Complete
+
+All 13 identified issues have been successfully resolved:
+
+- **Backend Issues:** 5/5 ✅ Complete
+- **Frontend Issues:** 8/8 ✅ Complete
+
+### Overall Impact Summary
+
+**Backend Improvements:**
+- Eliminated query duplication with centralized aggregation service
+- Reduced main endpoint function size by ~83% (210 → 35 lines)
+- Modularized ETL transform module (841 → 401 lines, -52%)
+- Added 50 comprehensive unit tests across 4 test suites
+- Removed 6 obsolete endpoints
+
+**Frontend Improvements:**
+- Reduced monolithic section components by 76% (1,566 → 369 lines)
+- Created 25 focused, reusable components and hooks
+- Eliminated ~120 lines of duplicated tooltip code
+- Centralized all type definitions into modular structure
+- Standardized styling patterns (reduced inline styles by ~70%)
+- Improved performance with extracted components and memoization
+
+**Quality Metrics:**
+- ✅ All tests passing (50 unit tests)
+- ✅ No build errors or warnings
+- ✅ Zero user-facing changes (pure refactoring)
+- ✅ Hot module replacement working correctly
+- ✅ 100% backward compatibility maintained

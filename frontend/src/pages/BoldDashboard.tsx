@@ -1,10 +1,10 @@
 
 import BoldHeroSection from '../sections/BoldHeroSection';
 import BoldAtAGlanceSection from '../sections/BoldAtAGlanceSection';
-import BoldDifficultySection from '../sections/BoldDifficultySection';
-import BoldTrapsSection from '../sections/BoldTrapsSection';
-import BoldSentimentSection from '../sections/BoldSentimentSection';
-import BoldNYTEffectSection from '../sections/BoldNYTEffectSection';
+import BoldDifficultySection from '../sections/difficulty';
+import BoldTrapsSection from '../sections/traps';
+import BoldSentimentSection from '../sections/sentiment';
+import BoldNYTEffectSection from '../sections/nyt-effect';
 import BoldWordHighlightsSection from '../sections/BoldWordHighlightsSection';
 import BoldPatternsSection from '../sections/BoldPatternsSection';
 
