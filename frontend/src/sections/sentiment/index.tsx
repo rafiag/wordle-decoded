@@ -8,6 +8,7 @@ import { SentimentPieChart } from './components/SentimentPieChart';
 import { SentimentTimelineChart } from './components/SentimentTimelineChart';
 import { FrustrationMeter } from './components/FrustrationMeter';
 import { SentimentTable } from './components/SentimentTable';
+import { TooltipTerm } from '../../components/shared/Tooltip';
 
 export default function BoldSentimentSection() {
     const { data: sentimentData, isLoading } = useQuery<SentimentResponse>({
@@ -22,14 +23,16 @@ export default function BoldSentimentSection() {
     const topWords = useSentimentTopWords(sentimentData?.top_hated, sentimentData?.top_loved, rankingMode);
 
     const avgFrustration = sentimentData?.aggregates?.avg_frustration || 0;
-    const frustrationBreakdown = sentimentData?.aggregates?.frustration_by_difficulty || { Easy: 0, Medium: 0, Hard: 0 };
+    const frustrationBreakdown = (sentimentData?.aggregates?.frustration_by_difficulty as { Easy: number; Medium: number; Hard: number; Expert: number }) || { Easy: 0, Medium: 0, Hard: 0, Expert: 0 };
 
     if (isLoading) return <div className="py-20 text-center text-[var(--text-secondary)]">Loading sentiment data...</div>;
 
     return (
         <section id="sentiment" className="mb-20 pt-10">
             <div className="section-header">
-                <h2 className="section-title">Sentiment Analysis</h2>
+                <h2 className="section-title">
+                    <TooltipTerm termKey="sentiment">Sentiment</TooltipTerm> Analysis
+                </h2>
                 <p className="section-description">
                     Community frustration vs. excitement over time.
                 </p>

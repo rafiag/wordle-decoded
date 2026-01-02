@@ -93,9 +93,9 @@ export function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartP
                 </ResponsiveContainer>
             </div>
 
-            <InsightCard title="NYT Alternates Difficulty for Engagement">
+            <InsightCard title="Extremes are Rare: Expert vs. Easy">
                 <p>
-                    Consecutive Hard days are shorter than Easy streaks, creating a rhythm of challenge and relief. This pacing prevents player burnout while maintaining engagement.
+                    Data reveals that "Expert" challenges (~6%) and "Easy" relief (~5%) are equally rare. The vast majority of gameplay (88%) resides in the Medium-to-Hard spectrum, indicating that Wordle maintains a high skill floor with only occasional spikes of extreme intensity.
                 </p>
             </InsightCard>
         </div>

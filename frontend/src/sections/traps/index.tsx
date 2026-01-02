@@ -4,6 +4,7 @@ import { GitMerge } from 'lucide-react';
 import { statsApi } from '../../services/api';
 import { TrapLeaderboard } from './components/TrapLeaderboard';
 import { TrapDetailCard } from './components/TrapDetailCard';
+import { TooltipTerm } from '../../components/shared/Tooltip';
 
 export default function BoldTrapsSection() {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function BoldTrapsSection() {
 
             <div className="section-inner">
                 <div className="section-header">
-                    <h2 className="section-title">The Trap Zone</h2>
+                    <h2 className="section-title">The <TooltipTerm termKey="trapWord">Trap</TooltipTerm> Zone</h2>
                     <p className="section-description">
                         A trap word isn't just obscure—it's a minefield. With 8+ neighbors sharing the same pattern, guessing becomes a dangerous game of chance.
                     </p>

@@ -38,7 +38,7 @@ export function useStreakData(processedData: ProcessedDay[] | null): StreakData 
 
         const data: StreakChartDataItem[] = recent.map((d: ProcessedDay) => {
             const isEasy = d.difficultyLabel === 'Easy';
-            const isHard = d.difficultyLabel === 'Hard';
+            const isHard = d.difficultyLabel === 'Hard' || d.difficultyLabel === 'Expert';
 
             if (isEasy) {
                 currentEasy++;

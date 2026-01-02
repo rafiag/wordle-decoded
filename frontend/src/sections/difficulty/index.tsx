@@ -10,6 +10,7 @@ import { AggregateDistributionChart } from './components/AggregateDistributionCh
 import { DailyDistributionChart } from './components/DailyDistributionChart';
 import { StreakChart } from './components/StreakChart';
 import { TopWordsTable } from './components/TopWordsTable';
+import { TooltipTerm } from '../../components/shared/Tooltip';
 
 export default function BoldDifficultySection() {
     // Fetch Data
@@ -53,7 +54,9 @@ export default function BoldDifficultySection() {
     return (
         <section id="difficulty" className="mb-20 pt-10">
             <div className="section-header">
-                <h2 className="section-title">Difficulty & Distribution</h2>
+                <h2 className="section-title">
+                    <TooltipTerm termKey="difficulty">Difficulty</TooltipTerm> & Distribution
+                </h2>
                 <p className="section-description">
                     Analyze how difficulty affects guess distribution and global performance.
                 </p>

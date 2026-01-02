@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ProcessedDay, DifficultyLabel } from './useProcessedDifficultyData';
+import { ProcessedDay, DifficultyLabel } from '../../../types';
 
 interface AggregateBucket {
     1: number;
@@ -45,6 +45,7 @@ export function useAggregateData(processedData: ProcessedDay[] | null): Aggregat
             Easy: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
             Medium: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
             Hard: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
+            Expert: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
             Unknown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
         };
 
@@ -64,10 +65,11 @@ export function useAggregateData(processedData: ProcessedDay[] | null): Aggregat
             if (day.difficultyLabel === 'Easy') addStats(buckets.Easy);
             else if (day.difficultyLabel === 'Medium') addStats(buckets.Medium);
             else if (day.difficultyLabel === 'Hard') addStats(buckets.Hard);
+            else if (day.difficultyLabel === 'Expert') addStats(buckets.Expert);
             else addStats(buckets.Unknown);
         });
 
-        const categories: ('Overall' | DifficultyLabel)[] = ['Overall', 'Easy', 'Medium', 'Hard'];
+        const categories: ('Overall' | DifficultyLabel)[] = ['Overall', 'Easy', 'Medium', 'Hard', 'Expert'];
 
         const result: AggregateChartData[] = categories.map(cat => {
             const bucket = buckets[cat];

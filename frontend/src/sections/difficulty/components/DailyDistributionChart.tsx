@@ -18,9 +18,9 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
     return (
         <div className="card h-[450px] flex flex-col col-span-2 relative">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">Daily Guess Distribution (90 Days)</h3>
+                <h3 className="text-lg font-bold">Daily Guess Distribution <br></br>(Last 90 Days)</h3>
                 <FilterToggle
-                    options={['Overall', 'Easy', 'Medium', 'Hard'] as const}
+                    options={['Overall', 'Easy', 'Medium', 'Hard', 'Expert'] as const}
                     value={dailyFilter}
                     onChange={onFilterChange}
                 />
@@ -54,7 +54,6 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
                             isAnimationActive={false}
                             wrapperStyle={{ zIndex: 1000 }}
                         />
-                        <Legend wrapperStyle={{ paddingTop: '10px' }} />
                         {['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'].map((key) => (
                             <Bar
                                 key={key}

@@ -35,19 +35,15 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
 
 
     frust_by_difficulty = {
-        'Easy': 0.0, 'Medium': 0.0, 'Hard': 0.0
+        'Easy': 0.0, 'Medium': 0.0, 'Hard': 0.0, 'Expert': 0.0
     }
-    
+
     # Map back to simple dictionary
     if frust_by_difficulty_query:
         for row in frust_by_difficulty_query:
-            label = get_difficulty_label(row[0]) if isinstance(row[0], int) else row[0] # Handle both raw int or already labeled
+            label = get_difficulty_label(row[0])
             if label in frust_by_difficulty:
                 frust_by_difficulty[label] = round(float(row[1] or 0) * 100, 2)
-            # Map raw difficulty integers if stored that way
-            elif row[0] == 1 or row[0] == 'Easy': frust_by_difficulty['Easy'] = round(float(row[1] or 0) * 100, 2)
-            elif row[0] == 2 or row[0] == 'Medium': frust_by_difficulty['Medium'] = round(float(row[1] or 0) * 100, 2)
-            elif row[0] >= 3 or row[0] == 'Hard': frust_by_difficulty['Hard'] = round(float(row[1] or 0) * 100, 2)
         
     aggregates = {
         "distribution": [

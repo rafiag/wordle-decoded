@@ -1,0 +1,238 @@
+﻿diff --git a/backend/api/endpoints/analytics.py b/backend/api/endpoints/analytics.py
+index 6dd55fc..9269224 100644
+--- a/backend/api/endpoints/analytics.py
++++ b/backend/api/endpoints/analytics.py
+@@ -35,19 +35,15 @@ def get_sentiment_analytics(db: Session = Depends(get_db)):
+ 
+ 
+     frust_by_difficulty = {
+-        'Easy': 0.0, 'Medium': 0.0, 'Hard': 0.0
++        'Easy': 0.0, 'Medium': 0.0, 'Hard': 0.0, 'Expert': 0.0
+     }
+-    
++
+     # Map back to simple dictionary
+     if frust_by_difficulty_query:
+         for row in frust_by_difficulty_query:
+-            label = get_difficulty_label(row[0]) if isinstance(row[0], int) else row[0] # Handle both raw int or already labeled
++            label = get_difficulty_label(row[0])
+             if label in frust_by_difficulty:
+                 frust_by_difficulty[label] = round(float(row[1] or 0) * 100, 2)
+-            # Map raw difficulty integers if stored that way
+-            elif row[0] == 1 or row[0] == 'Easy': frust_by_difficulty['Easy'] = round(float(row[1] or 0) * 100, 2)
+-            elif row[0] == 2 or row[0] == 'Medium': frust_by_difficulty['Medium'] = round(float(row[1] or 0) * 100, 2)
+-            elif row[0] >= 3 or row[0] == 'Hard': frust_by_difficulty['Hard'] = round(float(row[1] or 0) * 100, 2)
+         
+     aggregates = {
+         "distribution": [
+diff --git a/frontend/src/sections/difficulty/components/DailyDistributionChart.tsx b/frontend/src/sections/difficulty/components/DailyDistributionChart.tsx
+index 0d952a1..e5314da 100644
+--- a/frontend/src/sections/difficulty/components/DailyDistributionChart.tsx
++++ b/frontend/src/sections/difficulty/components/DailyDistributionChart.tsx
+@@ -18,9 +18,9 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
+     return (
+         <div className="card h-[450px] flex flex-col col-span-2 relative">
+             <div className="flex justify-between items-center mb-4">
+-                <h3 className="text-lg font-bold">Daily Guess Distribution (90 Days)</h3>
++                <h3 className="text-lg font-bold">Daily Guess Distribution <br></br>(Last 90 Days)</h3>
+                 <FilterToggle
+-                    options={['Overall', 'Easy', 'Medium', 'Hard'] as const}
++                    options={['Overall', 'Easy', 'Medium', 'Hard', 'Expert'] as const}
+                     value={dailyFilter}
+                     onChange={onFilterChange}
+                 />
+@@ -54,7 +54,6 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
+                             isAnimationActive={false}
+                             wrapperStyle={{ zIndex: 1000 }}
+                         />
+-                        <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                         {['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'].map((key) => (
+                             <Bar
+                                 key={key}
+diff --git a/frontend/src/sections/difficulty/components/StreakChart.tsx b/frontend/src/sections/difficulty/components/StreakChart.tsx
+index cc6887d..0e6d9f4 100644
+--- a/frontend/src/sections/difficulty/components/StreakChart.tsx
++++ b/frontend/src/sections/difficulty/components/StreakChart.tsx
+@@ -93,9 +93,9 @@ export function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartP
+                 </ResponsiveContainer>
+             </div>
+ 
+-            <InsightCard title="NYT Alternates Difficulty for Engagement">
++            <InsightCard title="Extremes are Rare: Expert vs. Easy">
+                 <p>
+-                    Consecutive Hard days are shorter than Easy streaks, creating a rhythm of challenge and relief. This pacing prevents player burnout while maintaining engagement.
++                    Data reveals that "Expert" challenges (~6%) and "Easy" relief (~5%) are equally rare. The vast majority of gameplay (88%) resides in the Medium-to-Hard spectrum, indicating that Wordle maintains a high skill floor with only occasional spikes of extreme intensity.
+                 </p>
+             </InsightCard>
+         </div>
+diff --git a/frontend/src/sections/difficulty/hooks/useAggregateData.ts b/frontend/src/sections/difficulty/hooks/useAggregateData.ts
+index 0148f63..61cf5e3 100644
+--- a/frontend/src/sections/difficulty/hooks/useAggregateData.ts
++++ b/frontend/src/sections/difficulty/hooks/useAggregateData.ts
+@@ -1,5 +1,5 @@
+ import { useMemo } from 'react';
+-import { ProcessedDay, DifficultyLabel } from './useProcessedDifficultyData';
++import { ProcessedDay, DifficultyLabel } from '../../../types';
+ 
+ interface AggregateBucket {
+     1: number;
+@@ -45,6 +45,7 @@ export function useAggregateData(processedData: ProcessedDay[] | null): Aggregat
+             Easy: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
+             Medium: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
+             Hard: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
++            Expert: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
+             Unknown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
+         };
+ 
+@@ -64,10 +65,11 @@ export function useAggregateData(processedData: ProcessedDay[] | null): Aggregat
+             if (day.difficultyLabel === 'Easy') addStats(buckets.Easy);
+             else if (day.difficultyLabel === 'Medium') addStats(buckets.Medium);
+             else if (day.difficultyLabel === 'Hard') addStats(buckets.Hard);
++            else if (day.difficultyLabel === 'Expert') addStats(buckets.Expert);
+             else addStats(buckets.Unknown);
+         });
+ 
+-        const categories: ('Overall' | DifficultyLabel)[] = ['Overall', 'Easy', 'Medium', 'Hard'];
++        const categories: ('Overall' | DifficultyLabel)[] = ['Overall', 'Easy', 'Medium', 'Hard', 'Expert'];
+ 
+         const result: AggregateChartData[] = categories.map(cat => {
+             const bucket = buckets[cat];
+diff --git a/frontend/src/sections/difficulty/hooks/useStreakData.ts b/frontend/src/sections/difficulty/hooks/useStreakData.ts
+index 2f030a2..dc7d229 100644
+--- a/frontend/src/sections/difficulty/hooks/useStreakData.ts
++++ b/frontend/src/sections/difficulty/hooks/useStreakData.ts
+@@ -38,7 +38,7 @@ export function useStreakData(processedData: ProcessedDay[] | null): StreakData
+ 
+         const data: StreakChartDataItem[] = recent.map((d: ProcessedDay) => {
+             const isEasy = d.difficultyLabel === 'Easy';
+-            const isHard = d.difficultyLabel === 'Hard';
++            const isHard = d.difficultyLabel === 'Hard' || d.difficultyLabel === 'Expert';
+ 
+             if (isEasy) {
+                 currentEasy++;
+diff --git a/frontend/src/sections/difficulty/index.tsx b/frontend/src/sections/difficulty/index.tsx
+index 69898df..ff9079a 100644
+--- a/frontend/src/sections/difficulty/index.tsx
++++ b/frontend/src/sections/difficulty/index.tsx
+@@ -10,6 +10,7 @@ import { AggregateDistributionChart } from './components/AggregateDistributionCh
+ import { DailyDistributionChart } from './components/DailyDistributionChart';
+ import { StreakChart } from './components/StreakChart';
+ import { TopWordsTable } from './components/TopWordsTable';
++import { TooltipTerm } from '../../components/shared/Tooltip';
+ 
+ export default function BoldDifficultySection() {
+     // Fetch Data
+@@ -53,7 +54,9 @@ export default function BoldDifficultySection() {
+     return (
+         <section id="difficulty" className="mb-20 pt-10">
+             <div className="section-header">
+-                <h2 className="section-title">Difficulty & Distribution</h2>
++                <h2 className="section-title">
++                    <TooltipTerm termKey="difficulty">Difficulty</TooltipTerm> & Distribution
++                </h2>
+                 <p className="section-description">
+                     Analyze how difficulty affects guess distribution and global performance.
+                 </p>
+diff --git a/frontend/src/sections/sentiment/components/FrustrationMeter.tsx b/frontend/src/sections/sentiment/components/FrustrationMeter.tsx
+index 94e484a..d3a72d8 100644
+--- a/frontend/src/sections/sentiment/components/FrustrationMeter.tsx
++++ b/frontend/src/sections/sentiment/components/FrustrationMeter.tsx
+@@ -1,6 +1,6 @@
+-import { THEME_COLORS } from '../../../theme/colors';
++import { TooltipTerm } from '../../../components/shared/Tooltip';
++
+ 
+-const V2_COLORS = THEME_COLORS.sentiment;
+ 
+ interface FrustrationMeterProps {
+     avgFrustration: number;
+@@ -8,13 +8,16 @@ interface FrustrationMeterProps {
+         Easy: number;
+         Medium: number;
+         Hard: number;
++        Expert: number;
+     };
+ }
+ 
+ export function FrustrationMeter({ avgFrustration, frustrationBreakdown }: FrustrationMeterProps) {
+     return (
+         <div className="card text-center flex flex-col justify-center py-10">
+-            <h3 className="text-lg font-bold mb-[14px]">Frustration Index</h3>
++            <h3 className="text-lg font-bold mb-[14px]">
++                <TooltipTerm termKey="frustrationIndex">Frustration Index</TooltipTerm>
++            </h3>
+             <div className="text-6xl font-bold font-mono text-[var(--accent-coral)] mb-6">
+                 {avgFrustration}%
+             </div>
+@@ -24,7 +27,7 @@ export function FrustrationMeter({ avgFrustration, frustrationBreakdown }: Frust
+ 
+             <div className="mt-8 pt-8 border-t border-[var(--border-color)]">
+                 <div className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider">Breakdown by Difficulty</div>
+-                <div className="flex justify-around gap-12 px-2 pt-8">
++                <div className="flex justify-around gap-6 px-2 pt-8">
+                     <div>
+                         <div className="text-xs text-[var(--text-secondary)] mb-1">Easy</div>
+                         <div className="text-xl font-mono font-bold text-[var(--accent-lime)]">{frustrationBreakdown.Easy}%</div>
+@@ -37,6 +40,10 @@ export function FrustrationMeter({ avgFrustration, frustrationBreakdown }: Frust
+                         <div className="text-xs text-[var(--text-secondary)] mb-1">Hard</div>
+                         <div className="text-xl font-mono font-bold text-[var(--accent-coral)]">{frustrationBreakdown.Hard}%</div>
+                     </div>
++                    <div>
++                        <div className="text-xs text-[var(--text-secondary)] mb-1">Expert</div>
++                        <div className="text-xl font-mono font-bold text-[var(--accent-purple)]">{frustrationBreakdown.Expert}%</div>
++                    </div>
+                 </div>
+             </div>
+         </div>
+diff --git a/frontend/src/sections/sentiment/index.tsx b/frontend/src/sections/sentiment/index.tsx
+index cb9b55e..4a25ac0 100644
+--- a/frontend/src/sections/sentiment/index.tsx
++++ b/frontend/src/sections/sentiment/index.tsx
+@@ -8,6 +8,7 @@ import { SentimentPieChart } from './components/SentimentPieChart';
+ import { SentimentTimelineChart } from './components/SentimentTimelineChart';
+ import { FrustrationMeter } from './components/FrustrationMeter';
+ import { SentimentTable } from './components/SentimentTable';
++import { TooltipTerm } from '../../components/shared/Tooltip';
+ 
+ export default function BoldSentimentSection() {
+     const { data: sentimentData, isLoading } = useQuery<SentimentResponse>({
+@@ -22,14 +23,16 @@ export default function BoldSentimentSection() {
+     const topWords = useSentimentTopWords(sentimentData?.top_hated, sentimentData?.top_loved, rankingMode);
+ 
+     const avgFrustration = sentimentData?.aggregates?.avg_frustration || 0;
+-    const frustrationBreakdown = sentimentData?.aggregates?.frustration_by_difficulty || { Easy: 0, Medium: 0, Hard: 0 };
++    const frustrationBreakdown = (sentimentData?.aggregates?.frustration_by_difficulty as { Easy: number; Medium: number; Hard: number; Expert: number }) || { Easy: 0, Medium: 0, Hard: 0, Expert: 0 };
+ 
+     if (isLoading) return <div className="py-20 text-center text-[var(--text-secondary)]">Loading sentiment data...</div>;
+ 
+     return (
+         <section id="sentiment" className="mb-20 pt-10">
+             <div className="section-header">
+-                <h2 className="section-title">Sentiment Analysis</h2>
++                <h2 className="section-title">
++                    <TooltipTerm termKey="sentiment">Sentiment</TooltipTerm> Analysis
++                </h2>
+                 <p className="section-description">
+                     Community frustration vs. excitement over time.
+                 </p>
+diff --git a/frontend/src/sections/traps/index.tsx b/frontend/src/sections/traps/index.tsx
+index 2041c14..c70b0f4 100644
+--- a/frontend/src/sections/traps/index.tsx
++++ b/frontend/src/sections/traps/index.tsx
+@@ -4,6 +4,7 @@ import { GitMerge } from 'lucide-react';
+ import { statsApi } from '../../services/api';
+ import { TrapLeaderboard } from './components/TrapLeaderboard';
+ import { TrapDetailCard } from './components/TrapDetailCard';
++import { TooltipTerm } from '../../components/shared/Tooltip';
+ 
+ export default function BoldTrapsSection() {
+     const [selectedWord, setSelectedWord] = useState<string | null>(null);
+@@ -52,7 +53,7 @@ export default function BoldTrapsSection() {
+ 
+             <div className="section-inner">
+                 <div className="section-header">
+-                    <h2 className="section-title">The Trap Zone</h2>
++                    <h2 className="section-title">The <TooltipTerm termKey="trapWord">Trap</TooltipTerm> Zone</h2>
+                     <p className="section-description">
+                         A trap word isn't just obscureΓÇöit's a minefield. With 8+ neighbors sharing the same pattern, guessing becomes a dangerous game of chance.
+                     </p>
