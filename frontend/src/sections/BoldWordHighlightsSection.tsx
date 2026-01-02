@@ -63,9 +63,10 @@ export default function BoldWordHighlightsSection() {
         try {
             const details = await statsApi.getWordDetails(searchWord);
             setWordDetails(details);
-        } catch (err: any) {
+        } catch (err: unknown) {
             setWordDetails(null);
-            if (err.status === 404) {
+            const apiError = err as { status?: number };
+            if (apiError.status === 404) {
                 setError('Word not found in database. Try a different Wordle answer.');
             } else {
                 setError('Failed to fetch word details. Please try again.');

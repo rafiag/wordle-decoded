@@ -13,18 +13,100 @@ import {
 } from 'recharts';
 import { statsApi } from '../services/api';
 
-// V2 Theme Colors
-const V2_COLORS = {
-    primary: '#00D9FF', // Cyan
-    secondary: '#00FF88', // Lime
-    tertiary: '#FFA500', // Orange
-    quaternary: '#FF6B9D', // Coral
-    background: '#1A1A1A',
-    surface: '#242424',
-    text: '#FFFFFF',
-    textSecondary: '#A0A0A0',
-    grid: '#333333'
-};
+// Type Definitions
+interface DifficultyStat {
+    date: string;
+    difficulty: number;
+}
+
+interface DistributionStat {
+    date: string;
+    guess_1: number;
+    guess_2: number;
+    guess_3: number;
+    guess_4: number;
+    guess_5: number;
+    guess_6: number;
+    failed: number;
+    word_solution: string;
+}
+
+type DifficultyLabel = 'Easy' | 'Medium' | 'Hard' | 'Unknown';
+
+interface ProcessedDay extends DistributionStat {
+    difficulty: number;
+    difficultyLabel: DifficultyLabel;
+}
+
+interface AggregateBucket {
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+    6: number;
+    fail: number;
+    total: number;
+}
+
+interface AggregateChartData {
+    name: string;
+    '1/6': number;
+    '2/6': number;
+    '3/6': number;
+    '4/6': number;
+    '5/6': number;
+    '6/6': number;
+    'Failed': number;
+    'pct_1/6': string;
+    'pct_2/6': string;
+    'pct_3/6': string;
+    'pct_4/6': string;
+    'pct_5/6': string;
+    'pct_6/6': string;
+    'pct_Failed': string;
+}
+
+interface DailyChartDataItem {
+    date: string;
+    '1/6': number;
+    '2/6': number;
+    '3/6': number;
+    '4/6': number;
+    '5/6': number;
+    '6/6': number;
+    'Failed': number;
+    difficultyLabel: DifficultyLabel;
+    word_solution: string;
+}
+
+interface StreakChartDataItem {
+    date: string;
+    easyStreak: number | null;
+    hardStreak: number | null;
+    difficultyLabel: DifficultyLabel;
+}
+
+interface WordRanking {
+    word: string;
+    date: string;
+    avg_guess_count: number;
+    difficulty_rating: number;
+    success_rate: number;
+}
+
+// Recharts Tooltip Payload Type
+interface TooltipPayloadEntry {
+    value: number;
+    name: string;
+    color: string;
+    payload: {
+        word_solution?: string;
+        [key: string]: unknown; // For other properties like guess counts
+    };
+}
+
+// Guess Colors
 
 const GUESS_COLORS = {
     '1/6': '#00d9ff', // Cyan (Very Pos)
@@ -36,10 +118,10 @@ const GUESS_COLORS = {
     'Failed': '#ff6b9d' // Coral (Very Neg)
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayloadEntry[]; label?: string }) => {
     if (active && payload && payload.length) {
         // Calculate total for percentage display
-        const total = payload.reduce((sum: number, entry: any) => sum + (entry.value || 0), 0);
+        const total = payload.reduce((sum: number, entry: TooltipPayloadEntry) => sum + (entry.value || 0), 0);
 
         const data = payload[0].payload;
         return (
@@ -58,7 +140,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                     </div>
                 </div>
 
-                {payload.map((entry: any, index: number) => {
+                {payload.map((entry: TooltipPayloadEntry, index: number) => {
                     const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0.0';
                     return (
                         <div key={index} className="text-sm flex justify-between gap-4">
@@ -80,64 +162,67 @@ const LEGEND_ORDER = ['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'];
 
 export default function BoldDifficultySection() {
     // 1. Fetch Data
-    const { data: difficultyStats, isLoading: statsLoading } = useQuery({
+    const { data: difficultyStats, isLoading: statsLoading } = useQuery<DifficultyStat[]>({
         queryKey: ['difficultyStats'],
         queryFn: statsApi.getDifficultyStats,
     });
 
-    const { data: distributions, isLoading: distLoading } = useQuery({
+    const { data: distributions, isLoading: distLoading } = useQuery<DistributionStat[]>({
         queryKey: ['distributions', 2000],
         queryFn: () => statsApi.getDistributions(2000),
     });
 
     // State
-    const [dailyFilter, setDailyFilter] = useState('Overall'); // Overall, Easy, Medium, Hard
+    const [dailyFilter, setDailyFilter] = useState<'Overall' | DifficultyLabel>('Overall'); // Overall, Easy, Medium, Hard
     const [rankingMode, setRankingMode] = useState<'easiest' | 'hardest'>('hardest');
 
     // 2. Process Data
-    const processedData = useMemo(() => {
+    const processedData = useMemo<ProcessedDay[] | null>(() => {
         if (!difficultyStats || !distributions) return null;
 
         // Create a map of date -> difficulty
-        const difficultyMap = new Map();
-        difficultyStats.forEach((p: any) => {
+        const difficultyMap = new Map<string, number>();
+        difficultyStats.forEach((p: DifficultyStat) => {
             difficultyMap.set(p.date, p.difficulty);
         });
 
         // Join data
-        const joined = distributions.map((d: any) => {
+        const joined = distributions.map((d: DistributionStat) => {
             const diff = difficultyMap.get(d.date);
-            let difficultyLabel = 'Unknown';
-            if (diff <= 3) difficultyLabel = 'Easy';
-            else if (diff <= 6) difficultyLabel = 'Medium';
-            else if (diff > 6) difficultyLabel = 'Hard';
+            let difficultyLabel: DifficultyLabel = 'Unknown';
+            if (diff !== undefined) {
+                if (diff <= 3) difficultyLabel = 'Easy';
+                else if (diff <= 6) difficultyLabel = 'Medium';
+                else if (diff > 6) difficultyLabel = 'Hard';
+            }
 
             return {
                 ...d,
-                difficulty: diff,
+                difficulty: diff || 0, // Default to 0 if not found, though it should be
                 difficultyLabel
             };
         });
 
         // Sort by date desc for recent checks, asc for charts usually
-        const sortedByDate = [...joined].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const sortedByDate = [...joined].sort((a: ProcessedDay, b: ProcessedDay) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         return sortedByDate;
     }, [difficultyStats, distributions]);
 
     // Chart 1 Data: Aggregate Guess Distribution breakdown (Horizontal Stacked Bar)
-    const aggregateData = useMemo(() => {
+    const aggregateData = useMemo<AggregateChartData[]>(() => {
         if (!processedData) return [];
 
-        const buckets = {
+        const buckets: { [key in 'Overall' | DifficultyLabel]: AggregateBucket } = {
             Overall: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
             Easy: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
             Medium: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
             Hard: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 },
+            Unknown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, fail: 0, total: 0 }, // Include Unknown for completeness
         };
 
-        processedData.forEach((day: any) => {
-            const addStats = (bucket: any) => {
+        processedData.forEach((day: ProcessedDay) => {
+            const addStats = (bucket: AggregateBucket) => {
                 bucket[1] += day.guess_1;
                 bucket[2] += day.guess_2;
                 bucket[3] += day.guess_3;
@@ -151,38 +236,39 @@ export default function BoldDifficultySection() {
 
             addStats(buckets.Overall);
             if (day.difficultyLabel === 'Easy') addStats(buckets.Easy);
-            if (day.difficultyLabel === 'Medium') addStats(buckets.Medium);
-            if (day.difficultyLabel === 'Hard') addStats(buckets.Hard);
+            else if (day.difficultyLabel === 'Medium') addStats(buckets.Medium);
+            else if (day.difficultyLabel === 'Hard') addStats(buckets.Hard);
+            else addStats(buckets.Unknown);
         });
 
         // Transform for Recharts (Y-Axis: Difficulty, X-Axis: Guess Counts Stacked)
-        const categories = ['Overall', 'Easy', 'Medium', 'Hard'];
+        const categories: ('Overall' | DifficultyLabel)[] = ['Overall', 'Easy', 'Medium', 'Hard'];
 
         // Use raw counts with stackOffset="expand" for proper 100% stacking
-        const result = categories.map(cat => {
-            const bucket = buckets[cat as keyof typeof buckets];
+        const result: AggregateChartData[] = categories.map(cat => {
+            const bucket = buckets[cat];
 
             // Create object with properties in fixed order to ensure Legend displays correctly
-            const row: any = { name: cat };
+            const row: Record<string, string | number> = { name: cat };
             LEGEND_ORDER.forEach(key => {
-                const numKey = key === 'Failed' ? 'fail' : parseInt(key.split('/')[0]);
-                const count = key === 'Failed' ? bucket.fail : bucket[numKey as keyof typeof bucket];
+                const numKey = key === 'Failed' ? 'fail' : parseInt(key.split('/')[0]) as 1 | 2 | 3 | 4 | 5 | 6;
+                const count = key === 'Failed' ? bucket.fail : bucket[numKey];
                 row[key] = count; // Use raw counts, not percentages
 
                 // Calculate percentage for label
                 const pct = bucket.total > 0 ? (count / bucket.total * 100) : 0;
-                // Only show label if percentage > 5% to avoid clutter
+                // Only show label if percentage > 10% to avoid clutter
                 row[`pct_${key}`] = pct > 10 ? `${pct.toFixed(0)}%` : '';
             });
 
-            return row;
+            return row as unknown as AggregateChartData;
         });
 
         return result;
     }, [processedData]);
 
     // Chart 2 Data: Daily Stacked Bar (Last 90 days)
-    const dailyChartData = useMemo(() => {
+    const dailyChartData = useMemo<DailyChartDataItem[]>(() => {
         if (!processedData || processedData.length === 0) return [];
 
         // Filter last 90 days relative to the latest data point
@@ -192,14 +278,14 @@ export default function BoldDifficultySection() {
         const cutoff = new Date(lastDate);
         cutoff.setDate(cutoff.getDate() - 90);
 
-        const recent = processedData.filter((d: any) => new Date(d.date) >= cutoff);
+        const recent = processedData.filter((d: ProcessedDay) => new Date(d.date) >= cutoff);
 
         // Filter by toggle
         const filtered = dailyFilter === 'Overall'
             ? recent
-            : recent.filter((d: any) => d.difficultyLabel === dailyFilter);
+            : recent.filter((d: ProcessedDay) => d.difficultyLabel === dailyFilter);
 
-        return filtered.map((d: any) => ({
+        return filtered.map((d: ProcessedDay) => ({
             date: d.date,
             '1/6': d.guess_1,
             '2/6': d.guess_2,
@@ -222,14 +308,14 @@ export default function BoldDifficultySection() {
         const cutoff = new Date(lastDate);
         cutoff.setDate(cutoff.getDate() - 90);
 
-        const recent = processedData.filter((d: any) => new Date(d.date) >= cutoff);
+        const recent = processedData.filter((d: ProcessedDay) => new Date(d.date) >= cutoff);
 
         let currentEasy = 0;
         let currentHard = 0;
         let maxEasy = 0;
         let maxHard = 0;
 
-        const data = recent.map((d: any) => {
+        const data: StreakChartDataItem[] = recent.map((d: ProcessedDay) => {
             const isEasy = d.difficultyLabel === 'Easy';
             const isHard = d.difficultyLabel === 'Hard';
 
@@ -259,18 +345,18 @@ export default function BoldDifficultySection() {
     }, [processedData]);
 
     // Fetch lists for rankings separately to ensure we have Words
-    const { data: topHardest } = useQuery({
+    const { data: topHardest } = useQuery<WordRanking[]>({
         queryKey: ['hardestWords'],
         queryFn: () => statsApi.getHardestWords(10),
     });
 
-    const { data: topEasiest } = useQuery({
+    const { data: topEasiest } = useQuery<WordRanking[]>({
         queryKey: ['easiestWords'],
         queryFn: () => statsApi.getEasiestWords(10),
     });
 
     // Chart 3: Top Words Data
-    const topWords = useMemo(() => {
+    const topWords = useMemo<WordRanking[]>(() => {
         if (rankingMode === 'hardest') return topHardest || [];
         return topEasiest || [];
     }, [rankingMode, topHardest, topEasiest]);
@@ -280,7 +366,7 @@ export default function BoldDifficultySection() {
     }
 
     // Helper for X-Axis tick formatting (stackOffset="expand" uses 0-1 scale)
-    const percentageFormatter = (val: number) => `${(val * 100).toFixed(0)}%`;
+    const percentageFormatter = (val: number) => `${(val * 100).toFixed(0)}% `;
 
     return (
         <section id="difficulty" className="mb-20 pt-10">
@@ -317,7 +403,7 @@ export default function BoldDifficultySection() {
                                         fill={GUESS_COLORS[key as keyof typeof GUESS_COLORS]}
                                     >
                                         <LabelList
-                                            dataKey={`pct_${key}`}
+                                            dataKey={`pct_${key} `}
                                             position="center"
                                             style={{
                                                 fill: '#FFFFFF', // White text for adherence to design system
@@ -342,11 +428,11 @@ export default function BoldDifficultySection() {
                             {['Overall', 'Easy', 'Medium', 'Hard'].map(filter => (
                                 <button
                                     key={filter}
-                                    onClick={() => setDailyFilter(filter)}
-                                    className={`px-3 py-1 text-xs font-bold rounded transition-colors ${dailyFilter === filter
+                                    onClick={() => setDailyFilter(filter as 'Overall' | DifficultyLabel)}
+                                    className={`px - 3 py - 1 text - xs font - bold rounded transition - colors ${dailyFilter === filter
                                         ? 'bg-[var(--accent-cyan)] text-black'
                                         : 'text-[var(--text-secondary)] hover:text-white'
-                                        }`}
+                                        } `}
                                 >
                                     {filter}
                                 </button>
@@ -366,12 +452,12 @@ export default function BoldDifficultySection() {
                                     dataKey="date"
                                     stroke="var(--text-secondary)"
                                     fontSize={12}
-                                    tickFormatter={(val) => {
+                                    tickFormatter={(val: string) => {
                                         const d = new Date(val);
                                         return `${d.getMonth() + 1}/${d.getDate()}`;
                                     }}
                                 />
-                                <YAxis
+                                < YAxis
                                     stroke="var(--text-muted)"
                                     fontSize={12}
                                     tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
@@ -379,22 +465,24 @@ export default function BoldDifficultySection() {
                                 />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                                {['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'].map((key) => (
-                                    <Bar
-                                        key={key}
-                                        dataKey={key}
-                                        stackId="a"
-                                        fill={GUESS_COLORS[key as keyof typeof GUESS_COLORS]}
-                                    />
-                                ))}
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            </div>
+                                {
+                                    ['1/6', '2/6', '3/6', '4/6', '5/6', '6/6', 'Failed'].map((key) => (
+                                        <Bar
+                                            key={key}
+                                            dataKey={key}
+                                            stackId="a"
+                                            fill={GUESS_COLORS[key as keyof typeof GUESS_COLORS]}
+                                        />
+                                    ))
+                                }
+                            </BarChart >
+                        </ResponsiveContainer >
+                    </div >
+                </div >
+            </div >
 
             {/* Row 2: Streak Chart (Full width) */}
-            <div className="card mb-8 h-[450px] flex flex-col">
+            < div className="card mb-8 h-[450px] flex flex-col" >
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h3 className="text-lg font-bold">Difficulty Streaks (Last 90 Days)</h3>
@@ -470,10 +558,10 @@ export default function BoldDifficultySection() {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-            </div>
+            </div >
 
             {/* Row 2: Top Words Table (Full width) */}
-            <div className="card overflow-hidden">
+            < div className="card overflow-hidden" >
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-lg font-bold">
                         {rankingMode === 'hardest' ? 'Top 5 Hardest Words' : 'Top 5 Easiest Words'}
@@ -514,7 +602,7 @@ export default function BoldDifficultySection() {
                             </tr>
                         </thead>
                         <tbody>
-                            {topWords.slice(0, 5).map((word: any, idx: number) => (
+                            {topWords.slice(0, 5).map((word: WordRanking, idx: number) => (
                                 <tr key={idx} className="border-b border-[var(--border-color)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
                                     <td className="p-3 font-bold text-lg">{word.word}</td>
                                     <td className="p-3 text-right text-[var(--text-secondary)] font-mono">{word.date}</td>
@@ -540,7 +628,7 @@ export default function BoldDifficultySection() {
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </section>
+            </div >
+        </section >
     );
 }

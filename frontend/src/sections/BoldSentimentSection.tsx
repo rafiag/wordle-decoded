@@ -15,7 +15,7 @@ import {
     LegendPayload,
 } from 'recharts';
 import { statsApi } from '../services/api';
-import { SentimentResponse, SentimentTimelinePoint } from '../types';
+import { SentimentResponse, SentimentTimelinePoint, SentimentTopWord } from '../types';
 
 // V2 Theme Colors
 const V2_COLORS = {
@@ -34,8 +34,16 @@ const PIE_COLORS = [
     V2_COLORS.very_pos
 ];
 
+// Types for tooltips
+interface SentimentTooltipEntry {
+    name: string;
+    value: number;
+    color: string;
+    payload: SentimentTimelinePoint;
+}
+
 // Dark Theme Tooltip
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: SentimentTooltipEntry[]; label?: string }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload as SentimentTimelinePoint;
         const total = data.total_tweets || 0;
@@ -57,7 +65,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 </div>
 
                 <div className="text-sm space-y-1">
-                    {payload.map((entry: any, index: number) => {
+                    {payload.map((entry: SentimentTooltipEntry, index: number) => {
                         const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0.0';
                         return (
                             <div key={index} className="flex justify-between gap-4">
@@ -80,7 +88,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-const PieTooltip = ({ active, payload }: any) => {
+const PieTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: { name: string; value: number; total: number } }[] }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         // Percentage calculation: (value / total) * 100
@@ -104,10 +112,10 @@ const PieTooltip = ({ active, payload }: any) => {
     return null;
 };
 
-const TableRow = memo(({ item, idx }: any) => (
+const TableRow = memo(({ item, idx }: { item: SentimentTopWord; idx: number }) => (
     <tr className="border-b border-[var(--border-color)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
         <td className="p-3 text-[var(--accent-cyan)] font-mono">#{idx + 1}</td>
-        <td className="p-3 font-bold">{item.target_word || item.word}</td>
+        <td className="p-3 font-bold">{item.target_word}</td>
         <td className="p-3 text-right text-[var(--text-secondary)] font-mono text-sm">{item.date}</td>
         <td className="p-3 text-right font-mono">
             <span
@@ -243,11 +251,11 @@ export default function BoldSentimentSection() {
                                     iconType="circle"
                                     wrapperStyle={{ paddingTop: '20px', paddingBottom: '20px' }}
                                     formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: '0.9em' }}>{value}</span>}
-                                    itemSorter={(item: any) => {
+                                    itemSorter={(item: LegendPayload) => {
                                         const order: { [key: string]: number } = {
                                             'Very Neg': 0, 'Negative': 1, 'Neutral': 2, 'Positive': 3, 'Very Pos': 4
                                         };
-                                        return order[item.value] ?? 999;
+                                        return order[String(item.value)] ?? 999;
                                     }}
                                 />
                             </PieChart>
@@ -401,7 +409,7 @@ export default function BoldSentimentSection() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {topWords.map((item: any, idx: number) => (
+                                {topWords.map((item: SentimentTopWord, idx: number) => (
                                     <TableRow key={idx} item={item} idx={idx} />
                                 ))}
                             </tbody>

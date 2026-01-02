@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { PatternFlow } from '../types';
 import { statsApi } from '../services/api';
 
 const STATES = ['⬜', '🟨', '🟩'] as const;
@@ -117,7 +118,7 @@ export default function BoldPatternsSection() {
                             <div className="pattern-flow-list">
                                 <div className="flow-header">Most Likely Next Steps</div>
                                 {hasResults && nextSteps && nextSteps.length > 0 ? (
-                                    nextSteps.map((step, index) => (
+                                    nextSteps.map((step: PatternFlow, index: number) => (
                                         <div key={index} className="flow-row">
                                             <span className="flow-pattern-display">{step.next_pattern}</span>
                                             <span className="flow-prob">{(step.probability * 100).toFixed(1)}%</span>

@@ -41,12 +41,12 @@ export default function BoldNYTEffectSection() {
         };
     };
 
-    const formatValue = (value: number, decimals: number = 1) => {
-        return value?.toFixed(decimals) || '0.0';
+    const formatValue = (value: number | undefined, decimals: number = 1) => {
+        return value !== undefined ? value.toFixed(decimals) : '0.0';
     };
 
-    const formatTweetCount = (value: number) => {
-        return `${value?.toFixed(1)}k` || '0.0k';
+    const formatTweetCount = (value: number | undefined) => {
+        return value !== undefined ? `${value.toFixed(1)}k` : '0.0k';
     };
 
     // Helper to render metric cells with change info

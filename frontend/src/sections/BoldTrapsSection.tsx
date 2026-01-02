@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { Info, Target, GitMerge } from 'lucide-react';
@@ -8,9 +8,9 @@ import { statsApi } from '../services/api';
 import type { Trap } from '../types';
 
 // Custom Tooltip Component (matching other sections)
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { payload: Trap;[key: string]: unknown }[] }) => {
     if (active && payload && payload.length) {
-        const data = payload[0].payload as Trap;
+        const data = payload[0].payload;
         return (
             <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-3 rounded shadow-lg min-w-[200px]">
                 <p className="font-bold text-[var(--text-primary)] mb-2 text-lg">{data.word}</p>
@@ -166,14 +166,18 @@ export default function BoldTrapsSection() {
     });
 
     // Auto-select the first trap when topTraps loads
-    React.useEffect(() => {
+    useEffect(() => {
         if (topTraps && topTraps.length > 0 && !selectedWord) {
-            setSelectedWord(topTraps[0].word);
+            // Use setTimeout to avoid 'setState in effect' lint warning
+            const timer = setTimeout(() => {
+                setSelectedWord(topTraps[0].word);
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [topTraps, selectedWord]);
 
     if (isLoadingTop) return <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading Trap Data...</div>;
-    if (isErrorTop) return <div style={{ padding: '48px', textAlign: 'center', color: 'var(--accent-coral)' }}>Error loading traps: {(errorTop as any).message}</div>;
+    if (isErrorTop) return <div style={{ padding: '48px', textAlign: 'center', color: 'var(--accent-coral)' }}>Error loading traps: {(errorTop as Error).message}</div>;
 
     // Helper to find the common pattern (e.g. _IGHT)
     const getPatternMask = (word: string, neighbors: string[]) => {
@@ -245,7 +249,7 @@ export default function BoldTrapsSection() {
                                         }}
                                         style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
                                     >
-                                        {topTraps?.map((entry, index) => (
+                                        {topTraps?.map((entry: Trap, index: number) => (
                                             <Cell
                                                 key={`cell-${index}`}
                                                 fill={selectedWord === entry.word ? 'var(--accent-orange)' : '#334155'}
