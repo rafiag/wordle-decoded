@@ -33,7 +33,7 @@ interface SentimentPieChartProps {
 
 export function SentimentPieChart({ data }: SentimentPieChartProps) {
     return (
-        <div className="card h-[450px] flex flex-col relative">
+        <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col relative">
             <h3 className="text-lg font-bold mb-4">Sentiment Distribution</h3>
             <div className="flex-grow min-h-0 relative">
                 <ResponsiveContainer width="100%" height="100%">

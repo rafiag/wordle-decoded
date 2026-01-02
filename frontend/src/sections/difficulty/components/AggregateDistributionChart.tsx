@@ -14,7 +14,7 @@ export function AggregateDistributionChart({ data }: AggregateDistributionChartP
     const percentageFormatter = (val: number) => `${(val * 100).toFixed(0)}%`;
 
     return (
-        <div className="card h-[450px] flex flex-col relative">
+        <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col relative">
             <h3 className="text-lg font-bold mb-4">Overall Distribution</h3>
             <div className="flex-grow relative">
                 <ResponsiveContainer width="100%" height="100%">

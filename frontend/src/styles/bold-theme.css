@@ -102,10 +102,31 @@
     position: relative;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .card {
+        padding: 24px;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-bold .card {
+        padding: 20px;
+        border-radius: 12px;
+        border-width: 2px;
+    }
+}
+
 .theme-bold .card:hover {
     border-color: var(--accent-cyan);
     box-shadow: 0 0 15px var(--glow-cyan);
     transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .theme-bold .card:hover {
+        transform: none; /* Disable hover lift on touch devices */
+    }
 }
 
 .theme-bold .btn-primary {
@@ -279,6 +300,13 @@
     }
 }
 
+/* Tablet-specific scroll nav positioning */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .theme-bold .scroll-nav {
+        right: 20px;
+    }
+}
+
 /* Progress line background */
 .theme-bold .scroll-nav::before {
     content: '';
@@ -396,10 +424,35 @@
 
 /* Custom Container for V2 (Mockup: 1400px) */
 .theme-bold .container-v2 {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 200px;
+    padding: 0 clamp(20px, 5vw, 80px);
     width: 100%;
+}
+
+/* Responsive container padding */
+@media (max-width: 768px) {
+    .theme-bold .container-v2 {
+        padding: 0 20px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .container-v2 {
+        padding: 0 40px;
+    }
+}
+
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .theme-bold .container-v2 {
+        padding: 0 60px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .theme-bold .container-v2 {
+        padding: 0 80px;
+    }
 }
 
 /* Section Text Constraints (Mockup: 700px) */
@@ -408,10 +461,28 @@
     margin-bottom: 48px;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .section-header {
+        margin-bottom: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-bold .section-header {
+        margin-bottom: 32px;
+    }
+}
+
 .theme-bold .section-title {
     font-size: clamp(36px, 5vw, 72px);
     margin-bottom: 16px;
     font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .theme-bold .section-title {
+        margin-bottom: 12px;
+    }
 }
 
 .theme-bold .section-description {
@@ -420,6 +491,21 @@
     max-width: 700px;
     line-height: 1.6;
     margin: 0 auto;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .section-description {
+        font-size: 17px;
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    .theme-bold .section-description {
+        font-size: 16px;
+        line-height: 1.5;
+        max-width: 90%;
+    }
 }
 
 .theme-bold .section-eyebrow {
@@ -431,6 +517,14 @@
     margin-bottom: 12px;
 }
 
+@media (max-width: 768px) {
+    .theme-bold .section-eyebrow {
+        font-size: 11px;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+}
+
 /* ===========================
    Pattern Section
    =========================== */
@@ -439,15 +533,27 @@
 .theme-bold .pattern-stack {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 48px;
     margin-top: 32px;
+}
+
+@media (max-width: 768px) {
+    .theme-bold .pattern-stack {
+        gap: 32px;
+    }
 }
 
 /* Pattern Input Area */
 .theme-bold .pattern-input-area {
     text-align: center;
     max-width: 900px;
-    margin: 0 auto;
+    margin: 0 auto 48px;
+}
+
+@media (max-width: 768px) {
+    .theme-bold .pattern-input-area {
+        margin-bottom: 32px;
+    }
 }
 
 .theme-bold .pattern-input-area h3 {
@@ -506,16 +612,32 @@
     user-select: none;
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .pattern-input-row {
+        gap: 20px;
+    }
+
+    .theme-bold .pattern-block {
+        width: 72px;
+        height: 72px;
+        font-size: 36px;
+    }
+}
+
 @media (max-width: 768px) {
     .theme-bold .pattern-input-row {
         flex-direction: column;
-        gap: 16px;
+        gap: 20px;
     }
 
     .theme-bold .pattern-block {
         width: 64px;
         height: 64px;
         font-size: 32px;
+    }
+
+    .theme-bold .pattern-input-blocks {
+        gap: 8px;
     }
 }
 
@@ -528,6 +650,18 @@
 .theme-bold .pattern-block:focus {
     outline: 2px solid var(--accent-cyan);
     outline-offset: 2px;
+}
+
+.theme-bold .pattern-block:active {
+    transform: scale(0.95);
+}
+
+/* Touch-friendly active states */
+@media (hover: none) {
+    .theme-bold .pattern-block:active {
+        transform: scale(0.95);
+        opacity: 0.9;
+    }
 }
 
 /* Block States */
@@ -570,6 +704,13 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     margin-bottom: 32px;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .pattern-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1247,7 +1388,13 @@
     margin-bottom: 48px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1025px) {
     .theme-bold .stats-grid {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -1400,25 +1547,53 @@
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 24px;
+    align-items: stretch;
+    grid-auto-rows: 1fr;
+}
+
+/* Desktop: Ensure grid rows are tall enough for 400px charts (matches Tailwind lg: 1024px) */
+@media (min-width: 1024px) {
+    .theme-bold .grid-2-col {
+        min-height: 400px;
+    }
+}
+
+/* Tablet: Ensure grid rows are tall enough for 350px charts (matches Tailwind md: 768px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .theme-bold .grid-2-col {
+        min-height: 350px;
+    }
 }
 
 .theme-bold .grid-3-col {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    align-items: stretch;
+    grid-auto-rows: 1fr;
 }
 
-@media (max-width: 1024px) {
+/* Desktop: Ensure grid rows are tall enough for 400px charts (matches Tailwind lg: 1024px) */
+@media (min-width: 1024px) {
     .theme-bold .grid-3-col {
-        grid-template-columns: repeat(2, 1fr);
+        min-height: 400px;
     }
 }
 
-@media (max-width: 768px) {
+/* Tablet: Ensure grid rows are tall enough for 350px charts (matches Tailwind md: 768px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .theme-bold .grid-3-col {
+        grid-template-columns: repeat(2, 1fr);
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 767px) {
 
     .theme-bold .grid-2-col,
     .theme-bold .grid-3-col {
         grid-template-columns: 1fr;
+        min-height: 280px;
     }
 }
 
@@ -1434,4 +1609,134 @@
     padding: 0 24px;
     position: relative;
     z-index: 1;
+}
+
+/* ===========================
+   Responsive Utilities
+   =========================== */
+
+/* Visibility Helpers */
+@media (max-width: 768px) {
+    .theme-bold .desktop-only,
+    .theme-bold .tablet-only {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .theme-bold .mobile-only,
+    .theme-bold .desktop-only {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    .theme-bold .mobile-only,
+    .theme-bold .tablet-only {
+        display: none !important;
+    }
+}
+
+/* Touch Target Minimum Size (WCAG 2.1 AAA) */
+.theme-bold .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive Spacing Variables */
+:root {
+    --spacing-mobile-sm: 8px;
+    --spacing-mobile-md: 16px;
+    --spacing-mobile-lg: 24px;
+    --spacing-tablet-sm: 12px;
+    --spacing-tablet-md: 20px;
+    --spacing-tablet-lg: 32px;
+}
+
+/* Touch Feedback for Interactive Elements */
+.theme-bold button:active,
+.theme-bold .pattern-block:active,
+.theme-bold .scroll-nav-item:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+}
+
+/* Mobile Landscape Orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+    .theme-bold .section-inner {
+        padding: 0 20px;
+    }
+
+    .theme-bold .pattern-block {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+    }
+}
+
+/* ===========================
+   Table Responsiveness
+   =========================== */
+
+/* Generic table scroll indicators for mobile/tablet */
+.theme-bold .overflow-x-auto {
+    position: relative;
+}
+
+@media (max-width: 1024px) {
+    .theme-bold .overflow-x-auto {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-bold .overflow-x-auto::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .theme-bold .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+    }
+
+    .theme-bold .overflow-x-auto::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Fade gradient to indicate more content */
+    .theme-bold .overflow-x-auto::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 30px;
+        background: linear-gradient(to left, var(--bg-card), transparent);
+        pointer-events: none;
+    }
+}
+
+/* Mobile table optimizations */
+@media (max-width: 768px) {
+    .theme-bold table {
+        font-size: 0.8125rem;
+    }
+
+    .theme-bold table th,
+    .theme-bold table td {
+        padding: 0.5rem !important;
+    }
+
+    .theme-bold table th {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-bold table th,
+    .theme-bold table td {
+        padding: 0.375rem !important;
+    }
 }

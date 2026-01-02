@@ -57,6 +57,35 @@ export default function BoldNYTEffectSection() {
                     overflow-x: auto;
                     margin-bottom: 2rem;
                     border-radius: 12px;
+                    position: relative;
+                }
+
+                /* Scroll indicator gradient on right edge for mobile */
+                @media (max-width: 1024px) {
+                    .nyt-table-container::after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        bottom: 0;
+                        width: 40px;
+                        background: linear-gradient(to left, var(--bg-card), transparent);
+                        pointer-events: none;
+                        border-radius: 0 12px 12px 0;
+                    }
+
+                    .nyt-table-container::-webkit-scrollbar {
+                        height: 6px;
+                    }
+
+                    .nyt-table-container::-webkit-scrollbar-thumb {
+                        background: var(--border-color);
+                        border-radius: 3px;
+                    }
+
+                    .nyt-table-container::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.05);
+                    }
                 }
 
                 .nyt-metrics-table {
@@ -130,9 +159,25 @@ export default function BoldNYTEffectSection() {
                     color: var(--text-secondary);
                 }
 
+                @media (min-width: 769px) and (max-width: 1024px) {
+                    .nyt-metrics-table {
+                        font-size: 0.8125rem;
+                    }
+
+                    .nyt-metrics-table th,
+                    .nyt-metrics-table td {
+                        padding: 0.75rem;
+                    }
+
+                    .table-period {
+                        font-size: 0.6875rem;
+                    }
+                }
+
                 @media (max-width: 768px) {
                     .nyt-metrics-table {
                         font-size: 0.75rem;
+                        min-width: 600px; /* Force horizontal scroll for readability */
                     }
 
                     .nyt-metrics-table th,
@@ -146,6 +191,17 @@ export default function BoldNYTEffectSection() {
 
                     .metric-change {
                         font-size: 0.625rem;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .nyt-metrics-table th,
+                    .nyt-metrics-table td {
+                        padding: 0.375rem;
+                    }
+
+                    .metric-name {
+                        font-size: 0.6875rem;
                     }
                 }
             `}</style>

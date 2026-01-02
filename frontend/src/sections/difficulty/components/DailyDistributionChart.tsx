@@ -16,7 +16,7 @@ interface DailyDistributionChartProps {
 
 export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: DailyDistributionChartProps) {
     return (
-        <div className="card h-[450px] flex flex-col col-span-2 relative">
+        <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col col-span-2 relative">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Daily Guess Distribution <br></br>(Last 90 Days)</h3>
                 <FilterToggle
@@ -32,6 +32,7 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
                         data={data}
                         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                         stackOffset="expand"
+                        className="md:margin-default"
                     >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.3} />
                         <XAxis

@@ -52,5 +52,21 @@ services:
     stdin_open: true
     tty: true
 
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.57.0-jammy
+    container_name: wordle-playwright
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    environment:
+      - PLAYWRIGHT_BASE_URL=http://frontend:3000
+      - CI=true
+    depends_on:
+      - frontend
+    command: npx playwright test
+    network_mode: "service:frontend"
+    profiles:
+      - test
+
 volumes:
   postgres-data:

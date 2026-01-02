@@ -36,7 +36,7 @@ function StreakTooltip({ active, payload, label }: TooltipProps<StreakChartDataI
 
 export function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartProps) {
     return (
-        <div className="card mb-8 flex flex-col h-[450px] relative">
+        <div className="card mb-8 flex flex-col !h-[280px] md:!h-[350px] lg:!h-[400px] relative">
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="text-lg font-bold">Difficulty Streaks (Last 90 Days)</h3>
