@@ -23,8 +23,8 @@ export default function BoldDashboard() {
 
                 <BoldAtAGlanceSection />
                 <BoldDifficultySection />
-                <BoldSentimentSection />
                 <BoldTrapsSection />
+                <BoldSentimentSection />
                 <BoldNYTEffectSection />
                 <BoldWordHighlightsSection />
                 <BoldPatternsSection />

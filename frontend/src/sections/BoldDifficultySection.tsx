@@ -12,6 +12,7 @@ import {
     LabelList
 } from 'recharts';
 import { statsApi } from '../services/api';
+import InsightCard from '../components/shared/InsightCard';
 
 // Type Definitions
 interface DifficultyStat {
@@ -478,11 +479,17 @@ export default function BoldDifficultySection() {
                             </BarChart >
                         </ResponsiveContainer >
                     </div >
+
+                    <InsightCard title="Color Shifts Reveal Difficulty Changes">
+                        <p>
+                            Cyan/lime bands shrinking while orange/coral grow marks difficulty transitions. Toggle filters to compare: Easy stacks bottom-heavy, Hard spreads evenly.
+                        </p>
+                    </InsightCard>
                 </div >
             </div >
 
             {/* Row 2: Streak Chart (Full width) */}
-            < div className="card mb-8 h-[450px] flex flex-col" >
+            < div className="card mb-8 flex flex-col h-[450px]" >
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h3 className="text-lg font-bold">Difficulty Streaks (Last 90 Days)</h3>
@@ -558,6 +565,12 @@ export default function BoldDifficultySection() {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
+
+                <InsightCard title="NYT Alternates Difficulty for Engagement">
+                    <p>
+                        Consecutive Hard days are shorter than Easy streaks, creating a rhythm of challenge and relief. This pacing prevents player burnout while maintaining engagement.
+                    </p>
+                </InsightCard>
             </div >
 
             {/* Row 2: Top Words Table (Full width) */}

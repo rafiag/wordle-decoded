@@ -10,41 +10,30 @@ interface InsightCardProps {
 export default function InsightCard({ title, children, style }: InsightCardProps & { style?: React.CSSProperties }) {
     return (
         <div className="insight-card" style={style}>
-            <div className="insight-badge">💡 Key Finding</div>
-            <h4 className="insight-title">{title}</h4>
+            <div className="insight-badge">💡 {title}</div>
             <div className="insight-content">{children}</div>
 
             <style>{`
                 .insight-card {
-                    background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-                    border-left: 4px solid var(--accent-cyan);
-                    border-radius: 12px;
-                    padding: 1.5rem;
-                    margin-top: 2rem;
+                    background: linear-gradient(135deg, rgba(0, 217, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+                    border-left: 3px solid var(--accent-cyan);
+                    border-radius: 8px;
+                    padding: 0.75rem 1rem;
+                    margin-top: 1rem;
                 }
-// ... rest of the file ...
 
                 .insight-badge {
                     display: inline-block;
                     font-size: 0.75rem;
-                    font-weight: 600;
-                    letter-spacing: 1px;
-                    text-transform: uppercase;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
                     color: var(--accent-cyan);
                     margin-bottom: 0.5rem;
                 }
 
-                .insight-title {
-                    font-family: 'Space Grotesk', sans-serif;
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    color: var(--text-primary);
-                    margin-bottom: 0.75rem;
-                }
-
                 .insight-content {
-                    font-size: 0.9375rem;
-                    line-height: 1.6;
+                    font-size: 0.8125rem;
+                    line-height: 1.5;
                     color: var(--text-secondary);
                 }
 
@@ -71,12 +60,8 @@ export default function InsightCard({ title, children, style }: InsightCardProps
                 }
 
                 @media (max-width: 768px) {
-                    .insight-title {
-                        font-size: 1.125rem;
-                    }
-
                     .insight-content {
-                        font-size: 0.875rem;
+                        font-size: 0.75rem;
                     }
                 }
             `}</style>

@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { statsApi } from '../services/api';
 import { SentimentResponse, SentimentTimelinePoint, SentimentTopWord } from '../types';
+import InsightCard from '../components/shared/InsightCard';
 
 // V2 Theme Colors
 const V2_COLORS = {
@@ -264,11 +265,10 @@ export default function BoldSentimentSection() {
                 </div>
 
                 {/* Timeline Chart */}
-                <div className="card h-[450px] flex flex-col">
+                <div className="card flex flex-col">
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <h3 className="text-lg font-bold">Daily Sentiment Trend</h3>
-                            <p className="text-xs text-[var(--text-secondary)] mt-1">Showing last 90 days of activity</p>
+                            <h3 className="text-lg font-bold">Daily Sentiment Trend (Last 90 Days)</h3>
                         </div>
                     </div>
 
@@ -309,12 +309,11 @@ export default function BoldSentimentSection() {
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="mt-4 p-3 bg-[rgba(255,255,255,0.03)] rounded flex gap-3 text-sm text-[var(--text-secondary)] border border-[var(--border-color)]">
-                        <span className="text-lg">💡</span>
-                        <span>
-                            "Very Negative" spikes <span style={{ color: V2_COLORS.very_neg }}>(Pink)</span> often correlate with trap words or hard mode failures!
-                        </span>
-                    </div>
+                    <InsightCard title="Pink Spikes Mark Frustrating Days">
+                        <p>
+                            Pink segments spiking above the green-gray baseline mark trap words. The 90-day view shows sentiment trends: greener = positive, more pink/orange = negative.
+                        </p>
+                    </InsightCard>
                 </div>
             </div>
 
