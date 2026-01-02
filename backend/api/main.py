@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from backend.db.database import engine, Base
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 
 # Create tables
@@ -34,7 +34,7 @@ async def health_check():
         status="success",
         data={"healthy": True, "service": "Wordle Decoded API"},
         meta={
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "version": "1.0.0"
         }
     )

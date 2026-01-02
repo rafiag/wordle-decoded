@@ -6,7 +6,12 @@ Aggregates data across all datasets to produce global statistics.
 
 import pandas as pd
 import logging
+import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -79,10 +84,10 @@ def transform_global_stats_data(games_df: pd.DataFrame, tweets_df: pd.DataFrame,
         positive_pct = 0.0
         mood_label = "N/A"
 
-    # 4. NYT Effect
+    # NYT Effect
     # Hardcoded date or env var?
-    # dashboard.py used "2022-02-10"
-    NYT_DATE = "2022-02-10"
+    # dashboard.py used "2022-02-01"
+    NYT_DATE = os.getenv("NYT_ACQUISITION_DATE", "2022-02-01")
 
     pre_nyt = games_df[games_df['date'] < NYT_DATE]
     post_nyt = games_df[games_df['date'] >= NYT_DATE]

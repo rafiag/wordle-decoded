@@ -4,12 +4,17 @@ from datetime import datetime, timedelta
 import pandas as pd
 from scipy import stats
 import numpy as np
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 from backend.db.schema import Word, Distribution, TweetSentiment
 from backend.api.schemas import NYTMetrics, NYTComparison, StatTestResult, NYTTimelinePoint
 
 class NYTService:
-    ACQUISITION_DATE = "2022-02-10"
+    ACQUISITION_DATE = os.getenv("NYT_ACQUISITION_DATE", "2022-02-01")
 
     # Define pre-acquisition baseline period (1 month before)
     PRE_START = "2021-12-31"
