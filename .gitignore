@@ -55,7 +55,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
-# package-lock.json - Keep this for reproducible builds in CI/CD
+# package-lock.json - Keep frontend/package-lock.json for reproducible builds in CI/CD
+# Ignore root package-lock.json (not used)
+/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .npm
