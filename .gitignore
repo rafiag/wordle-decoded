@@ -101,6 +101,7 @@ docker-compose.override.yml
 
 # Database
 *.db
+!data/wordle.db
 *.sqlite
 *.sqlite3
 *.db-journal
