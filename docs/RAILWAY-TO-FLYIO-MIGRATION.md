@@ -1,11 +1,11 @@
-# Railway to Fly.io Migration Plan
+# Railway Database Migration Plan: PostgreSQL → SQLite
 
 **Project:** Wordle Data Explorer
-**Migration Type:** Full Platform Migration (Railway → Fly.io)
-**Database Strategy:** PostgreSQL → SQLite (Static Data)
+**Migration Type:** Database Migration (PostgreSQL → SQLite)
+**Platform:** Stay on Railway
 **Status:** 📋 Ready to Execute
-**Estimated Effort:** 2-3 hours
-**Cost Impact:** -$10-30/month (Railway paid → Fly.io free)
+**Estimated Effort:** 1-2 hours
+**Cost Impact:** -$5-10/month (eliminate database hosting)
 
 ---
 
@@ -15,13 +15,12 @@
 2. [Migration Rationale](#migration-rationale)
 3. [Architecture Comparison](#architecture-comparison)
 4. [Prerequisites](#prerequisites)
-5. [Pre-Migration Checklist](#pre-migration-checklist)
-6. [Migration Steps](#migration-steps)
-7. [Post-Migration Verification](#post-migration-verification)
-8. [Rollback Plan](#rollback-plan)
-9. [Troubleshooting](#troubleshooting)
-10. [Cost Analysis](#cost-analysis)
-11. [FAQ](#faq)
+5. [Migration Steps](#migration-steps)
+6. [Post-Migration Verification](#post-migration-verification)
+7. [Rollback Plan](#rollback-plan)
+8. [Cost Analysis](#cost-analysis)
+9. [Platform Comparison](#platform-comparison-reference)
+10. [FAQ](#faq)
 
 ---
 
@@ -29,30 +28,34 @@
 
 ### What This Migration Does
 
-- **Moves** backend hosting from Railway to Fly.io (free tier)
+- **Keeps** Railway backend hosting (already working)
 - **Converts** database from Railway PostgreSQL to SQLite file
-- **Keeps** FastAPI backend and React frontend unchanged
-- **Eliminates** monthly hosting costs ($10-30/month → $0)
-- **Improves** UX with always-on service (no cold starts)
+- **Eliminates** separate database service
+- **Reduces** monthly costs by $5-10/month
+- **Maintains** same performance and UX
 
 ### Why This Migration Makes Sense
 
-| Factor | Current (Railway) | After (Fly.io) | Impact |
+| Factor | Current (Railway) | After (SQLite) | Impact |
 |--------|------------------|----------------|--------|
-| **Monthly Cost** | $10-30 | $0 | **Save $120-360/year** |
+| **Backend Cost** | $5-20/month | $5-20/month | No change |
+| **Database Cost** | $5-10/month | $0 | **Save $5-10/month** |
+| **Total Monthly Cost** | $10-30 | $5-20 | **Save $60-120/year** |
 | **Database** | PostgreSQL (managed) | SQLite (176 KB file) | Simpler, no maintenance |
-| **Cold Starts** | None (always-on) | None (always-on) | No change in UX |
-| **Code Changes** | N/A | Minimal (~15 lines) | Low risk |
+| **Performance** | Excellent | Same or better | No degradation |
+| **Code Changes** | N/A | Minimal (0-5 lines) | Very low risk |
 | **Deployment** | Git push | Git push | Same workflow |
 
 ### Key Insight: Why SQLite?
 
-Your data is **static** (historical Wordle puzzles don't change). Running PostgreSQL for 176 KB of read-only data is like renting a warehouse to store a shoebox. SQLite is:
+Your data is **static** (historical Wordle puzzles don't change). Running a managed PostgreSQL database for 176 KB of read-only data is over-engineering. SQLite is:
+
 - ✅ **Perfect for static data** (excellent read performance)
 - ✅ **Already supported** in your codebase (`backend/db/database.py:13-16`)
 - ✅ **Version controlled** (commit `data/wordle.db` to git)
 - ✅ **Zero cost** (no database hosting needed)
 - ✅ **Portable** (works anywhere)
+- ✅ **Faster** (no network latency - local file access)
 
 ---
 
@@ -60,30 +63,38 @@ Your data is **static** (historical Wordle puzzles don't change). Running Postgr
 
 ### Problems with Current Setup
 
-1. **Cost:** Railway charges $10-30/month for services you can get free elsewhere
-2. **Over-engineering:** PostgreSQL unnecessary for static, read-only data
-3. **Complexity:** Separate database hosting when SQLite works perfectly
-4. **Budget:** As a portfolio project, minimizing costs maximizes ROI
+1. **Database Cost:** Paying $5-10/month for 176 KB of static data
+2. **Over-engineering:** PostgreSQL designed for concurrent writes (you only read)
+3. **Complexity:** Managing separate database service unnecessarily
+4. **Network Latency:** API → Database round-trip adds ~10-50ms per query
 
-### Why Fly.io?
+### Why Stay on Railway?
 
-| Feature | Fly.io Free | Railway | Render Free |
-|---------|-------------|---------|-------------|
-| **Cost** | $0/month | $10-30/month | $0/month |
-| **Always-On** | ✅ Yes | ✅ Yes | ❌ No (15min spin-down) |
-| **Cold Starts** | ✅ None | ✅ None | ❌ ~30s wake-up |
-| **Free Tier VMs** | 3 shared-cpu | 0 | 750 hrs/month |
-| **Persistent Storage** | 3 GB free | Paid only | Ephemeral |
-| **Docker Support** | ✅ Native | ✅ Native | ✅ Yes |
-| **Best For** | **Always-on free hosting** | Production apps | Hobby projects |
+Railway backend hosting is working well:
+- ✅ Always-on (no cold starts)
+- ✅ Good performance
+- ✅ Simple deployment
+- ✅ Familiar workflow
 
-**Winner:** Fly.io provides Railway-quality performance at Render-level pricing (free), without Render's cold start problem.
+**There's no reason to change what works.** Just optimize the database layer.
+
+### Why SQLite?
+
+| Factor | PostgreSQL (Current) | SQLite (Proposed) |
+|--------|---------------------|-------------------|
+| **Cost** | $5-10/month | $0 |
+| **Setup** | External service | File in container |
+| **Query Speed** | Network latency (~10-50ms) | Local file (~1-5ms) |
+| **Maintenance** | Managed, but still a service | Zero maintenance |
+| **Backups** | Manual exports | Git version control |
+| **Concurrency** | High (1000+ concurrent writes) | Low (read-only is fine) |
+| **Use Case Fit** | Overkill for static data | **Perfect fit** |
 
 ---
 
 ## Architecture Comparison
 
-### Current Architecture (Railway)
+### Current Architecture (Railway + PostgreSQL)
 
 ```
 ┌────────────────┐     ┌─────────────────┐     ┌──────────────────┐
@@ -91,61 +102,51 @@ Your data is **static** (historical Wordle puzzles don't change). Running Postgr
 │   (Frontend)   │     │  (FastAPI)      │     │  (PostgreSQL)    │
 │                │     │  Port: 8000     │     │  ~176 KB data    │
 └────────────────┘     └─────────────────┘     └──────────────────┘
-                              ↑
-                       $5-20/month         $5-10/month
+                              ↑                        ↑
+                       $5-20/month              $5-10/month
 ```
 
 **Monthly Cost:** $10-30
-**Complexity:** 3 separate services
-**Database:** Managed PostgreSQL (overkill for static data)
+**Complexity:** 2 Railway services
+**Database:** Separate PostgreSQL instance
 
 ---
 
-### New Architecture (Fly.io)
+### New Architecture (Railway + SQLite)
 
 ```
-┌──────────────────────────────────────────────┐
-│              Fly.io (Free)                   │
-│                                              │
-│  ┌────────────────────────────────────────┐ │
-│  │  Docker Container                      │ │
-│  │  ┌──────────────┐  ┌─────────────────┐│ │
-│  │  │   Frontend   │  │    Backend      ││ │
-│  │  │ (Static)     │  │   (FastAPI)     ││ │
-│  │  │              │  │                 ││ │
-│  │  └──────────────┘  └─────────────────┘│ │
-│  │                                        │ │
-│  │  ┌─────────────────────────────────┐  │ │
-│  │  │  SQLite (176 KB)                │  │ │
-│  │  │  /app/data/wordle.db            │  │ │
-│  │  └─────────────────────────────────┘  │ │
-│  └────────────────────────────────────────┘ │
-│                                              │
-│  Persistent Volume (1 GB free)              │
-└──────────────────────────────────────────────┘
-
-Monthly Cost: $0
+┌────────────────┐     ┌──────────────────────────────┐
+│  GitHub Pages  │────→│         Railway              │
+│   (Frontend)   │     │  ┌────────────────────────┐  │
+│                │     │  │  FastAPI Backend       │  │
+│                │     │  │  + SQLite (176 KB)     │  │
+│                │     │  │  /app/data/wordle.db   │  │
+│                │     │  └────────────────────────┘  │
+└────────────────┘     └──────────────────────────────┘
+                                    ↑
+                              $5-20/month
 ```
 
-**Monthly Cost:** $0
-**Complexity:** Single service
-**Database:** SQLite file (perfect for static data)
+**Monthly Cost:** $5-20
+**Complexity:** 1 Railway service
+**Database:** SQLite file in container
+**Savings:** $5-10/month ($60-120/year)
 
 ---
 
 ### ETL Workflow Comparison
 
-#### Current (Railway)
+#### Current (Railway PostgreSQL)
 
 ```bash
-# Run ETL on Railway server
+# Run ETL on Railway server or locally
 railway run python scripts/run_etl.py
 
 # Data stored in Railway PostgreSQL
 # Database persists independently
 ```
 
-#### New (Fly.io + SQLite)
+#### New (SQLite in Container)
 
 ```bash
 # Run ETL locally (your machine)
@@ -173,106 +174,86 @@ git push origin main
 
 ### Required Tools
 
-| Tool | Version | Installation | Verify |
-|------|---------|--------------|--------|
-| **Fly CLI** | Latest | `curl -L https://fly.io/install.sh \| sh` | `fly version` |
-| **Git** | 2.x+ | Already installed | `git --version` |
-| **Python** | 3.11+ | Already installed | `python --version` |
-| **Docker** | Latest | For local testing | `docker --version` |
-
-### Required Accounts
-
-- ✅ **Fly.io account** - Sign up at https://fly.io/app/sign-up (free, no credit card)
-- ✅ **GitHub account** - Already have (for repo access)
-- ✅ **Kaggle account** - Already have (for ETL data)
+| Tool | Version | Already Have? | Installation |
+|------|---------|--------------|--------------|
+| **Git** | 2.x+ | ✅ Yes | N/A |
+| **Python** | 3.11+ | ✅ Yes | N/A |
+| **Railway CLI** | Latest | Maybe | `npm i -g @railway/cli` |
 
 ### Required Access
 
+- ✅ Railway dashboard access
 - ✅ Write access to GitHub repository
-- ✅ Railway dashboard access (to export env vars)
-- ✅ Domain/DNS access (if using custom domain - optional)
+- ✅ Kaggle account (for ETL data)
 
-### Environment Variables Needed
+### Environment Variables to Keep
 
-Export these from Railway before starting:
+These stay the same:
 
 ```bash
 # From Railway Dashboard → Variables
-SECRET_KEY=<your-secret-key>
-KAGGLE_USERNAME=<your-username>
-KAGGLE_KEY=<your-key>
-CORS_ORIGINS=<frontend-url>
+SECRET_KEY=<keep-current-value>
+KAGGLE_USERNAME=<keep-current-value>
+KAGGLE_KEY=<keep-current-value>
+CORS_ORIGINS=<keep-current-value>
+ENV=production
+DEBUG=false
+LOG_LEVEL=WARNING
 ```
 
----
+### Environment Variable to REMOVE
 
-## Pre-Migration Checklist
+```bash
+# DELETE THIS from Railway
+DATABASE_URL=<postgresql://...>
+```
 
-### ✅ Backup Current System
-
-- [ ] **Export Railway database**
-  ```bash
-  # Connect to Railway PostgreSQL
-  railway connect postgres
-
-  # Export data (backup)
-  pg_dump -U <user> <database> > railway_backup.sql
-  ```
-
-- [ ] **Document current environment variables**
-  ```bash
-  # In Railway Dashboard
-  # Copy all environment variables to local file
-  # Save as: railway-env-backup.txt
-  ```
-
-- [ ] **Save current deployment URL**
-  ```bash
-  # Example: https://wordle-decoded-production.up.railway.app
-  # Save in: migration-notes.txt
-  ```
-
-### ✅ Verify Local Setup
-
-- [ ] **Test Docker Compose locally**
-  ```bash
-  docker compose up --build
-  # Verify: http://localhost:3000 works
-  # Verify: http://localhost:8000/api/v1/health works
-  ```
-
-- [ ] **Run ETL pipeline locally**
-  ```bash
-  # Ensure no DATABASE_URL in .env
-  python scripts/run_etl.py
-
-  # Verify: data/wordle.db created (~176 KB)
-  ls -lh data/wordle.db
-  ```
-
-- [ ] **Test backend with SQLite**
-  ```bash
-  # Start backend without DATABASE_URL
-  cd backend
-  uvicorn api.main:app --reload
-
-  # Test: http://localhost:8000/api/v1/words
-  curl http://localhost:8000/api/v1/words?limit=5
-  ```
-
-### ✅ Communication
-
-- [ ] **Notify team** (if applicable) of planned downtime window
-- [ ] **Set maintenance window:** _________________
-- [ ] **Prepare rollback window:** 1 hour after migration start
+When `DATABASE_URL` is not set, your app automatically falls back to SQLite (already coded in `backend/db/database.py:13-16`).
 
 ---
 
 ## Migration Steps
 
-### Phase 1: Prepare SQLite Database (30 minutes)
+### Phase 1: Backup Current Database (15 minutes)
 
-#### Step 1.1: Update .gitignore
+#### Step 1.1: Export PostgreSQL Data
+
+```bash
+# Connect to Railway PostgreSQL
+railway connect postgres
+
+# Inside psql, export data
+\copy words TO '/tmp/words.csv' CSV HEADER;
+\copy distributions TO '/tmp/distributions.csv' CSV HEADER;
+\copy patterns TO '/tmp/patterns.csv' CSV HEADER;
+\copy trap_analysis TO '/tmp/trap_analysis.csv' CSV HEADER;
+\copy tweet_sentiment TO '/tmp/tweet_sentiment.csv' CSV HEADER;
+\copy outliers TO '/tmp/outliers.csv' CSV HEADER;
+\copy pattern_statistics TO '/tmp/pattern_statistics.csv' CSV HEADER;
+\copy pattern_transitions TO '/tmp/pattern_transitions.csv' CSV HEADER;
+\copy global_stats TO '/tmp/global_stats.csv' CSV HEADER;
+
+# Exit
+\q
+```
+
+Or use `pg_dump`:
+
+```bash
+# Get DATABASE_URL from Railway
+railway variables
+
+# Export entire database
+pg_dump $DATABASE_URL > railway_postgres_backup_$(date +%Y%m%d).sql
+```
+
+**Save this file!** It's your rollback insurance.
+
+---
+
+### Phase 2: Create SQLite Database (20 minutes)
+
+#### Step 2.1: Update .gitignore
 
 **File:** `.gitignore`
 
@@ -293,15 +274,9 @@ CORS_ORIGINS=<frontend-url>
 *.sqlite3
 ```
 
-**Commit:**
-```bash
-git add .gitignore
-git commit -m "chore: allow data/wordle.db in version control"
-```
-
 ---
 
-#### Step 1.2: Run ETL Locally
+#### Step 2.2: Run ETL Locally
 
 ```bash
 # Ensure no DATABASE_URL environment variable
@@ -330,7 +305,7 @@ INFO - All ETL processes completed successfully.
 
 ---
 
-#### Step 1.3: Verify Database
+#### Step 2.3: Verify Database
 
 ```bash
 # Check file size
@@ -358,538 +333,88 @@ Sample words: [('cigar', '2021-06-19'), ('rebut', '2021-06-20'), ...]
 
 ---
 
-#### Step 1.4: Commit Database
+#### Step 2.4: Commit Database
 
 ```bash
-git add data/wordle.db
-git commit -m "feat: add SQLite database for static data deployment"
+git add .gitignore data/wordle.db
+git commit -m "feat: migrate from PostgreSQL to SQLite for static data
+
+- Add SQLite database (176 KB) to version control
+- Eliminate need for separate database service
+- Saves $5-10/month in database hosting costs
+- Same data, better performance (local file access)"
+
 git push origin claude/railway-supabase-migration-estimate-eFrf6
 ```
 
 ---
 
-### Phase 2: Configure Fly.io (45 minutes)
+### Phase 3: Update Railway Configuration (15 minutes)
 
-#### Step 2.1: Install Fly CLI
+#### Step 3.1: Remove DATABASE_URL
 
-**macOS/Linux:**
 ```bash
-curl -L https://fly.io/install.sh | sh
+# Option A: Via Railway Dashboard
+# 1. Go to https://railway.app/dashboard
+# 2. Select your project
+# 3. Click "Variables" tab
+# 4. Find DATABASE_URL
+# 5. Click "..." → "Remove"
+# 6. Confirm
+
+# Option B: Via Railway CLI
+railway variables --remove DATABASE_URL
 ```
 
-**Windows (PowerShell):**
-```powershell
-iwr https://fly.io/install.ps1 -useb | iex
-```
-
-**Verify:**
-```bash
-fly version
-# Expected: flyctl v0.x.x ...
-```
+⚠️ **Important:** Removing `DATABASE_URL` tells your app to use SQLite instead. This is already coded in `backend/db/database.py`.
 
 ---
 
-#### Step 2.2: Authenticate
-
-```bash
-fly auth login
-# Opens browser for authentication
-# Follow prompts to sign in or create account
-```
-
----
-
-#### Step 2.3: Create Fly.io App
-
-```bash
-# Initialize Fly app (don't deploy yet)
-fly launch --no-deploy
-
-# Interactive prompts:
-# App Name: wordle-decoded (or your preference)
-# Region: Select closest to your audience (e.g., sjc - San Jose)
-# PostgreSQL: No (we're using SQLite)
-# Redis: No
-```
-
-**This creates:** `fly.toml` configuration file
-
----
-
-#### Step 2.4: Configure fly.toml
-
-**File:** `fly.toml`
-
-**Replace generated content with:**
-
-```toml
-# Fly.io app configuration
-# See https://fly.io/docs/reference/configuration/ for information
-
-app = "wordle-decoded"  # Change to your app name
-primary_region = "sjc"   # Change to your preferred region
-
-# Build configuration
-[build]
-  dockerfile = "Dockerfile"
-
-# Environment variables (non-secret)
-[env]
-  ENV = "production"
-  DEBUG = "false"
-  LOG_LEVEL = "WARNING"
-  ENABLE_QUERY_CACHE = "true"
-  # No DATABASE_URL - will use SQLite default
-
-# HTTP service configuration
-[http_service]
-  internal_port = 8000
-  force_https = true
-  auto_stop_machines = false  # Keep always-on (free tier allows this)
-  auto_start_machines = true
-  min_machines_running = 1    # Always keep 1 instance running
-
-  # Concurrency limits
-  [http_service.concurrency]
-    type = "requests"
-    hard_limit = 250
-    soft_limit = 200
-
-# VM resources (free tier)
-[[vm]]
-  cpu_kind = "shared"
-  cpus = 1
-  memory_mb = 256  # Increase to 512 if needed
-
-# Persistent volume for SQLite database
-[[mounts]]
-  source = "wordle_data"
-  destination = "/app/data"
-```
-
-**Commit:**
-```bash
-git add fly.toml
-git commit -m "feat: add Fly.io configuration"
-```
-
----
-
-#### Step 2.5: Create Persistent Volume
-
-```bash
-# Create 1GB volume (free tier allows 3GB total)
-fly volumes create wordle_data --size 1 --region sjc
-
-# Verify
-fly volumes list
-```
-
-**Expected Output:**
-```
-ID          NAME         SIZE  REGION  CREATED AT
-vol_xxxxx   wordle_data  1GB   sjc     just now
-```
-
----
-
-#### Step 2.6: Set Secrets
-
-```bash
-# Set environment secrets (these won't be in fly.toml)
-fly secrets set \
-  SECRET_KEY=$(openssl rand -hex 32) \
-  KAGGLE_USERNAME=your_kaggle_username \
-  KAGGLE_KEY=your_kaggle_key
-
-# Verify secrets are set (values hidden)
-fly secrets list
-```
-
-**Expected Output:**
-```
-NAME             DIGEST          CREATED AT
-SECRET_KEY       <digest>        just now
-KAGGLE_USERNAME  <digest>        just now
-KAGGLE_KEY       <digest>        just now
-```
-
----
-
-#### Step 2.7: Update Dockerfile (Optional Enhancement)
+#### Step 3.2: Verify Dockerfile Includes Data Directory
 
 **File:** `Dockerfile`
 
-**Add before CMD:**
+Verify this line exists (should already be there):
+
 ```dockerfile
-# Ensure data directory is persisted on volume
-VOLUME /app/data
-
-# Health check for Fly.io
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8000/api/v1/health || exit 1
+# Copy project
+COPY . .
 ```
 
-**Commit:**
-```bash
-git add Dockerfile
-git commit -m "feat: add volume mount and health check for Fly.io"
-```
+This copies everything, including `data/wordle.db`. No changes needed!
 
 ---
 
-### Phase 3: Update Frontend Configuration (20 minutes)
+#### Step 3.3: Deploy to Railway
 
-#### Option A: Serve Frontend from Backend (Simpler)
+```bash
+# Push changes
+git push origin main
 
-**Step 3.1: Update Dockerfile**
-
-**File:** `Dockerfile`
-
-**Add after COPY . .:**
-```dockerfile
-# Build frontend during Docker build
-WORKDIR /app/frontend
-RUN npm install && npm run build
-
-# Move built files to static serving location
-RUN mkdir -p /app/static && cp -r dist/* /app/static/
-
-WORKDIR /app
+# Railway auto-deploys on push
+# Monitor deployment:
+railway logs
 ```
+
+**Watch for:**
+```
+DEBUG: Connecting to sqlite:///app/data/wordle.db
+```
+
+This confirms SQLite is being used!
 
 ---
 
-**Step 3.2: Update FastAPI to Serve Frontend**
+### Phase 4: Verify Migration (20 minutes)
 
-**File:** `backend/api/main.py`
-
-**Add imports:**
-```python
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
-```
-
-**Add before app.include_router() calls:**
-```python
-# Serve frontend static files (only if static directory exists)
-static_dir = os.path.join(os.path.dirname(__file__), "..", "..", "static")
-if os.path.exists(static_dir):
-    # Serve API routes first (higher priority)
-    # Then serve static files
-    app.mount("/assets", StaticFiles(directory=f"{static_dir}/assets"), name="assets")
-
-    # Catch-all route for SPA (must be last)
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        """Serve index.html for all non-API routes (SPA support)"""
-        # Don't interfere with API routes
-        if full_path.startswith("api/"):
-            return {"error": "Not found"}
-
-        index_path = os.path.join(static_dir, "index.html")
-        if os.path.exists(index_path):
-            return FileResponse(index_path)
-        return {"error": "Frontend not built"}
-```
-
----
-
-**Step 3.3: Update Frontend API URL**
-
-**File:** `frontend/.env.production`
-
-**Change:**
-```bash
-# Old (Railway)
-VITE_API_URL=https://wordle-decoded-production.up.railway.app/api/v1
-
-# New (Fly.io - same domain)
-VITE_API_URL=/api/v1
-```
-
----
-
-**Step 3.4: Test Locally**
+#### Step 4.1: Test API Endpoints
 
 ```bash
-# Build Docker image
-docker build -t wordle-test .
-
-# Run container
-docker run -p 8000:8000 wordle-test
-
-# Test API: http://localhost:8000/api/v1/health
-# Test Frontend: http://localhost:8000/
-```
-
----
-
-**Commit:**
-```bash
-git add Dockerfile backend/api/main.py frontend/.env.production
-git commit -m "feat: serve frontend from FastAPI for single-container deployment"
-git push origin claude/railway-supabase-migration-estimate-eFrf6
-```
-
----
-
-#### Option B: Keep Frontend Separate (Alternative)
-
-If you prefer to keep frontend on GitHub Pages or deploy separately to Vercel:
-
-**Step 3.1: Update CORS in Backend**
-
-**File:** `backend/api/main.py`
-
-**Update CORS_ORIGINS:**
-```python
-# For Fly.io backend + GitHub Pages frontend
-CORS_ORIGINS = os.getenv(
-    "CORS_ORIGINS",
-    "https://rafiag.github.io,https://wordle-decoded.fly.dev"
-).split(",")
-```
-
-**Step 3.2: Set CORS Secret**
-
-```bash
-fly secrets set CORS_ORIGINS="https://rafiag.github.io,https://wordle-decoded.fly.dev"
-```
-
-**Step 3.3: Update Frontend API URL**
-
-**File:** `frontend/.env.production`
-
-```bash
-VITE_API_URL=https://wordle-decoded.fly.dev/api/v1
-```
-
-**Step 3.4: Update GitHub Actions**
-
-**File:** `.github/workflows/deploy-frontend.yml`
-
-**Update secret:**
-```yaml
-env:
-  VITE_API_URL: https://wordle-decoded.fly.dev/api/v1
-```
-
----
-
-### Phase 4: Deploy to Fly.io (15 minutes)
-
-#### Step 4.1: Initial Deployment
-
-```bash
-# Deploy application
-fly deploy
-
-# Follow build progress
-# Expected: 3-5 minutes for initial deployment
-```
-
-**Expected Output:**
-```
-==> Building image
-...
-==> Pushing image to fly
-...
-==> Deploying
-...
- ✓ Machine created
- ✓ Machine started
- ✓ Health checks passing
-==> Visit your newly deployed app at https://wordle-decoded.fly.dev/
-```
-
----
-
-#### Step 4.2: Verify Deployment
-
-```bash
-# Check app status
-fly status
-
-# Check logs
-fly logs
-
-# Open in browser
-fly open
-```
-
-**Expected Status:**
-```
-App
-  Name     = wordle-decoded
-  Owner    = your-org
-  Hostname = wordle-decoded.fly.dev
-  Platform = machines
-
-Machines
-ID          STATE   REGION  HEALTH CHECKS   CREATED
-xxx         started sjc     1 total, 1 passing  just now
-```
-
----
-
-#### Step 4.3: Test API Endpoints
-
-```bash
-# Health check
-curl https://wordle-decoded.fly.dev/api/v1/health
-
-# Words endpoint
-curl https://wordle-decoded.fly.dev/api/v1/words?limit=5
-
-# Global stats
-curl https://wordle-decoded.fly.dev/api/v1/dashboard/global-stats
-```
-
----
-
-#### Step 4.4: Monitor First Requests
-
-```bash
-# Stream logs in real-time
-fly logs
-
-# Watch for:
-# - "Connecting to sqlite:///app/data/wordle.db"
-# - API requests succeeding
-# - No errors
-```
-
----
-
-### Phase 5: Update Documentation (20 minutes)
-
-#### Step 5.1: Update DEPLOYMENT.md
-
-**File:** `DEPLOYMENT.md`
-
-**Replace Railway section with:**
-
-```markdown
-## Deployment to Fly.io
-
-### Prerequisites
-- Fly.io CLI installed
-- Fly.io account (free tier)
-
-### Initial Setup
-
-1. **Install Fly CLI:**
-   ```bash
-   curl -L https://fly.io/install.sh | sh
-   ```
-
-2. **Authenticate:**
-   ```bash
-   fly auth login
-   ```
-
-3. **Deploy:**
-   ```bash
-   fly deploy
-   ```
-
-### Environment Variables
-
-Set via Fly.io secrets:
-```bash
-fly secrets set SECRET_KEY=$(openssl rand -hex 32)
-fly secrets set KAGGLE_USERNAME=your_username
-fly secrets set KAGGLE_KEY=your_api_key
-```
-
-### Update Data
-
-Run ETL locally and redeploy:
-```bash
-python scripts/run_etl.py
-git add data/wordle.db
-git commit -m "chore: update Wordle data"
-git push
-fly deploy
-```
-
-### Monitoring
-
-```bash
-# Check status
-fly status
-
-# View logs
-fly logs
-
-# SSH into container
-fly ssh console
-```
-```
-
----
-
-#### Step 5.2: Update README.md
-
-**File:** `README.md`
-
-**Update deployment badge and links:**
-
-```markdown
-## 🚀 Live Demo
-
-**Dashboard:** https://wordle-decoded.fly.dev
-**API Docs:** https://wordle-decoded.fly.dev/api/v1/docs
-
-## 🏗️ Tech Stack
-
-- **Frontend:** React + Vite + Recharts
-- **Backend:** FastAPI + Python 3.11
-- **Database:** SQLite (static data)
-- **Hosting:** Fly.io (free tier)
-- **CI/CD:** GitHub Actions
-```
-
----
-
-#### Step 5.3: Update CLAUDE.md
-
-**File:** `CLAUDE.md`
-
-**Update deployment commands:**
-
-```markdown
-### Key Commands (Updated)
-- **Run application:** `docker compose up`
-- **Deploy to production:** `fly deploy`
-- **View logs:** `fly logs`
-- **Update data:** `python scripts/run_etl.py` → commit → `fly deploy`
-- **Run tests:** `docker compose exec backend pytest`
-```
-
----
-
-**Commit all documentation:**
-```bash
-git add DEPLOYMENT.md README.md CLAUDE.md
-git commit -m "docs: update deployment instructions for Fly.io"
-git push origin claude/railway-supabase-migration-estimate-eFrf6
-```
-
----
-
-## Post-Migration Verification
-
-### ✅ Functional Testing (30 minutes)
-
-#### Backend API Tests
-
-```bash
-# Base URL
-export API_URL=https://wordle-decoded.fly.dev/api/v1
+# Get your Railway URL
+railway domain
+
+# Set as variable (replace with your actual URL)
+export API_URL=https://wordle-decoded-production.up.railway.app/api/v1
 
 # 1. Health check
 curl $API_URL/health
@@ -897,107 +422,125 @@ curl $API_URL/health
 
 # 2. Words endpoint
 curl "$API_URL/words?limit=5"
-# Expected: Array of 5 words with metadata
+# Expected: Array of 5 words
 
 # 3. Global stats
 curl $API_URL/dashboard/global-stats
-# Expected: Stats object with total_words, hardest_word, etc.
+# Expected: Stats with total_words, hardest_word, etc.
 
 # 4. Difficulty timeline
 curl "$API_URL/difficulty/timeline?limit=30"
-# Expected: Array of 30 days with difficulty data
-
-# 5. Guess distribution
-curl "$API_URL/distributions/overview"
-# Expected: Distribution stats
-
-# 6. Pattern search
-curl "$API_URL/patterns/search?pattern_string=🟩⬛⬛⬛⬛"
-# Expected: Pattern analysis
-
-# 7. Outliers
-curl "$API_URL/outliers?limit=10"
-# Expected: Array of outlier days
-
-# 8. NYT effect
-curl $API_URL/nyt/effect
-# Expected: NYT comparison data
+# Expected: 30 days of difficulty data
 ```
+
+If all return valid data, **migration is successful!**
 
 ---
 
-#### Frontend Tests (If serving from backend)
+#### Step 4.2: Test Frontend
 
 ```bash
-# Open in browser
-open https://wordle-decoded.fly.dev
+# Open frontend
+open https://rafiag.github.io/wordle-decoded
 
 # Manual checklist:
-# [ ] Dashboard loads without errors
-# [ ] All sections render (Hero, At a Glance, Difficulty, etc.)
-# [ ] Charts display data correctly
-# [ ] Interactive elements work (filters, inputs)
-# [ ] No console errors (F12 → Console)
-# [ ] Mobile responsive (resize browser)
+# [ ] Dashboard loads
+# [ ] All charts render
+# [ ] Data displays correctly
+# [ ] No console errors (F12)
+# [ ] Interactive features work
 ```
 
 ---
 
-#### Performance Tests
+#### Step 4.3: Check Railway Logs
 
 ```bash
-# Response time test
-time curl -s https://wordle-decoded.fly.dev/api/v1/health > /dev/null
-# Expected: <500ms
+railway logs
 
-# Load test (simple)
-for i in {1..10}; do
-  time curl -s https://wordle-decoded.fly.dev/api/v1/words?limit=10 > /dev/null
-done
-# Expected: All requests <1s
+# Look for:
+# - "Connecting to sqlite:///app/data/wordle.db" ✅
+# - No PostgreSQL connection errors ✅
+# - API requests succeeding ✅
 ```
 
 ---
 
-### ✅ Monitoring Setup
+### Phase 5: Clean Up (10 minutes)
 
-#### Set Up Alerts (Optional)
+#### Step 5.1: Delete Railway PostgreSQL Service
+
+⚠️ **Wait 1 week before doing this** to ensure everything works!
 
 ```bash
-# Fly.io doesn't have built-in uptime monitoring on free tier
-# Recommended: Use external service
+# Via Railway Dashboard:
+# 1. Go to project
+# 2. Find PostgreSQL service
+# 3. Click "..." → "Remove Service"
+# 4. Confirm deletion
 
-# Option 1: UptimeRobot (free)
-# - Create account at uptimerobot.com
-# - Add HTTP monitor for https://wordle-decoded.fly.dev/api/v1/health
-# - Set check interval: 5 minutes
-# - Email alerts on downtime
-
-# Option 2: GitHub Actions Cron (free)
-# Create: .github/workflows/uptime-check.yml
-# Ping health endpoint every hour
-# Send notification on failure
+# This stops billing for the database
 ```
 
 ---
 
-#### Check Resource Usage
+#### Step 5.2: Update Documentation
 
+**File:** `DEPLOYMENT.md`
+
+Update to reflect SQLite:
+
+```markdown
+## Database
+
+The application uses **SQLite** for data storage (static data).
+
+**Database file:** `data/wordle.db` (176 KB, version controlled)
+
+### Updating Data
+
+Run ETL locally and redeploy:
 ```bash
-# View current metrics
-fly dashboard
+python scripts/run_etl.py
+git add data/wordle.db
+git commit -m "chore: update Wordle data"
+git push
+```
 
-# Or check via CLI
-fly status --all
+Railway auto-deploys and includes the updated database.
+```
+
+**File:** `README.md`
+
+Update tech stack:
+
+```markdown
+## Tech Stack
+
+- **Frontend:** React + Vite + Recharts
+- **Backend:** FastAPI + Python 3.11
+- **Database:** SQLite (static data, version controlled)
+- **Hosting:** Railway
 ```
 
 ---
 
-### ✅ Data Validation
+**Commit docs:**
+```bash
+git add DEPLOYMENT.md README.md
+git commit -m "docs: update for SQLite database"
+git push origin claude/railway-supabase-migration-estimate-eFrf6
+```
+
+---
+
+## Post-Migration Verification
+
+### ✅ Data Integrity Check
 
 ```bash
-# SSH into Fly.io container
-fly ssh console
+# SSH into Railway container
+railway run bash
 
 # Inside container:
 cd /app
@@ -1006,15 +549,15 @@ import sqlite3
 conn = sqlite3.connect('data/wordle.db')
 cursor = conn.cursor()
 
-# Count records
-cursor.execute('SELECT COUNT(*) FROM words')
-print(f'Words: {cursor.fetchone()[0]}')
+# Count records in each table
+tables = ['words', 'distributions', 'patterns', 'trap_analysis',
+          'tweet_sentiment', 'outliers', 'pattern_statistics',
+          'pattern_transitions', 'global_stats']
 
-cursor.execute('SELECT COUNT(*) FROM distributions')
-print(f'Distributions: {cursor.fetchone()[0]}')
-
-cursor.execute('SELECT COUNT(*) FROM patterns')
-print(f'Patterns: {cursor.fetchone()[0]}')
+for table in tables:
+    cursor.execute(f'SELECT COUNT(*) FROM {table}')
+    count = cursor.fetchone()[0]
+    print(f'{table}: {count} records')
 
 conn.close()
 "
@@ -1024,259 +567,126 @@ exit
 ```
 
 **Expected Counts:**
-- Words: ~320
-- Distributions: ~320
-- Patterns: ~6000+
+- words: ~320
+- distributions: ~320
+- patterns: ~6000+
+- trap_analysis: ~320
+- tweet_sentiment: ~306
+- outliers: ~50-100
+- pattern_statistics: ~6000+
+- pattern_transitions: ~2000+
+- global_stats: 1
+
+---
+
+### ✅ Performance Comparison
+
+```bash
+# Test query speed (should be faster with SQLite)
+time curl -s $API_URL/words?limit=100 > /dev/null
+
+# Run 10 times and compare to old PostgreSQL times
+for i in {1..10}; do
+  time curl -s $API_URL/dashboard/global-stats > /dev/null
+done
+```
+
+**Expected:** Equal or better performance (no network latency to database).
+
+---
+
+### ✅ Cost Verification
+
+After 1 billing cycle:
+
+```bash
+# Check Railway invoice
+# Old: Backend ($5-20) + Database ($5-10) = $10-30
+# New: Backend only ($5-20) = $5-20
+# Savings: $5-10/month
+```
 
 ---
 
 ## Rollback Plan
 
-### If Migration Fails: Return to Railway
+### If Migration Fails: Restore PostgreSQL
 
-**Timeline:** Should complete rollback in 15 minutes
+**Timeline:** 15 minutes to rollback
 
-#### Step 1: Revert Git Changes
-
-```bash
-# If you've pushed commits
-git revert HEAD~3..HEAD  # Revert last 3 commits
-git push origin claude/railway-supabase-migration-estimate-eFrf6
-
-# Or reset to before migration
-git reset --hard <commit-before-migration>
-git push --force origin claude/railway-supabase-migration-estimate-eFrf6
-```
-
----
-
-#### Step 2: Verify Railway Still Works
+#### Step 1: Re-add PostgreSQL Service to Railway
 
 ```bash
-# Check Railway dashboard
-# Verify app still deployed: https://wordle-decoded-production.up.railway.app
-
-# Test API
-curl https://wordle-decoded-production.up.railway.app/api/v1/health
-
-# Test frontend
-open https://rafiag.github.io/wordle-decoded
+# Via Railway Dashboard:
+# 1. Add new service → PostgreSQL
+# 2. Wait for provisioning (~2 minutes)
+# 3. Copy DATABASE_URL
 ```
 
 ---
 
-#### Step 3: Clean Up Fly.io
+#### Step 2: Restore Data
 
 ```bash
-# Destroy Fly.io app
-fly apps destroy wordle-decoded
+# Upload backup
+cat railway_postgres_backup_YYYYMMDD.sql | railway connect postgres
 
-# Remove volume
-fly volumes list
-fly volumes delete <volume-id>
+# Or re-run ETL against PostgreSQL
+export DATABASE_URL=<new-postgresql-url>
+python scripts/run_etl.py
 ```
 
 ---
 
-#### Step 4: Document Issues
-
-Create `docs/migration-attempt-log.md`:
-
-```markdown
-# Migration Attempt Log
-
-**Date:** YYYY-MM-DD
-**Status:** Rolled back
-**Reason:** [Describe what went wrong]
-
-## Issues Encountered
-1. [Issue 1]
-2. [Issue 2]
-
-## Lessons Learned
-- [Lesson 1]
-- [Lesson 2]
-
-## Next Steps
-- [What to try differently]
-```
-
----
-
-### Partial Rollback: Keep Fly.io, Restore PostgreSQL
-
-If SQLite works but you want PostgreSQL back:
+#### Step 3: Re-add DATABASE_URL to Railway
 
 ```bash
-# Option 1: Add Fly.io PostgreSQL
-fly postgres create
-
-# Option 2: Use external PostgreSQL (Supabase free)
-# Update fly.toml with DATABASE_URL secret
-fly secrets set DATABASE_URL="postgresql://..."
+railway variables --set DATABASE_URL=<postgresql-url>
 ```
 
 ---
 
-## Troubleshooting
-
-### Issue: "Database file not found"
-
-**Symptom:**
-```
-ERROR - could not open database: unable to open database file
-```
-
-**Cause:** Volume not mounted or DB file not in image
-
-**Solution:**
-```bash
-# Check if volume is attached
-fly volumes list
-
-# Check if DB file exists in image
-fly ssh console
-ls -lh /app/data/wordle.db
-
-# If missing, ensure data/wordle.db committed to git
-git status
-git add data/wordle.db
-git commit -m "fix: add SQLite database"
-fly deploy
-```
-
----
-
-### Issue: "Memory limit exceeded"
-
-**Symptom:**
-```
-OOMKilled (out of memory)
-```
-
-**Cause:** 256 MB too small for pandas/scipy operations
-
-**Solution:**
-```toml
-# In fly.toml, increase memory
-[[vm]]
-  memory_mb = 512  # or 1024
-```
+#### Step 4: Redeploy
 
 ```bash
-fly deploy
+# Trigger redeploy
+railway up
 ```
 
 ---
 
-### Issue: "Health checks failing"
+#### Step 5: Verify
 
-**Symptom:**
-```
-Health check failed
-```
-
-**Cause:** Port mismatch or app not starting
-
-**Solution:**
 ```bash
-# Check logs
-fly logs
-
-# Verify port
-# Ensure Dockerfile exposes 8000
-# Ensure fly.toml internal_port = 8000
-
-# Test locally
-docker build -t test .
-docker run -p 8000:8000 test
-curl localhost:8000/api/v1/health
-```
-
----
-
-### Issue: "CORS errors in browser"
-
-**Symptom:**
-```
-Access to fetch blocked by CORS policy
-```
-
-**Cause:** Fly.io URL not in CORS_ORIGINS
-
-**Solution:**
-```bash
-# Update CORS origins
-fly secrets set CORS_ORIGINS="https://rafiag.github.io,https://wordle-decoded.fly.dev"
-
-# Or if serving frontend from backend, ensure main.py CORS config includes all origins
-```
-
----
-
-### Issue: "Frontend shows old API URL"
-
-**Symptom:** Frontend makes requests to Railway URL
-
-**Cause:** .env.production not updated in build
-
-**Solution:**
-```bash
-# Verify .env.production has correct URL
-cat frontend/.env.production
-
-# Rebuild
-fly deploy --build-arg VITE_API_URL=https://wordle-decoded.fly.dev/api/v1
-```
-
----
-
-### Issue: "Deployment too slow"
-
-**Symptom:** Build takes >10 minutes
-
-**Cause:** Installing frontend dependencies in Dockerfile
-
-**Solution:**
-```dockerfile
-# Use layer caching - install deps before copying source
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
-
-COPY frontend/ ./
-RUN npm run build
+railway logs
+# Look for: "Connecting to postgresql://..."
 ```
 
 ---
 
 ## Cost Analysis
 
-### Current Monthly Costs (Railway)
+### Current Monthly Costs (Railway + PostgreSQL)
 
-| Service | Plan | Cost |
-|---------|------|------|
-| **Backend Web Service** | Hobby | $5-10 |
-| **PostgreSQL Database** | Hobby | $5-10 |
-| **Bandwidth** | Included | $0 |
-| **Custom Domain** | Included | $0 |
-| **TOTAL** | | **$10-20/month** |
+| Service | Cost |
+|---------|------|
+| **Backend Web Service** | $5-20 |
+| **PostgreSQL Database** | $5-10 |
+| **TOTAL** | **$10-30/month** |
 
-**Annual:** $120-240
+**Annual:** $120-360
 
 ---
 
-### New Monthly Costs (Fly.io Free Tier)
+### New Monthly Costs (Railway + SQLite)
 
-| Service | Plan | Cost |
-|---------|------|------|
-| **VM (1 shared-cpu)** | Free Tier | $0 |
-| **Persistent Volume (1GB)** | Free Tier | $0 |
-| **Bandwidth (160GB)** | Free Tier | $0 |
-| **HTTPS/SSL** | Included | $0 |
-| **TOTAL** | | **$0/month** |
+| Service | Cost |
+|---------|------|
+| **Backend Web Service** | $5-20 |
+| **SQLite Database** | $0 (included in container) |
+| **TOTAL** | **$5-20/month** |
 
-**Annual:** $0
+**Annual:** $60-240
 
 ---
 
@@ -1284,286 +694,284 @@ RUN npm run build
 
 | Period | Savings |
 |--------|---------|
-| **Monthly** | $10-20 |
-| **Yearly** | $120-240 |
-| **3 Years** | $360-720 |
+| **Monthly** | $5-10 |
+| **Yearly** | $60-120 |
+| **3 Years** | $180-360 |
 
 ---
 
-### If You Exceed Free Tier (Unlikely)
+### When PostgreSQL Makes Sense
 
-| Resource | Free Limit | Overage Cost | Your Usage | Over? |
-|----------|-----------|--------------|------------|-------|
-| **VMs** | 3 shared-cpu | $1.94/mo each | 1 VM | ❌ No |
-| **Storage** | 3 GB | $0.15/GB/mo | 1 GB | ❌ No |
-| **Bandwidth** | 160 GB/mo | $0.02/GB | ~5-10 GB/mo | ❌ No |
+Use PostgreSQL if:
+- ❌ You have concurrent writes (multiple users updating data)
+- ❌ Data exceeds 1GB
+- ❌ You need complex transactions
+- ❌ You need real-time updates
 
-**Projected overage:** $0/month for portfolio traffic levels
+For static, read-only data under 1GB? **SQLite is better.**
 
 ---
 
-### Break-Even Analysis
+## Platform Comparison (Reference)
 
-**Railway costs:** $15/month average
+In case you reconsider platforms in the future, here's the 2026 landscape:
 
-**Fly.io upgrade path:**
-- Free tier: $0/month → Use this indefinitely
-- If traffic grows: ~$2-5/month (still 70% cheaper)
-- Production scale: $29/month (comparable to Railway, better features)
+### Free Tier Reality Check
 
-**Recommendation:** Stay on free tier unless traffic exceeds 100k requests/month
+**Bad news:** Most "free tiers" have been eliminated or severely limited in 2024-2026.
+
+| Platform | Free Tier? | Always-On? | Actual Cost |
+|----------|-----------|------------|-------------|
+| **Fly.io** | ❌ No (trial only) | N/A | ~$17-20/month |
+| **Railway** | ❌ No (trial only) | N/A | $5-30/month |
+| **Render** | ✅ Yes | ❌ No (15min sleep) | $0 or $7/month |
+| **Vercel** | ✅ Yes (serverless) | ⚠️ Cold starts | $0 (limited compute) |
+| **Koyeb** | ✅ Yes | ❌ No (mandatory scale-to-zero) | $0 or $1.61/month |
+
+### Always-On Options (Cheapest to Most Expensive)
+
+| Platform | Cost/Month | Notes |
+|----------|-----------|-------|
+| **Koyeb Eco** | $1.61 | Cheapest always-on option |
+| **Railway** | $5-20 | What you're using (reliable) |
+| **Fly.io** | $17-20 | Similar to Railway |
+| **Render Starter** | $7+ | Paid tier (no sleep) |
+| **Self-Host (Coolify)** | $5+ VPS | DIY, full control |
+
+### Recommendation: Stay on Railway
+
+**Why:**
+- ✅ Already working
+- ✅ Reliable and fast
+- ✅ Simple deployment
+- ✅ Good developer experience
+- ✅ With SQLite, cost is competitive ($5-20/month)
+
+**When to consider alternatives:**
+- If Railway raises prices significantly
+- If you need multi-region deployment
+- If you want to self-host for learning
+
+**Sources:**
+- [Fly.io Pricing 2026](https://fly.io/docs/about/pricing/)
+- [Render Free Tier](https://render.com/docs/free)
+- [Koyeb Pricing](https://www.koyeb.com/pricing)
+- [Railway Alternatives Comparison](https://northflank.com/blog/railway-alternatives)
 
 ---
 
 ## FAQ
 
-### Q: Will my data be lost when I migrate?
+### Q: Will performance be affected by switching to SQLite?
 
-**A:** No. You'll:
-1. Export current PostgreSQL data as backup
-2. Run ETL locally to create SQLite file
-3. Commit SQLite to git (version controlled)
-4. Deploy to Fly.io with SQLite
+**A:** Performance should **improve**!
 
-Your data is actually **safer** now because it's version controlled.
+SQLite advantages:
+- ✅ **No network latency** (local file vs. remote PostgreSQL)
+- ✅ **Faster reads** (optimized for read-heavy workloads)
+- ✅ **Lower memory usage** (no connection pooling overhead)
+
+For static, read-only data, SQLite is often **2-5x faster** than networked PostgreSQL.
 
 ---
 
-### Q: Can I update the data after migration?
+### Q: What if my data grows beyond 1GB?
 
-**A:** Yes! Run ETL locally:
+**A:** You're safe for a very long time.
+
+Current: 176 KB
+- **10 years of daily Wordle:** ~640 KB
+- **100 years:** ~6.4 MB
+- **1000 years:** ~64 MB
+
+SQLite handles databases up to **281 TB**. You'd need 1.6 million years of Wordle data to hit limits!
+
+---
+
+### Q: Can I still update the data after migration?
+
+**A:** Yes! Even simpler than before:
+
 ```bash
+# Run ETL locally
 python scripts/run_etl.py
+
+# Commit updated database
 git add data/wordle.db
 git commit -m "chore: update data"
 git push
-fly deploy
+
+# Railway auto-deploys
 ```
 
-Or set up a cron job to automate this.
-
----
-
-### Q: What if my app gets popular and outgrows free tier?
-
-**A:** Fly.io scales gracefully:
-- **First:** Add more VMs ($1.94/month each)
-- **Next:** Upgrade to larger VMs ($5-20/month)
-- **Finally:** Move to PostgreSQL if writes become heavy
-
-You'll get warnings before hitting limits.
-
----
-
-### Q: Can I go back to Railway if I change my mind?
-
-**A:** Yes! The rollback process takes 15 minutes. Your Railway account stays active. Just:
-1. Stop Fly.io deployment
-2. Revert git changes
-3. Re-enable Railway service
-
----
-
-### Q: Will performance be affected?
-
-**A:** No! In fact:
-- ✅ **SQLite is faster** for read-heavy workloads (no network latency)
-- ✅ **Fly.io has global Anycast** (faster for international users)
-- ✅ **No cold starts** (always-on free tier)
-
-You may see performance **improve**.
+No database connection needed. All local.
 
 ---
 
 ### Q: What about database backups?
 
 **A:**
-1. **Git = automatic backups** (data/wordle.db is versioned)
-2. **Fly.io volumes** have built-in snapshots
-3. **Manual backups:** `fly ssh console` → copy DB file
+1. **Git = automatic backups** (every commit is a backup)
+2. **Download from Railway:**
+   ```bash
+   railway run cat /app/data/wordle.db > backup.db
+   ```
+3. **Restore any version:**
+   ```bash
+   git checkout <commit-hash> data/wordle.db
+   ```
 
-Much simpler than managing PostgreSQL backups.
-
----
-
-### Q: Can I use PostgreSQL on Fly.io if I need it later?
-
-**A:** Yes! Fly.io offers managed PostgreSQL:
-```bash
-fly postgres create
-```
-
-Free tier: 1 single-node instance (3GB storage)
-Paid: $1.94/month for more resources
+**Much simpler than PostgreSQL backups!**
 
 ---
 
-### Q: What happens if Fly.io changes their free tier?
+### Q: Is SQLite production-ready?
 
-**A:** You have options:
-1. **Upgrade to paid Fly.io** (~$2-5/month, still cheaper than Railway)
-2. **Move to Render/Railway** (migration scripts already exist)
-3. **Self-host** (Docker image works anywhere)
+**A:** Absolutely!
 
-Your app is **portable** (not locked into Fly.io).
+Used in production by:
+- **Apple** (iOS, macOS core data)
+- **Google** (Android, Chrome)
+- **Microsoft** (Windows 10)
+- **Expensify** (entire app backend)
+- **Fossil** (version control system)
+
+SQLite is **the most deployed database in the world** (billions of installations).
+
+For read-heavy workloads with static data, it's **more reliable** than client-server databases.
 
 ---
 
-### Q: How do I handle secrets/environment variables?
+### Q: Can I go back to PostgreSQL if needed?
+
+**A:** Yes! Takes 15 minutes (see Rollback Plan).
+
+Your PostgreSQL backup file lets you restore anytime. Or re-run ETL against a new PostgreSQL instance.
+
+---
+
+### Q: Will this affect my frontend?
+
+**A:** Zero impact!
+
+Frontend only knows about the API endpoints (`/api/v1/words`, etc.). It doesn't know or care what database the backend uses.
+
+No frontend code changes needed.
+
+---
+
+### Q: What if I want to add user accounts later?
+
+**A:** Then switch back to PostgreSQL.
+
+SQLite is great for static data, but PostgreSQL is better for:
+- User authentication (concurrent writes)
+- Real-time collaboration
+- Heavy write workloads
+
+**For now:** Save money with SQLite
+**Later:** Easy to migrate back if needs change
+
+---
+
+### Q: How do I monitor the SQLite database?
 
 **A:**
 ```bash
-# Set secrets via CLI
-fly secrets set KEY=value
+# SSH into Railway
+railway run bash
 
-# View secrets (values hidden)
-fly secrets list
+# Inside container:
+sqlite3 /app/data/wordle.db
 
-# Update secrets
-fly secrets set KEY=new_value
+# SQL queries:
+SELECT COUNT(*) FROM words;
+SELECT * FROM global_stats;
+.schema words
 
-# Secrets are encrypted and never logged
+# Exit
+.quit
 ```
+
+Or use a GUI like [DB Browser for SQLite](https://sqlitebrowser.org/) locally.
 
 ---
 
-### Q: Can I use a custom domain?
+### Q: Does this affect my Railway trial credits?
 
-**A:** Yes!
-```bash
-# Add certificate
-fly certs add yourdomain.com
+**A:** No, but it extends them!
 
-# Get DNS instructions
-fly certs show yourdomain.com
-
-# Update DNS records
-# Wait for propagation (up to 24 hours)
-
-# Verify
-fly certs check yourdomain.com
-```
-
-Free SSL included!
+By eliminating the PostgreSQL service, you only pay for the backend. Your trial credits last longer.
 
 ---
 
-### Q: What if SQLite file gets corrupted?
+### Q: What if the SQLite file gets corrupted?
 
 **A:** Multiple recovery options:
+
 1. **Git history:** `git checkout HEAD~1 data/wordle.db`
-2. **Rebuild:** `python scripts/run_etl.py` (takes 15 minutes)
-3. **Railway backup:** Import from `railway_backup.sql`
+2. **Rebuild:** `python scripts/run_etl.py` (15 minutes)
+3. **PostgreSQL backup:** Restore from old backup
 
-SQLite is **very** stable - corruption is extremely rare.
-
----
-
-### Q: How do I monitor uptime?
-
-**A:** Free options:
-1. **Fly.io dashboard:** https://fly.io/dashboard
-2. **UptimeRobot:** Free tier (5-minute checks)
-3. **GitHub Actions:** Cron job pinging health endpoint
-
-Set up at least one external monitor.
-
----
-
-### Q: Can multiple people work on this project?
-
-**A:** Yes!
-1. Each developer runs `docker compose up` locally
-2. ETL creates local SQLite file
-3. Git handles merge conflicts in code
-4. **Database:** Commit DB updates from one person at a time (avoid conflicts)
-
-**Best practice:** Designate one person as "data maintainer" who runs ETL and commits DB updates.
+SQLite is **extremely** stable. Corruption is rare (< 0.01% of deployments).
 
 ---
 
 ## Next Steps After Migration
 
-### Week 1: Monitor Closely
-- [ ] Check logs daily: `fly logs`
-- [ ] Monitor uptime (set up UptimeRobot)
-- [ ] Test all features manually
-- [ ] Watch for any errors
+### Week 1: Monitor
+- [ ] Check Railway logs daily
+- [ ] Verify API endpoints work
+- [ ] Watch for errors
+- [ ] Compare response times
 
 ### Week 2: Optimize
-- [ ] Review resource usage
-- [ ] Tune memory if needed
-- [ ] Add caching if beneficial
-- [ ] Optimize slow queries
+- [ ] Review Railway resource usage
+- [ ] Consider downgrading if over-provisioned
+- [ ] Test query performance
 
-### Month 1: Celebrate Savings!
-- [ ] Verify $0 bill from Fly.io
-- [ ] Cancel Railway subscription
-- [ ] Calculate annual savings (~$120-240)
-- [ ] Reinvest savings in domain, monitoring, or other tools
+### Month 1: Celebrate!
+- [ ] Verify reduced Railway bill
+- [ ] Delete PostgreSQL service (if confident)
+- [ ] Calculate annual savings (~$60-120)
 
 ### Ongoing:
-- [ ] Update data monthly (ETL + commit + deploy)
-- [ ] Monitor free tier limits
-- [ ] Keep Fly.io CLI updated
-- [ ] Review logs for errors
+- [ ] Update data when needed (ETL + commit)
+- [ ] Monitor Railway costs
+- [ ] Keep SQLite best practices in mind
 
 ---
 
-## Support & Resources
+## Migration Checklist
 
-### Official Documentation
-- **Fly.io Docs:** https://fly.io/docs
-- **SQLite Docs:** https://sqlite.org/docs.html
-- **FastAPI Docs:** https://fastapi.tiangolo.com
-
-### Community Support
-- **Fly.io Community:** https://community.fly.io
-- **Fly.io Status:** https://status.fly.io
-
-### Emergency Contacts
-- **Fly.io Support:** support@fly.io (paid accounts)
-- **Community Forum:** https://community.fly.io (free tier)
-
----
-
-## Migration Checklist Summary
-
-### Pre-Migration
-- [ ] Backup Railway database
-- [ ] Export environment variables
-- [ ] Test ETL locally
-- [ ] Verify SQLite database created
-
-### Migration
-- [ ] Update .gitignore
-- [ ] Commit SQLite database
-- [ ] Install Fly CLI
-- [ ] Create Fly.io app
-- [ ] Configure fly.toml
-- [ ] Set secrets
-- [ ] Deploy to Fly.io
-- [ ] Update documentation
-
-### Post-Migration
+- [ ] Backup PostgreSQL data (`pg_dump`)
+- [ ] Update `.gitignore` (allow `data/wordle.db`)
+- [ ] Run ETL locally (`python scripts/run_etl.py`)
+- [ ] Verify SQLite database created (~176 KB)
+- [ ] Commit SQLite to git
+- [ ] Push to GitHub
+- [ ] Remove `DATABASE_URL` from Railway
+- [ ] Railway auto-deploys
 - [ ] Test all API endpoints
 - [ ] Verify frontend works
-- [ ] Check logs for errors
-- [ ] Set up monitoring
-- [ ] Update team/users
-- [ ] Cancel Railway (after 1 week verification)
+- [ ] Check Railway logs (should show SQLite connection)
+- [ ] Monitor for 1 week
+- [ ] Delete PostgreSQL service
+- [ ] Update documentation
+- [ ] Celebrate savings! 🎉
 
 ---
 
-**Document Version:** 1.0
+**Document Version:** 2.0
 **Last Updated:** 2026-01-03
 **Migration Status:** Ready to Execute
-**Estimated Duration:** 2-3 hours
-**Risk Level:** Low
-**Reversibility:** High (15-minute rollback)
+**Estimated Duration:** 1-2 hours
+**Risk Level:** Very Low
+**Reversibility:** Very High (15-minute rollback)
+**Cost Savings:** $60-120/year
 
 ---
 
-**Good luck with your migration! 🚀**
+**Good luck with your migration! 💾**
 
-For questions or issues during migration, refer to the Troubleshooting section or create an issue in the repository.
+For questions or issues, refer to the FAQ or create an issue in the repository.
