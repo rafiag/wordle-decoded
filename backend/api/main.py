@@ -1,9 +1,10 @@
-from fastapi import FastAPI, APIRouter, Request
+from fastapi import FastAPI, APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
-from backend.db.database import engine, Base
+from backend.db.database import engine, Base, get_db
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Any, Dict
@@ -74,11 +75,24 @@ from backend.api.schemas import APIResponse
 api_v1_router = APIRouter(prefix="/api/v1")
 
 @api_v1_router.get("/health")
-async def health_check():
+async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint for API monitoring"""
+    try:
+        # Simple query to verify DB connection
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        db_status = f"error: {str(e)}"
+        
     return APIResponse(
         status="success",
-        data={"healthy": True, "service": "Wordle Decoded API"},
+        data={
+            "healthy": True if "error" not in db_status else False,
+            "service": "Wordle Decoded API",
+            "database": db_status
+        },
         meta={
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "version": "1.0.0"
