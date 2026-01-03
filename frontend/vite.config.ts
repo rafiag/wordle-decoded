@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    base: '/wordle-decoded/',
     plugins: [
       react(),
       mode === 'analyze' &&
