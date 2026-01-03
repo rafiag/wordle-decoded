@@ -1745,3 +1745,15 @@
         padding: 0.375rem !important;
     }
 }
+/* Footer Grid - Explicit responsive layout fix */
+@media (min-width: 1024px) {
+    .theme-bold footer .grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    .theme-bold footer .grid > div:nth-child(1) {
+        text-align: left !important;
+    }
+    .theme-bold footer .grid > div:nth-child(3) {
+        text-align: right !important;
+    }
+}

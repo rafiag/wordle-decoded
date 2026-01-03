@@ -539,3 +539,112 @@ test.describe('Responsive Design: Cross-Device Consistency', () => {
     }
   });
 });
+
+test.describe('Responsive Design: Footer Layout', () => {
+  test('desktop: footer should display 3-column grid layout at 1024px+', async ({ page }) => {
+    await page.setViewportSize(viewports.desktop);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Scroll to footer
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    const footerGrid = page.locator('footer .grid');
+    await expect(footerGrid).toBeVisible();
+
+    const gridStyle = await footerGrid.evaluate((el) =>
+      window.getComputedStyle(el).gridTemplateColumns
+    );
+
+    // Should have 3 columns
+    const columnCount = gridStyle.split(' ').length;
+    expect(columnCount).toBe(3);
+  });
+
+  test('desktop small (1024px): footer should display 3-column grid layout', async ({ page }) => {
+    await page.setViewportSize(viewports.desktopSmall);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    const footerGrid = page.locator('footer .grid');
+    const gridStyle = await footerGrid.evaluate((el) =>
+      window.getComputedStyle(el).gridTemplateColumns
+    );
+
+    // Should have 3 columns at 1024px (threshold for lg: breakpoint)
+    const columnCount = gridStyle.split(' ').length;
+    expect(columnCount).toBe(3);
+  });
+
+  test('tablet: footer should display single column layout', async ({ page }) => {
+    await page.setViewportSize(viewports.tablet);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    const footerGrid = page.locator('footer .grid');
+    const gridStyle = await footerGrid.evaluate((el) =>
+      window.getComputedStyle(el).gridTemplateColumns
+    );
+
+    // Should have 1 column on tablet (768px is below 1024px threshold)
+    const columnCount = gridStyle.split(' ').length;
+    expect(columnCount).toBe(1);
+  });
+
+  test('mobile: footer should display single column layout', async ({ page }) => {
+    await page.setViewportSize(viewports.mobile);
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    const footerGrid = page.locator('footer .grid');
+    const gridStyle = await footerGrid.evaluate((el) =>
+      window.getComputedStyle(el).gridTemplateColumns
+    );
+
+    // Should have 1 column on mobile
+    const columnCount = gridStyle.split(' ').length;
+    expect(columnCount).toBe(1);
+  });
+
+  test('desktop: footer should contain all essential sections', async ({ page }) => {
+    await page.setViewportSize(viewports.desktop);
+    await page.goto('/');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(page.locator('footer').getByText('About')).toBeVisible();
+    await expect(page.locator('footer').getByText('Data Sources')).toBeVisible();
+    await expect(page.locator('footer').getByText('Built With')).toBeVisible();
+  });
+
+  test('mobile: footer should contain all essential sections', async ({ page }) => {
+    await page.setViewportSize(viewports.mobile);
+    await page.goto('/');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(page.locator('footer').getByText('About')).toBeVisible();
+    await expect(page.locator('footer').getByText('Data Sources')).toBeVisible();
+    await expect(page.locator('footer').getByText('Built With')).toBeVisible();
+  });
+
+  test('desktop: footer links should be functional', async ({ page }) => {
+    await page.setViewportSize(viewports.desktop);
+    await page.goto('/');
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    const githubLink = page.locator('footer a[href*=\"github.com/rafiag/wordle-decoded\"]').first();
+    await expect(githubLink).toBeVisible();
+    await expect(githubLink).toHaveAttribute('target', '_blank');
+    await expect(githubLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+    const externalLinks = page.locator('footer a[target=\"_blank\"]');
+    for (let i = 0; i < await externalLinks.count(); i++) {
+      const rel = await externalLinks.nth(i).getAttribute('rel');
+      expect(rel).toContain('noopener noreferrer');
+    }
+  });
+});
+
