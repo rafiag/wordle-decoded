@@ -9,7 +9,28 @@ import type {
   AtAGlanceStats
 } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+const getApiBaseUrl = () => {
+  let url = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+
+  // Ensure we have a string and normalize it
+  url = url.trim()
+
+  // Remove trailing slash if present
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1)
+  }
+
+  // If the URL doesn't end with /api/v1, append it
+  // This helps when the user provides just the domain (e.g. on Railway)
+  if (!url.endsWith('/api/v1')) {
+    url = `${url}/api/v1`
+  }
+
+  return url
+}
+
+const API_BASE_URL = getApiBaseUrl()
+console.log('DEBUG: Using API_BASE_URL:', API_BASE_URL)
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

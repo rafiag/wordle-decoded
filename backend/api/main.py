@@ -10,16 +10,20 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Wordle Decoded API")
 
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 # CORS configuration for frontend communication
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+print(f"DEBUG: Allowing CORS origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Frontend dev server
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",  # Frontend production server
-        "http://127.0.0.1:3001",
-    ],
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=os.getenv("CORS_ALLOW_CREDENTIALS", "true").lower() == "true",
     allow_methods=["*"],
     allow_headers=["*"],
 )
