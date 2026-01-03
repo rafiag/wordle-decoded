@@ -73,7 +73,7 @@ Wordle Decoded is an interactive data exploration dashboard that reveals the pat
 
 ## Live Demo
 
-**Coming Soon** - Dashboard will be deployed at launch
+🔗 **Live Dashboard**: [https://rafiag.github.io/wordle-decoded](https://rafiag.github.io/wordle-decoded)
 
 For local development:
 ```bash
@@ -116,16 +116,13 @@ Then visit: `http://localhost:3000`
 
 **Ready to explore?** See the [Setup Guide](docs/01-setup/SETUP.md) for installation instructions.
 
-**Live Demo:** Coming soon - dashboard will be deployed at launch.
+🔗 **Live Demo:** [https://rafiag.github.io/wordle-decoded](https://rafiag.github.io/wordle-decoded)
 
 For local development:
 ```bash
 docker compose up
 ```
 Then visit: `http://localhost:3000`
-
-
-
 ---
 
 ## Documentation

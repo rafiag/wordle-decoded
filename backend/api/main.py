@@ -11,14 +11,19 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Wordle Decoded API")
 
 # CORS configuration for frontend communication
+import os
+
+# Get allowed origins from environment or use defaults
+allowed_origins = os.getenv("CORS_ORIGINS", "").split(",") if os.getenv("CORS_ORIGINS") else [
+    "http://localhost:3000",  # Frontend dev server
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # Frontend production server
+    "http://127.0.0.1:3001",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Frontend dev server
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",  # Frontend production server
-        "http://127.0.0.1:3001",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

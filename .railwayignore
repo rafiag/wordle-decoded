@@ -1,0 +1,32 @@
+# Railway Ignore - Exclude files from Railway deployment
+
+# Frontend (deployed separately to GitHub Pages)
+frontend/
+.github/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development files
+.git/
+.gitignore
+.env.example
+docker-compose.yml
+
+# Test files
+tests/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+
+# Data (will be populated via ETL on Railway)
+data/raw/*.csv
+data/processed/*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
