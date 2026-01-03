@@ -72,7 +72,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 from backend.api.schemas import APIResponse
 
 # API versioning with v1 router
-api_v1_router = APIRouter(prefix="/api/v1")
+api_v1_router = APIRouter(prefix="/api/v1", redirect_slashes=False)
 
 @api_v1_router.get("/health")
 async def health_check(db: Session = Depends(get_db)):
