@@ -14,6 +14,7 @@ ENV/
 .vscode/
 
 data/*.db
+!data/wordle.db
 data/*.csv
 data/raw/
 data/processed/
