@@ -26,5 +26,8 @@ COPY . .
 # Create data directories if they don't exist
 RUN mkdir -p data/raw data/processed data/cache
 
-# Default command (will be overridden by docker-compose for different services)
-CMD ["python", "scripts/run_etl.py"]
+# Expose the API port
+EXPOSE 8000
+
+# Default command: run the FastAPI server
+CMD ["uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
