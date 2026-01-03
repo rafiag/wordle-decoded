@@ -18,6 +18,7 @@ class CustomProgressReporter implements Reporter {
   private failedTests = 0;
   private skippedTests = 0;
   private startTime = 0;
+  private testResults = new Map<string, boolean>(); // Track unique tests (true = completed)
 
   onBegin(config: FullConfig, suite: Suite) {
     this.totalTests = suite.allTests().length;
@@ -34,26 +35,37 @@ class CustomProgressReporter implements Reporter {
   }
 
   onTestBegin(test: TestCase) {
-    const progress = `[${this.completedTests + 1}/${this.totalTests}]`;
-    const percentage = Math.round(((this.completedTests) / this.totalTests) * 100);
-
-    console.log(`${progress} (${percentage}%) 🔄 Running: [${test.parent.project()?.name}] ${test.titlePath().slice(1).join(' › ')}`);
+    // Don't log test begin to avoid duplicate/confusing progress counts
+    // Progress will be shown in onTestEnd only
   }
 
   onTestEnd(test: TestCase, result: TestResult) {
-    this.completedTests++;
+    const testId = `${test.parent.project()?.name}::${test.titlePath().join('::')}`;
+
+    // Only count each unique test once (ignore retries for progress counting)
+    if (!this.testResults.has(testId)) {
+      this.completedTests++;
+      this.testResults.set(testId, true);
+    }
+
     const progress = `[${this.completedTests}/${this.totalTests}]`;
     const percentage = Math.round((this.completedTests / this.totalTests) * 100);
     const duration = `${result.duration}ms`;
     const testPath = test.titlePath().slice(1).join(' › ');
     const projectName = test.parent.project()?.name;
+    const retryCount = result.retry;
+    const retryText = retryCount > 0 ? ` (retry ${retryCount})` : '';
 
     let statusIcon = '';
     let statusText = '';
 
     switch (result.status) {
       case 'passed':
-        this.passedTests++;
+        // Only count as passed if this is the final result for this test
+        if (retryCount === 0 || !this.testResults.get(testId + '::passed')) {
+          this.passedTests++;
+          this.testResults.set(testId + '::passed', true);
+        }
         statusIcon = '✅';
         statusText = 'PASSED';
         break;
@@ -77,7 +89,7 @@ class CustomProgressReporter implements Reporter {
         statusText = result.status.toUpperCase();
     }
 
-    console.log(`${progress} (${percentage}%) ${statusIcon} ${statusText} [${projectName}] ${testPath} (${duration})`);
+    console.log(`${progress} (${percentage}%) ${statusIcon} ${statusText}${retryText} [${projectName}] ${testPath} (${duration})`);
 
     // Show error details for failed tests
     if (result.status === 'failed' || result.status === 'timedOut') {
@@ -86,8 +98,8 @@ class CustomProgressReporter implements Reporter {
       }
     }
 
-    // Show progress summary every 10 tests
-    if (this.completedTests % 10 === 0) {
+    // Show progress summary every 10 completed unique tests
+    if (this.completedTests % 10 === 0 && this.completedTests > 0) {
       const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(1);
       console.log(`\n📈 Progress: ${this.passedTests} passed, ${this.failedTests} failed, ${this.skippedTests} skipped | Elapsed: ${elapsed}s\n`);
     }
