@@ -12,12 +12,14 @@ This document provides detailed documentation for the API endpoints supporting t
 Retrieve a paginated list of words with their difficulty metrics. used for "Hardest Words" tables and general word exploration.
 
 **Parameters:**
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
 | `skip` | `int` | `0` | Number of records to skip (offset) |
 | `limit` | `int` | `100` | Number of records to return |
-| `sort` | `str` | `"date"` | Field to sort by (`date`, `avg_guess_count`, `difficulty_rating`) |
+| `sort` | `str` | `"date"` | Field to sort by (`date`, `avg_guess_count`, `difficulty_rating`, `success_rate`) |
 | `order` | `str` | `"desc"` | Sort direction (`asc`, `desc`) |
+
+**Note on Sorting:** Sorting by `avg_guess_count` uses a multi-factor logic:
+- `order=desc` (Hardest): Sorted by `difficulty_rating` DESC, then `avg_guess_count` DESC, then `success_rate` ASC.
+- `order=asc` (Easiest): Sorted by `difficulty_rating` ASC, then `avg_guess_count` ASC, then `success_rate` DESC.
 
 **Example Request:**
 ```http
@@ -72,18 +74,48 @@ Retrieve aggregated statistics for difficulty visualizations. Optimized for plot
         "difficulty": 3,
         "avg_guesses": 3.78,
         "frequency": 0.8
-      },
-      {
-        "date": "2022-01-02",
-        "difficulty": 6,
-        "avg_guesses": 4.5,
-        "frequency": 0.2
       }
     ]
   },
   "meta": {
     "count": "320"
   }
+}
+```
+
+---
+
+### `GET /words/{word}/details`
+Retrieve comprehensive details for a specific word, including sentiment, trap analysis, and outlier status. Used by the Word Explorer.
+
+**Parameters:**
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `word` | `str` | The 5-letter word to retrieve |
+
+**Expected Response (`200 OK`):**
+```json
+{
+  "status": "success",
+  "data": {
+    "details": {
+      "word": "SWILL",
+      "date": "2022-02-19",
+      "difficulty_rating": 9,
+      "difficulty_label": "Expert",
+      "success_rate": 0.82,
+      "avg_guess_count": 4.9,
+      "tweet_volume": 5200,
+      "sentiment_score": -0.15,
+      "frustration_index": 0.45,
+      "trap_score": 12.5,
+      "neighbor_count": 5,
+      "deadly_neighbors": ["STILL", "SKILL", "SPILL", "SWILL", "SWELL"],
+      "is_outlier": true,
+      "outlier_z_score": 2.45
+    }
+  },
+  "meta": {}
 }
 ```
 
@@ -155,6 +187,22 @@ Retrieve correlation data between tweet sentiment and puzzle performance. Includ
 {
   "status": "success",
   "data": {
+    "aggregates": {
+      "distribution": [
+        {"name": "Very Neg", "value": 500},
+        {"name": "Negative", "value": 2000},
+        {"name": "Neutral", "value": 8500},
+        {"name": "Positive", "value": 15000},
+        {"name": "Very Pos", "value": 4000}
+      ],
+      "avg_frustration": 12.5,
+      "frustration_by_difficulty": {
+        "Easy": 5.2,
+        "Medium": 12.4,
+        "Hard": 18.2,
+        "Expert": 25.1
+      }
+    },
     "timeline": [
       {
         "date": "2022-01-01",
@@ -165,7 +213,8 @@ Retrieve correlation data between tweet sentiment and puzzle performance. Includ
         "pos_count": 200,
         "neu_count": 350,
         "neg_count": 80,
-        "very_neg_count": 20
+        "very_neg_count": 20,
+        "total_tweets": 700
       }
     ],
     "top_hated": [
@@ -176,7 +225,8 @@ Retrieve correlation data between tweet sentiment and puzzle performance. Includ
     ]
   },
   "meta": {
-    "count": "306"
+    "count": "90",
+    "note": "Timeline limited to last 90 days. Aggregates and Top Lists are all-time."
   }
 }
 ```
@@ -424,61 +474,52 @@ Retrieve trap analysis for a specific word, listing all its confusion neighbors.
 
 ---
 
-## 8. Dashboard Optimization Endpoints (Feature 2.0)
-
-### `GET /dashboard/init`
-Retrieve critical initial data for the dashboard in a single request (Hero stats, Main Distribution Chart, and Difficulty Timeline).
-Designed to reduce the "Time to Interactive" and number of initial HTTP requests.
-
-**Usage:**
-- Initial Page Load ("Above the Fold" content)
-
-**Parameters:**
-*None*
-
-**Expected Response (`200 OK`):**
-```json
-{
-  "status": "success",
-  "data": {
-    "overview": {
-      "total_games_tracked": 1500000,
-      "avg_daily_players": 4500.5,
-      "avg_sentiment": 0.45,
-      "viral_events_count": 12
-    },
-    "distribution": {
-      "guess_1": 150, "guess_2": 800, "guess_3": 2500,
-      "guess_4": 1200, "guess_5": 400, "guess_6": 100,
-      "failed": 50, "total_games": 5200
-    },
-    "difficulty": [
-       { "date": "2022-01-01", "difficulty": 3, "avg_guesses": 3.78, "frequency": 0.8 }
-    ]
-  }
-}
-```
+## 8. Dashboard Optimization Endpoints
+Currently optimized via selective lazy loading and the `at-a-glance` endpoint.
 
 ---
 
 ## 9. Analytics Overview Endpoints
 
-### `GET /analytics/overview`
-Retrieve high-level dashboard metrics for the Hero section.
-
-**Usage:**
-- Dashboard Headers/Hero
-- KPI Cards
+### `GET /dashboard/at-a-glance`
+Retrieve 6 key metrics for the landing page hero section. Uses the `global_stats` table for O(1) performance.
 
 **Expected Response (`200 OK`):**
 ```json
 {
   "status": "success",
   "data": {
-    "total_games_tracked": 1500000,
-    "avg_daily_players": 4500.5,
-    "avg_sentiment": 0.45,
-    "viral_events_count": 12
+    "hardest_word": {
+      "word": "MUMMY",
+      "date": "2022-05-04",
+      "avg_guesses": 4.99,
+      "success_rate": 80.2,
+      "difficulty": 10
+    },
+    "easiest_word": {
+      "word": "TRAIN",
+      "date": "2022-03-24",
+      "avg_guesses": 3.26,
+      "success_rate": 99.3,
+      "difficulty": 2
+    },
+    "most_viral": {
+      "word": "LIGHT",
+      "date": "2022-01-30",
+      "tweet_volume": 31988,
+      "percent_increase": 119
+    },
+    "avg_guesses": 4.06,
+    "success_rate": 96.5,
+    "nyt_effect": {
+      "delta": 0.14,
+      "direction": "increase"
+    },
+    "community_mood": {
+      "avg_sentiment": 0.05,
+      "positive_pct": 92.4,
+      "mood_label": "Mixed"
+    }
   }
 }
 ```

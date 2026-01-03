@@ -95,13 +95,14 @@ Then visit: `http://localhost:3000`
 **Backend:**
 - Python 3.11+ with FastAPI for high-performance API endpoints
 - PostgreSQL for structured data storage (SQLite for development)
-- NLTK for word frequency analysis and sentiment scoring
-- pytrends for Google Trends integration
+- NLTK for sentiment analysis and word frequency scoring
+- wordfreq library for corpus-based word rarity analysis
 
 **Data Sources:**
-- Kaggle Wordle Games Dataset (historical player performance)
+- Kaggle Wordle Games Dataset (player performance distributions)
+- Kaggle Wordle Tweets Dataset (tweet text for sentiment analysis)
 - NLTK Brown/Reuters corpus (English word frequency)
-- Google Trends API (search volume for difficulty signals)
+- wordfreq library (corpus-based word rarity scores)
 
 **Development:**
 - Docker Compose for containerized environment
@@ -111,85 +112,19 @@ Then visit: `http://localhost:3000`
 
 ---
 
-## Quick Start
+## Getting Started
 
-### Prerequisites
+**Ready to explore?** See the [Setup Guide](docs/01-setup/SETUP.md) for installation instructions.
 
-- Docker & Docker Compose
-- Git
+**Live Demo:** Coming soon - dashboard will be deployed at launch.
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/rafiag/wordle-decoded.git
-   cd wordle-decoded
-   ```
-
-2. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your Kaggle API token
-   ```
-   See [Environment Setup Guide](docs/01-setup/SETUP.md) for detailed configuration.
-
-3. **Start the application**
-   ```bash
-   docker compose up
-   ```
-
-4. **Run the data pipeline** (first time only)
-   ```bash
-   docker compose exec backend python scripts/run_etl.py
-   ```
-
-5. **Access the dashboard**
-   - Frontend: `http://localhost:3000`
-   - API docs: `http://localhost:8000/docs`
-
-### Development Commands
-
+For local development:
 ```bash
-# Stop the application
-docker compose down
-
-# Run backend tests
-docker compose exec backend pytest
-
-# Run frontend tests
-docker compose exec frontend npm test
-
-# Refresh data pipeline
-docker compose exec backend python scripts/run_etl.py
+docker compose up
 ```
+Then visit: `http://localhost:3000`
 
----
 
-## Project Structure
-
-```
-wordle-decoded/
-├── backend/              # FastAPI backend application
-│   ├── api/             # API endpoints and routes
-│   ├── db/              # Database schema and session management
-│   ├── etl/             # Data extraction, transformation, and processing
-│   └── tests/           # Backend unit and integration tests
-├── frontend/            # React frontend application
-│   ├── src/
-│   │   ├── components/  # Reusable UI components
-│   │   ├── pages/       # Dashboard page views (Difficulty, Sentiment, etc.)
-│   │   ├── services/    # API client and TanStack Query logic
-│   │   ├── hooks/       # Custom React hooks
-│   │   └── styles/      # Global CSS and styling
-│   └── public/          # Static assets
-├── data/                # SQLite database and raw/processed data
-├── docs/                # Comprehensive project documentation
-├── scripts/             # Root-level utility and ETL scripts
-├── tests/               # Global integration tests
-├── CLAUDE.md            # AI assistant project guide
-├── docker-compose.yml   # Container orchestration
-└── README.md           # This file
-```
 
 ---
 
@@ -207,16 +142,20 @@ wordle-decoded/
 ## Data Methodology
 
 ### Difficulty Scoring
-Words are rated using a composite difficulty score:
-- **Word Frequency:** Commonality in English language (NLTK Brown/Reuters corpus)
-- **Letter Pattern Complexity:** Vowel distribution, repeated letters, uncommon letter combinations
-- **Formula:** `difficulty_score = (1 - frequency_normalized) * pattern_complexity_factor`
+Words are rated using a multi-component difficulty score (1-10):
+- **Performance-based** (60% weight): `(avg_guesses - 3.5) × 4` - Higher average guesses indicate harder words
+- **Letter frequency** (20% weight): `(1.0 - freq_score) × 2` - Uncommon letters increase difficulty
+- **Word rarity** (20% weight): `word_rarity_score × 2` - Rare words in English corpus are harder
+- **Final rating**: Clamped to integers 1-10 with labels:
+  - **Easy** (1-3): Common words with familiar letter patterns
+  - **Medium** (4-6): Standard vocabulary
+  - **Hard** (7-8): Challenging words with uncommon patterns
+  - **Expert** (9-10): Rare words with unusual letter combinations
 
 ### Outlier Detection
 Days are flagged as outliers using Z-score analysis:
-- Tweet volume compared to rolling average
-- Google search interest spikes
-- Performance anomalies (unusually high failure rates)
+- Tweet volume spikes compared to rolling average
+- Performance anomalies (unusually high failure rates or average guesses)
 
 ### Pattern Analysis
 Emoji grid patterns are normalized and analyzed:
@@ -238,44 +177,6 @@ This is a portfolio project, but suggestions and feedback are welcome:
 
 ---
 
-## Roadmap
-
-### Current Status: Phase 1 Development
-
-**Phase 1 (MVP) - Completed:**
-- ✅ Project structure and documentation
-- ✅ Development environment setup (Docker Compose)
-- ✅ Database schema and hybrid PostgreSQL/SQLite data pipeline (Phase 1.1)
-- ✅ Dashboard application foundation with React 19 + Vite 7 (Phase 1.2)
-- ✅ Word difficulty analysis with interactive scoring (Feature 1.3)
-- ✅ Guess distribution visualizations and trends (Feature 1.4)
-- ✅ Pattern-based performance analysis (Feature 1.5)
-- ✅ NYT Effect analysis with statistical tests (Feature 1.6)
-- ✅ Outlier detection engine (Feature 1.7)
-- ✅ Trap pattern analysis (Feature 1.8)
-- ✅ Sentiment analysis engine & correlation charts (Feature 1.9)
-
-**Phase 2 (UX Polish) - Completed ✅:**
-- ✅ Single-page scrollable dashboard with scroll navigation
-- ✅ Plain language chart titles and descriptions
-- ✅ Bold Data Noir design system with SSOT pattern
-- ✅ Mobile responsiveness with adaptive layouts
-- ✅ Design system standardization (colors.ts)
-- ✅ Accessibility enhancements (ARIA labels, screen reader support, WCAG 2.1 AA)
-
-See [Feature Plan](docs/02-architecture/FEATURE-PLAN.md) for detailed roadmap.
-
----
-
-## Performance Goals
-
-- Dashboard initial load: **< 3 seconds**
-- API response time: **< 500ms**
-- Mobile responsive: **Yes** (phone/tablet/desktop)
-- Accessibility: **Color-blind friendly** (Wordle colors + patterns/icons), **WCAG 2.1 AA** (contrast ratios, ARIA labels)
-
----
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details
@@ -285,9 +186,10 @@ MIT License - see [LICENSE](LICENSE) file for details
 ## Acknowledgments
 
 **Data Sources:**
-- [Wordle Games Dataset on Kaggle](https://www.kaggle.com/) - Player performance data
+- [Wordle Games Dataset on Kaggle](https://www.kaggle.com/datasets/benhamner/wordle) - Player performance data
+- [Wordle Tweets Dataset on Kaggle](https://www.kaggle.com/) - Tweet text for sentiment analysis
 - NLTK Project - English word frequency corpus
-- Google Trends - Search interest data
+- wordfreq library - Corpus-based word rarity scores
 
 **Inspiration:**
 - Josh Wardle for creating Wordle

@@ -41,14 +41,15 @@ Sets up the web application you'll interact with - the layout, navigation, color
 - **Documentation:** [Dashboard & Visualization Architecture](DASHBOARD.md)
 
 **What You'll See:**
-A working website at localhost:3000 with a color-blind friendly blue/orange/gray palette (WCAG 2.1 AA compliant), smooth navigation between features, and a design that adapts perfectly whether you're on your phone, tablet, or desktop.
+A working website at localhost:3000 with a Bold Data Noir palette (WCAG 2.1 AA compliant), smooth navigation between sections, and a design that adapts perfectly whether you're on your phone, tablet, or desktop.
 - **Verified**: React 19 + TypeScript, Vite build system, Tailwind CSS styling, responsive breakpoints working on all devices.
 
 **Why It Matters:**
 This creates the foundation for all features. Once it's ready, you can actually see and interact with the dashboard instead of just having data sitting in a database.
 
 **Accessibility Note:**
-The dashboard uses Wordle's signature brand colors (green #6aaa64, yellow #c9b458, gray #787c7e) with accessibility patterns (icons, line styles, shapes) to ensure color-blind users can distinguish all elements. Phase 2 migrated from blue/orange to Wordle colors using a Single Source of Truth (SSOT) pattern for easy theme updates.
+The dashboard uses the "Bold Data Noir" high-contrast theme (cyan, lime, coral, orange, purple) with accessibility patterns (icons, line styles, shapes) to ensure color-blind users can distinguish all elements.
+
 
 ---
 
@@ -234,10 +235,10 @@ Phase 2 transforms the working MVP into a polished, single-page dashboard experi
 Phase 1 MVP is complete with all analytical features working.
 
 **Design Reference:**
-UI/UX mockup completed with approved design patterns in `mockup/index.html`. Mockup demonstrates:
+UI/UX mockup completed with implemented design patterns in `mockup-v2-bold.html`. Dashboard demonstrates:
 - Single-page scrollable layout with sticky navigation
 - Compact spacing (25-42% reduction in whitespace)
-- Wordle brand colors with accessibility patterns
+- Bold Data Noir theme with accessibility patterns
 - Mobile-responsive breakpoints
 - Statistical significance indicators
 - Plain language chart titles
@@ -260,13 +261,12 @@ UI/UX mockup completed with approved design patterns in `mockup/index.html`. Moc
 ### 2.1 Navigation & Architecture Redesign **(Status: COMPLETED ✅)**
 
 **What It Does:**
-Converts the dashboard to a multi-page structure (The Basics, Deep Dive, Interactive Tools) with a high-performance "At a Glance" landing page.
+Converts the dashboard to a single-page structure with smooth scroll navigation and a high-performance "At a Glance" hero section.
 
 **What You'll Experience:**
-- **Landing Page Hero**: 6 key metrics (Hardest Word, Avg Guesses, Easiest Word, NYT Effect, Most Viral, Community Mood) displayed in a 2x3 grid.
-- **Categorized Navigation**: 3 horizontal cards below the hero for quick access to functional areas.
-- **Improved Performance**: Focused pages reduce initial load time and data overhead.
-- **Sticky Header**: Horizontal navigation with dropdowns for quick access to all sections.
+- **Hero Section**: 6 key metrics (Hardest Word, Avg Guesses, Easiest Word, NYT Effect, Most Viral, Community Mood) displayed in a responsive grid.
+- **Scroll Navigation**: Vertical progress indicator on the right side for easy section jumping.
+- **Sticky Header**: Horizontal navigation for quick access to functional areas.
 
 **Why It Matters:**
 Focused navigation improves user focus and application performance. The "At a Glance" landing page provides immediate value and storytelling before diving into detailed visual analytics.
@@ -296,13 +296,13 @@ Target audience is general Wordle enthusiasts, not data scientists. Users need t
 
 ---
 
-### 2.3 Wordle Brand Color Migration & Compact Spacing (SSOT)
+### 2.3 Bold Data Noir Design System & Compact Spacing (SSOT)
 
 **What It Does:**
-Reverts from blue/orange to Wordle's signature green/yellow/gray colors using Single Source of Truth pattern, and implements compact spacing system to reduce whitespace throughout the dashboard.
+Implements a premium "Bold Data Noir" theme (Cyan/Lime/Coral/Purple/Orange) using Single Source of Truth pattern, and implements compact spacing system to reduce whitespace throughout the dashboard.
 
 **What You'll Experience:**
-- Instantly recognizable Wordle aesthetic (green #6aaa64, yellow #c9b458, gray #787c7e)
+- Instantly recognizable premium dark aesthetic (deep blues/blacks with neon accents)
 - Accessibility patterns (icons, line styles, shapes) for color-blind users
 - Consistent color usage across all components
 - Compact, efficient use of screen space (25-42% reduction in spacing values)
@@ -310,7 +310,7 @@ Reverts from blue/orange to Wordle's signature green/yellow/gray colors using Si
 - Tighter visual hierarchy with reduced gaps between elements
 
 **Design Reference:**
-See `mockup/styles.css` for approved spacing system:
+See `docs/04-design/design-system.md` for approved system:
 - `--spacing-xs`: 0.375rem (was 0.5rem, 25% reduction)
 - `--spacing-sm`: 0.75rem (was 1rem, 25% reduction)
 - `--spacing-md`: 1rem (was 1.5rem, 33% reduction)
@@ -458,7 +458,7 @@ Speed is a feature. Faster interactions mean users explore more, discover more i
 You'll have everything from Phase 1, plus:
 - Single-page scrollable dashboard with sticky navigation and scroll progress bar
 - Plain language chart titles that non-technical users can understand
-- Wordle brand color identity with accessibility patterns
+- Bold Data Noir identity with accessibility patterns
 - Compact spacing design (25-42% reduction in whitespace)
 - Mobile-optimized responsive design with hamburger menu
 - Statistical significance indicators on NYT Effect comparison

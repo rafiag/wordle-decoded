@@ -29,6 +29,8 @@ Matches Wordle puzzle IDs to answers and performance metrics.
 | `id` | Integer | **Primary Key**. Maps to Wordle Game Number. |
 | `word` | String | The 5-letter target answer. |
 | `date` | String | ISO-8601 Date (`YYYY-MM-DD`). |
+| `frequency_score` | Float | Letter frequency score (NLTK/Corpus). |
+| `difficulty_rating` | Integer | Computed rating (1-10). |
 | `avg_guess_count` | Float | Calculated mean of successful guesses. |
 | `success_rate` | Float | Proportion of wins vs. failures. |
 

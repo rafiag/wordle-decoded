@@ -1,5 +1,9 @@
 # Code Review #4: Phase 2 Dashboard Redesign Implementation
 
+> [!NOTE]
+> **Status Update (Jan 2026):** The color palette implementation in this review (Wordle brand colors) was subsequently **superseded** by the **Bold Data Noir** theme (Cyan/Lime/Coral/Purple). Please refer to `docs/04-design/design-system.md` for the current active design system.
+
+
 **Date:** 2025-12-29
 **Reviewer:** Senior Code Reviewer (Claude)
 **Commit:** `c2bd51e` - feat: implement Phase 2 backend support and API optimization

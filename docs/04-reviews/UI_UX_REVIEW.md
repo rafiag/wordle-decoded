@@ -1,4 +1,8 @@
 # UI/UX Comprehensive Review: Wordle Data Explorer
+
+> [!NOTE]
+> **Status Update (Jan 2026):** The color palette decision in this review (returning to Wordle brand colors) was subsequently **superseded** by the **Bold Data Noir** theme (Cyan/Lime/Coral/Purple). Please refer to `docs/04-design/design-system.md` for the current active design system.
+
 **Date:** 2025-12-29
 **Status:** Implementation Decisions Made
 **Reviewers:** UI/UX Designer Agent, Frontend Developer Agent, User Feedback

@@ -162,7 +162,6 @@ Bring decisions to me only when they directly affect what I will see or experien
 
 #### Security & Validation
 - Validate all user inputs (pattern formats, date ranges, API parameters)
-- Implement rate limiting for external API calls (Google Trends)
 - Sanitize data before storage or display
 - Follow security best practices for web applications (input validation, CORS, environment variables for secrets)
 
@@ -258,28 +257,29 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 
 #### Data Architecture
 
-**Kaggle - Wordle Games Dataset:**
-- Historical tweet distributions and color patterns (emoji blocks)
-- Daily target words and guess distributions (1/6, 2/6, etc.)
-- Static dataset updated manually
+**Kaggle - Wordle Datasets:**
+- **Wordle Games Dataset**: Historical player performance distributions (1/6, 2/6, etc.) and daily target words
+- **Wordle Tweets Dataset**: Tweet text for sentiment analysis and pattern extraction (emoji blocks)
+- Static datasets updated manually
 
-**NLTK Word Frequency:**
-- English word commonality scores from Brown/Reuters corpus
+**NLTK + wordfreq:**
+- NLTK Brown/Reuters corpus for English word frequency scores
+- wordfreq library for corpus-based word rarity analysis across multiple sources
 - Used to calculate difficulty ratings for 5-letter words
 - Static reference data
 
-**Google Trends:**
-- Daily search volume for "Wordle hint", "Wordle answer" queries
-- Measures public struggle/interest signals
-- Fetched via pytrends with rate limiting and caching
 
 **Data Methodology:**
 - Normalize emoji patterns to standardized format (handle variants)
-- Calculate word difficulty: frequency_score + letter_pattern_complexity
-- Sentiment Analysis: VADER-based compound scores for tweet text
+- Calculate word difficulty using multi-component formula:
+  - **Performance** (60%): `(avg_guesses - 3.5) × 4`
+  - **Letter frequency** (20%): `(1.0 - freq_score) × 2`
+  - **Word rarity** (20%): `word_rarity_score × 2` (from wordfreq library)
+  - Final rating: Integer 1-10 (Easy: 1-3, Medium: 4-6, Hard: 7-8, Expert: 9-10)
+- Sentiment Analysis: VADER-based compound scores for tweet text (NLTK)
 - Frustration Index: Percentage of tweets below sentiment threshold
 - Detect outliers using Z-score based analysis of tweet volume vs expected
-- Pre-compute aggregations for fast dashboard loading
+- Pre-compute aggregations in GlobalStats table for O(1) dashboard performance
 
 **MVP Data Scope:**
 - Date range: Match Kaggle dataset availability (check freshness)
@@ -300,7 +300,6 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 - Professional portfolio-ready user experience
 
 #### Key Technical Challenges to Handle Silently
-- **Google Trends Rate Limiting:** Implement aggressive caching, batch requests, exponential backoff
 - **Pattern Normalization:** Handle multiple emoji variants (⬛⬜, 🟨🟡, 🟩🟢) correctly
 - **Performance with Large Dataset:** Pre-compute aggregations, use database indexes, paginate API results
 

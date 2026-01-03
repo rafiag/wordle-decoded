@@ -38,14 +38,17 @@ This document covers the technical implementation of the Wordle Data Explorer fr
 The dashboard is designed to be **WCAG 2.1 AA compliant** and color-blind friendly.
 
 ### Color Tokens (SSOT)
-All colors are centralized in `frontend/src/theme/colors.ts`.
-- **Correct Position**: Blue (#0284c7) - *replaces Wordle Green for accessibility*
-- **Wrong Position**: Orange (#d97706) - *replaces Wordle Yellow*
-- **Neutral/Miss**: Gray (#6b7280)
+All colors are centralized in `frontend/src/theme/colors.ts` and follow the **Bold Data Noir** theme:
+- **Correct Position**: Lime/Cyan/Purple - *High contrast accents*
+- **Wrong Position**: Orange/Coral - *Distinct warm tones*
+- **Neutral/Miss**: Muted Gray - *Low visual noise*
+
+The palette uses high-contrast neon accents against dark backgrounds to ensure WCAG 2.1 AA compliance and clear differentiation for color-blind users without requiring a separate mode.
 
 ### Layout Patterns
-- **Multi-Page Dashboard**: The dashboard is split into focused pages (The Basics, Deep Dive, Interactive Tools) to improve performance and scannability.
-- **Landing Page Hero**: Features a primary headline, 6 key "At a Glance" metrics (2x3 grid on desktop), and quick navigation categories.
+### Layout Patterns
+- **Single-Page Dashboard**: The dashboard is a seamless scrolling experience with sticky navigation and specialized sections.
+- **Hero Section**: Features a primary headline, 6 key "At a Glance" metrics (responsive grid), and leads directly into the visual story.
 - **Metric Cards**: Provide quick summaries of aggregate data.
 - **Chart Containers**: Standardize loading/error states for all visualizations.
 - **Responsive Grid**: 1 column (Mobile) -> 2 columns (Tablet) -> 3+ columns (Desktop).

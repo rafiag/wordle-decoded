@@ -14,16 +14,16 @@ This document provides a comprehensive description of the database schema used b
 | `word` | String | The target word for the game | Solutions Map / Game Data |
 | `date` | String (unique) | Date of the game (YYYY‑MM‑DD) | Derived from Game ID or Solutions Map |
 | `frequency_score` | Float | Letter frequency score based on English corpus | **Derived**: Weighted sum of letter frequencies normalized by word length. Uses letter weights (e='1.00', a='0.85', ..., q='0.01') |
-| `difficulty_rating` | Integer | Computed difficulty (1‑10) | **Derived**: Multi-component formula:<br>• Performance (60%): `(avg_guesses - 3.5) × 4`<br>• Letter frequency (20%): `(1.0 - freq_score) × 2`<br>• Word rarity (20%): `word_rarity_score × 2`<br>• Base offset: `+3`, clamped to [1, 10] |
+| `difficulty_rating` | Integer | Computed difficulty (1‑10) | **Derived**: Multi-component formula (rounded to integer):<br>• Performance (60%): `(avg_guesses - 3.5) × 4`<br>• Letter frequency (20%): `(1.0 - freq_score) × 2`<br>• Word rarity (20%): `word_rarity_score × 2`<br>• Base offset: `+3`, clamped to [1, 10] |
 | `avg_guess_count` | Float | Average number of guesses taken | **Derived**: Weighted average from distribution data |
 | `success_rate` | Float | Proportion of games solved | **Derived**: `Successful Games / Total Trials` |
 | `created_at` | DateTime | Record creation timestamp | Database Default (`now`) |
 
-**Difficulty Rating Labels:**
-- **Easy** (1.0 - 4.0): Common words with straightforward letter patterns (~33% of words)
-- **Medium** (4.1 - 6.0): Moderate difficulty, standard vocabulary (~33% of words)
-- **Hard** (6.1 - 8.0): Challenging words with less common patterns (~25% of words)
-- **Expert** (8.1 - 10.0): Rare words with unusual letter combinations (~9% of words)
+**Difficulty Rating Labels (Integer 1-10):**
+- **Easy** (1 - 3): Common words with straightforward letter patterns (~33% of words)
+- **Medium** (4 - 6): Moderate difficulty, standard vocabulary (~33% of words)
+- **Hard** (7 - 8): Challenging words with less common patterns (~25% of words)
+- **Expert** (9 - 10): Rare words with unusual letter combinations (~9% of words)
 
 
 ### `distributions`
@@ -93,19 +93,29 @@ This document provides a comprehensive description of the database schema used b
 | Column | Type | Description | Source / Definition |
 |--------|------|-------------|--------------------|
 | `id` | Integer (PK) | | Internal ID |
-| `date` | String (index) | | Linked Date |
+| `date` | String (index) | | Date of calculation (YYYY-MM-DD) |
 | **Overview Metrics** | | | |
-| `total_games` | Integer | Global daily total | Sum of games across dates |
-| `avg_guesses` | Float | Global daily mean | Weighted mean of guesses |
+| `total_games` | Integer | Global total puzzles | Count of puzzles in database |
+| `avg_guesses` | Float | Global mean guesses | Weighted mean of all guesses |
 | `success_rate` | Float | Global solve rate | Aggregated win percentage |
 | **Key Highlights** | | | |
-| `hardest_word` … | (Multiple) | Highlight metrics | Selected extremes (min/max) for the day |
+| `hardest_word` | String | Word with highest difficulty | |
+| `hardest_word_date` | String | Date of hardest word | |
+| `hardest_word_avg_guesses` | Float | Avg guesses for hardest word | |
+| `hardest_word_success_rate` | Float | Success rate for hardest word | |
+| `easiest_word` | String | Word with lowest difficulty | |
+| `easiest_word_date` | String | Date of easiest word | |
+| `easiest_word_avg_guesses` | Float | Avg guesses for easiest word | |
+| `easiest_word_success_rate` | Float | Success rate for easiest word | |
+| `most_viral_word` | String | Word with highest tweet volume | |
+| `most_viral_date` | String | Date of most viral word | |
+| `most_viral_tweets` | Integer | Volume of most viral word | |
 | **Community & Trends** | | | |
-| `community_sentiment` | Float | Global mood | **Derived**: Mean sentiment for the day |
-| `mood_label` | String | Textual mood tag | **Derived**: Label from `positive_pct` |
-| `positive_pct` | Float | Proportion of positive days | **Derived**: `% of days with sentiment > 0` |
-| `nyt_effect_delta` | Float | Acquisition impact | **Derived**: `Avg Post-NYT - Avg Pre-NYT` |
-| `nyt_effect_direction` | String | Impact direction | `Increase` or `Decrease` |
+| `community_sentiment` | Float | Overall avg sentiment | |
+| `mood_label` | String | Textual mood tag | Derived from `positive_pct` |
+| `positive_pct` | Float | % of days with positive sentiment | |
+| `nyt_effect_delta` | Float | Avg guess count delta | `Post-NYT - Pre-NYT` |
+| `nyt_effect_direction` | String | Increase/Decrease | |
 | `created_at` | DateTime | | Database Default |
 
 ---

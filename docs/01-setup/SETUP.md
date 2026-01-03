@@ -2,27 +2,71 @@
 
 This guide covers getting your development environment ready, configuring environment variables, and troubleshooting common setup issues.
 
-## 🚀 Quick Start (3 Steps)
+---
 
-### 1. Initialize Environment File
-```bash
-cp .env.example .env
-```
+## 🚀 Quick Start
 
-### 2. Configure Kaggle API Token
-The Kaggle API token is **required** to download the Wordle datasets.
-1. Go to [Kaggle Settings](https://www.kaggle.com/settings/account).
-2. Click **"Create New Token"** in the API section.
-3. Open the downloaded `kaggle.json` and copy the token to your `.env`:
+### Prerequisites
+
+- Docker & Docker Compose
+- Git
+- Kaggle account (for dataset access)
+
+### Installation
+
+1. **Clone the repository**
    ```bash
-   KAGGLE_API_TOKEN=your_actual_token_here
+   git clone https://github.com/rafiag/wordle-decoded.git
+   cd wordle-decoded
    ```
 
-### 3. Launch Services
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your Kaggle API token
+   ```
+   
+   **Configure Kaggle API Token** (Required):
+   - Go to [Kaggle Settings](https://www.kaggle.com/settings/account)
+   - Click **"Create New Token"** in the API section
+   - Open the downloaded `kaggle.json` and copy the token to your `.env`:
+     ```bash
+     KAGGLE_API_TOKEN=your_actual_token_here
+     ```
+
+3. **Start the application**
+   ```bash
+   docker compose up
+   ```
+
+4. **Run the data pipeline** (first time only)
+   ```bash
+   docker compose exec backend python scripts/run_etl.py
+   ```
+
+5. **Access the dashboard**
+   - Frontend: `http://localhost:3000`
+   - API docs: `http://localhost:8000/docs`
+
+---
+
+## 🔧 Development Commands
+
 ```bash
-docker compose up
+# Stop the application
+docker compose down
+
+# Run backend tests
+docker compose exec backend pytest
+
+# Run frontend tests
+docker compose exec frontend npm test
+
+# Refresh data pipeline
+docker compose exec backend python scripts/run_etl.py
 ```
-The dashboard will be available at [http://localhost:3000](http://localhost:3000).
+
+---
 
 ---
 
