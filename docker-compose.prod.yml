@@ -1,0 +1,17 @@
+# Production override for docker-compose
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: wordle-frontend
+    ports:
+      - "3001:80"
+    volumes: []  # Remove development volumes
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend

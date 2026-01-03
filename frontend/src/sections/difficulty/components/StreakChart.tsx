@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { THEME_COLORS } from '../../../theme/colors';
 import InsightCard from '../../../components/shared/InsightCard';
@@ -11,7 +12,7 @@ interface StreakChartProps {
 }
 
 // Extract tooltip to prevent re-creation on each render
-function StreakTooltip({ active, payload, label }: TooltipProps<StreakChartDataItem>) {
+const StreakTooltip = memo(function StreakTooltip({ active, payload, label }: TooltipProps<StreakChartDataItem>) {
     if (!active || !payload || !payload.length || !payload[0].payload) return null;
 
     const data = payload[0].payload;
@@ -32,9 +33,9 @@ function StreakTooltip({ active, payload, label }: TooltipProps<StreakChartDataI
             </div>
         </div>
     );
-}
+});
 
-export function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartProps) {
+export const StreakChart = memo(function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartProps) {
     return (
         <div className="card mb-8 flex flex-col !h-[280px] md:!h-[350px] lg:!h-[400px] relative">
             <div className="flex justify-between items-start mb-4">
@@ -100,4 +101,4 @@ export function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartP
             </InsightCard>
         </div>
     );
-}
+});

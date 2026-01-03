@@ -1,1 +1,1 @@
-{"root":["./src/components/__tests__/ChartTooltip.test.tsx","./src/components/shared/__tests__/FilterToggle.test.tsx","./src/components/shared/__tests__/InsightCard.test.tsx","./src/test/setup.ts"],"version":"5.9.3"}
+{"root":["./src/components/__tests__/charttooltip.test.tsx","./src/components/shared/__tests__/filtertoggle.test.tsx","./src/components/shared/__tests__/insightcard.test.tsx","./src/test/setup.ts"],"errors":true,"version":"5.9.3"}

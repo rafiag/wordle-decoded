@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { GitMerge } from 'lucide-react';
 import { statsApi } from '../../services/api';
-import { TrapLeaderboard } from './components/TrapLeaderboard';
 import { TrapDetailCard } from './components/TrapDetailCard';
 import { TooltipTerm } from '../../components/shared/Tooltip';
+
+// Lazy load TrapLeaderboard (contains Recharts)
+const TrapLeaderboard = lazy(() => import('./components/TrapLeaderboard').then(m => ({ default: m.TrapLeaderboard })));
 
 export default function BoldTrapsSection() {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
@@ -60,11 +62,13 @@ export default function BoldTrapsSection() {
                 </div>
 
                 <div className="trap-section-grid">
-                    <TrapLeaderboard
-                        traps={topTraps || []}
-                        selectedWord={selectedWord}
-                        onSelectWord={setSelectedWord}
-                    />
+                    <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                        <TrapLeaderboard
+                            traps={topTraps || []}
+                            selectedWord={selectedWord}
+                            onSelectWord={setSelectedWord}
+                        />
+                    </Suspense>
 
                     {selectedTrapData ? (
                         <TrapDetailCard trap={selectedTrapData} />

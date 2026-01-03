@@ -1,4 +1,5 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { memo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { THEME_COLORS } from '../../../theme/colors';
 import { GuessDistributionTooltip } from '../../../components/charts/ChartTooltip';
 import { FilterToggle } from '../../../components/shared/FilterToggle';
@@ -14,7 +15,7 @@ interface DailyDistributionChartProps {
     onFilterChange: (filter: 'Overall' | DifficultyLabel) => void;
 }
 
-export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: DailyDistributionChartProps) {
+export const DailyDistributionChart = memo(function DailyDistributionChart({ data, dailyFilter, onFilterChange }: DailyDistributionChartProps) {
     return (
         <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col col-span-2 relative">
             <div className="flex justify-between items-center mb-4">
@@ -74,4 +75,4 @@ export function DailyDistributionChart({ data, dailyFilter, onFilterChange }: Da
             </InsightCard>
         </div>
     );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, LegendPayload } from 'recharts';
 import { SENTIMENT_COLORS_ARRAY } from '../../../theme/colors';
 import { SentimentDistributionItem } from '../hooks/useSentimentDistribution';
@@ -5,7 +6,7 @@ import { TooltipProps } from '../../../types';
 
 const PIE_COLORS = SENTIMENT_COLORS_ARRAY;
 
-const PieTooltip = ({ active, payload }: TooltipProps<SentimentDistributionItem>) => {
+const PieTooltip = memo(function PieTooltip({ active, payload }: TooltipProps<SentimentDistributionItem>) {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         const percentage = data.total ? ((data.value / data.total) * 100).toFixed(2) : '0.00';
@@ -25,13 +26,13 @@ const PieTooltip = ({ active, payload }: TooltipProps<SentimentDistributionItem>
         );
     }
     return null;
-};
+});
 
 interface SentimentPieChartProps {
     data: SentimentDistributionItem[];
 }
 
-export function SentimentPieChart({ data }: SentimentPieChartProps) {
+export const SentimentPieChart = memo(function SentimentPieChart({ data }: SentimentPieChartProps) {
     return (
         <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col relative">
             <h3 className="text-lg font-bold mb-4">Sentiment Distribution</h3>
@@ -101,4 +102,4 @@ export function SentimentPieChart({ data }: SentimentPieChartProps) {
             </div>
         </div>
     );
-}
+});

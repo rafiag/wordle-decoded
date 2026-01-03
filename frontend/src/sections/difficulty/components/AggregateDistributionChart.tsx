@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 import { THEME_COLORS } from '../../../theme/colors';
 import { GuessDistributionTooltip } from '../../../components/charts/ChartTooltip';
@@ -10,7 +11,7 @@ interface AggregateDistributionChartProps {
     data: AggregateChartData[];
 }
 
-export function AggregateDistributionChart({ data }: AggregateDistributionChartProps) {
+export const AggregateDistributionChart = memo(function AggregateDistributionChart({ data }: AggregateDistributionChartProps) {
     const percentageFormatter = (val: number) => `${(val * 100).toFixed(0)}%`;
 
     return (
@@ -58,4 +59,4 @@ export function AggregateDistributionChart({ data }: AggregateDistributionChartP
             </div>
         </div>
     );
-}
+});

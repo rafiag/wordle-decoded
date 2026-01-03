@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statsApi } from '../../services/api';
 import { SentimentResponse } from '../../types';
 import { useSentimentDistribution } from './hooks/useSentimentDistribution';
 import { useSentimentTopWords } from './hooks/useSentimentTopWords';
-import { SentimentPieChart } from './components/SentimentPieChart';
-import { SentimentTimelineChart } from './components/SentimentTimelineChart';
 import { FrustrationMeter } from './components/FrustrationMeter';
 import { SentimentTable } from './components/SentimentTable';
 import { TooltipTerm } from '../../components/shared/Tooltip';
+
+// Lazy load chart components
+const SentimentPieChart = lazy(() => import('./components/SentimentPieChart').then(m => ({ default: m.SentimentPieChart })));
+const SentimentTimelineChart = lazy(() => import('./components/SentimentTimelineChart').then(m => ({ default: m.SentimentTimelineChart })));
 
 export default function BoldSentimentSection() {
     const { data: sentimentData, isLoading } = useQuery<SentimentResponse>({
@@ -39,8 +41,12 @@ export default function BoldSentimentSection() {
             </div>
 
             <div className="grid-2-col mb-8">
-                <SentimentPieChart data={sentimentDistribution} />
-                <SentimentTimelineChart data={sentimentData?.timeline || []} />
+                <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                    <SentimentPieChart data={sentimentDistribution} />
+                </Suspense>
+                <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                    <SentimentTimelineChart data={sentimentData?.timeline || []} />
+                </Suspense>
             </div>
 
             <div className="grid-2-col">

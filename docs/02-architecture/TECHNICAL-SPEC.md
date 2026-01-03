@@ -25,12 +25,11 @@
 - **Deployment:** TBD (Vercel, Netlify, Railway, or similar)
 
 ### Design System
-- **Color Palette:** Wordle brand colors (green #6aaa64, yellow #c9b458, gray #787c7e) with SSOT implementation
-  - **Phase 2 Migration:** Reverting from blue/orange to Wordle colors with accessibility patterns
+- **Color Palette:** Bold Data Noir (cyan #00d9ff, lime #00ff88, coral #ff6b9d) with SSOT implementation
   - **SSOT Pattern:** All colors centralized in `frontend/src/theme/colors.ts` for easy updates
 - **Responsive Breakpoints:** Mobile (<768px), Tablet (768-1024px), Desktop (>1024px)
-- **Accessibility:** WCAG 2.1 AA compliance, color-blind friendly via patterns + colors
-- **Navigation:** Multi-page dashboard with a high-performance "At a Glance" landing page and focused detail pages (The Basics, Deep Dive, Interactive Tools).
+- **Accessibility:** WCAG 2.1 AA compliance, color-blind friendly via high contrast + patterns
+- **Navigation:** Single-page scrollable dashboard with "At a Glance" hero section and smooth scroll navigation between sections.
 - **Keyboard Navigation:** Browser defaults for links/buttons (advanced chart navigation not in scope)
 
 ---
@@ -132,7 +131,7 @@ The web application foundation for Wordle Data Explorer. This phase delivers a r
 
 #### Key Achievements
 - **React 19 + TypeScript**: Modern frontend with full type safety
-- **Color-Blind Accessible**: Wordle brand colors with accessibility patterns (icons, line styles, shapes) to ensure WCAG 2.1 AA compliance (4.5:1+ contrast ratios).
+- **Color-Blind Accessible**: Bold Data Noir theme high-contrast colors with accessibility patterns (icons, line styles, shapes) to ensure WCAG 2.1 AA compliance (4.5:1+ contrast ratios).
 - **API Versioning**: Professional `/api/v1` prefix with standardized responses
 - **CORS Enabled**: Frontend-backend communication configured
 - **Responsive Design**: Mobile, tablet, and desktop breakpoints
@@ -266,31 +265,24 @@ volumes:
 **Color Palette (SSOT Implementation):**
 ```typescript
 // frontend/src/theme/colors.ts - Single Source of Truth
-export const wordleColors = {
-  // Wordle brand colors
-  green: '#6aaa64',
-  yellow: '#c9b458',
-  gray: '#787c7e',
-
-  // Chart colors
-  primary: '#6aaa64',      // Green for primary data
-  secondary: '#c9b458',    // Yellow for secondary data
-  neutral: '#787c7e',      // Gray for neutral/disabled
-
-  // Semantic colors
-  success: '#6aaa64',
-  warning: '#c9b458',
-  error: '#dc2626',
-  info: '#0284c7',
+export const THEME_COLORS = {
+  // Base accent colors
+  accent: {
+    cyan: 'var(--accent-cyan)',     // #00d9ff
+    lime: 'var(--accent-lime)',     // #00ff88
+    coral: 'var(--accent-coral)',   // #ff6b9d
+    orange: 'var(--accent-orange)', // #ffa500
+    purple: 'var(--accent-purple)', // #a855f7
+  },
+  // ... (see actual file for full list)
 } as const;
 
 // Tailwind config imports from this file
 // All components import from @/theme/colors
 ```
 
-**Phase 2 Migration Notes:**
-- Previously used blue (#0284c7) and orange (#d97706) for color-blind accessibility
-- Reverting to Wordle brand colors with accessibility patterns (icons, line styles)
+**Design System Notes:**
+- Uses "Bold Data Noir" theme (Dark mode with vibrant neon accents)
 - SSOT pattern enables easy future theme changes
 
 **Responsive Breakpoints:**

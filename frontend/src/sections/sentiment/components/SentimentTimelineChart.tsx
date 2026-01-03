@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LegendPayload } from 'recharts';
 import { THEME_COLORS } from '../../../theme/colors';
 import { SentimentTooltip } from '../../../components/charts/ChartTooltip';
@@ -10,7 +11,7 @@ interface SentimentTimelineChartProps {
     data: SentimentTimelinePoint[];
 }
 
-export function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
+export const SentimentTimelineChart = memo(function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
     return (
         <div className="card flex flex-col relative !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px]">
             <div className="flex justify-between items-start mb-4">
@@ -66,4 +67,4 @@ export function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
             </InsightCard>
         </div>
     );
-}
+});

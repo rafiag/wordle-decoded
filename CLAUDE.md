@@ -246,15 +246,15 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 7. Drills down on specific days, words, or patterns for detailed analysis
 
 #### Visual Design Requirements
-- **Theme:** Playful and colorful, inspired by Wordle's aesthetic
-- **Colors:** Wordle brand colors (Green #6aaa64, Yellow #c9b458, Gray #787c7e) with SSOT implementation
-  - **Phase 2 Migration:** Reverting from blue/orange to Wordle green/yellow with accessibility patterns (icons, line styles)
+#### Visual Design Requirements
+- **Theme:** Bold Data Noir (premium dark mode with glow effects)
+- **Colors:** Cyan (#00d9ff), Lime (#00ff88), Coral (#ff6b9d), Orange (#ffa500), Purple (#a855f7)
   - **SSOT Pattern:** All colors defined in `frontend/src/theme/colors.ts` for easy updates
-- **Style:** Modern, clean, data-focused but approachable and fun
+- **Style:** Modern, clean, data-focused premium aesthetic
 - **Design System:** Documentation available at `docs/04-design/design-system.md`
-- **Information Architecture:** Single-page scrollable dashboard (Phase 2 migration from multi-page tabs)
+- **Information Architecture:** Single-page scrollable dashboard with sticky navigation and progress indicators
 - **Interactivity:** Click to filter/drill down, hover/tap for tooltips (keyboard navigation for charts not in scope)
-- **Accessibility:** Color-blind friendly via patterns + colors, WCAG 2.1 AA contrast ratios, ARIA labels
+- **Accessibility:** Color-blind friendly via distinct high-contrast colors + patterns/icons, WCAG 2.1 AA contrast ratios, ARIA labels
 
 #### Data Architecture
 
@@ -295,7 +295,7 @@ An interactive dashboard for exploring Wordle puzzle data, combining real player
 **Phase 2 (UX Polish) Goals:**
 - General users can immediately understand visualizations and find insights within 1 minute (plain language content)
 - Single-page scrollable dashboard for seamless exploration
-- Wordle brand colors with accessibility patterns for color-blind users
+- Bold Data Noir theme with accessibility patterns for color-blind users
 - Responsive design works smoothly on mobile, tablet, and desktop
 - Professional portfolio-ready user experience
 
