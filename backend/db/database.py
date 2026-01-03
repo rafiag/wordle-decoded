@@ -12,7 +12,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     # Fallback to SQLite for local development
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    DB_PATH = os.path.join(BASE_DIR, "data", "wordle.db")
+    DATA_DIR = os.path.join(BASE_DIR, "data")
+    
+    # Ensure data directory exists
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR, exist_ok=True)
+        
+    DB_PATH = os.path.join(DATA_DIR, "wordle.db")
     SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
     connect_args = {"check_same_thread": False}
 else:

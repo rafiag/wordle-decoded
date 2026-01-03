@@ -125,7 +125,8 @@
 
 @media (max-width: 768px) {
     .theme-bold .card:hover {
-        transform: none; /* Disable hover lift on touch devices */
+        transform: none;
+        /* Disable hover lift on touch devices */
     }
 }
 
@@ -1617,6 +1618,7 @@
 
 /* Visibility Helpers */
 @media (max-width: 768px) {
+
     .theme-bold .desktop-only,
     .theme-bold .tablet-only {
         display: none !important;
@@ -1624,6 +1626,7 @@
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
+
     .theme-bold .mobile-only,
     .theme-bold .desktop-only {
         display: none !important;
@@ -1631,6 +1634,7 @@
 }
 
 @media (min-width: 1025px) {
+
     .theme-bold .mobile-only,
     .theme-bold .tablet-only {
         display: none !important;
@@ -1735,6 +1739,7 @@
 }
 
 @media (max-width: 480px) {
+
     .theme-bold table th,
     .theme-bold table td {
         padding: 0.375rem !important;
