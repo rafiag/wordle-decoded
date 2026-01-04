@@ -30,7 +30,11 @@ const getApiBaseUrl = () => {
 }
 
 const API_BASE_URL = getApiBaseUrl()
-console.log('DEBUG: Using API_BASE_URL:', API_BASE_URL)
+
+// Only log API URL in development mode
+if (import.meta.env.DEV) {
+  console.log('Using API_BASE_URL:', API_BASE_URL)
+}
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
