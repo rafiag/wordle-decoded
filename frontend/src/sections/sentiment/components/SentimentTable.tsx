@@ -60,7 +60,7 @@ export function SentimentTable({ words, rankingMode, onRankingModeChange }: Sent
 
     return (
         <div className="card overflow-hidden">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                 <h3 className="text-lg font-bold">
                     {rankingMode === 'hated' ? 'Most Frustrating Days' : 'Most Loved Days'}
                 </h3>
@@ -72,8 +72,8 @@ export function SentimentTable({ words, rankingMode, onRankingModeChange }: Sent
                 />
             </div>
 
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+            <div className="overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
+                <table className="w-full text-sm min-w-[640px]">
                     <thead>
                         <tr className="border-b border-[var(--border-color)] text-[var(--text-secondary)]">
                             <th className="p-3 text-left">#</th>

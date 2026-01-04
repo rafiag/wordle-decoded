@@ -34,14 +34,17 @@ export const DailyDistributionChart = memo(function DailyDistributionChart({ dat
     };
 
     return (
-        <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col col-span-2 relative">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">Daily Guess Distribution <br></br>(Last 90 Days)</h3>
-                <FilterToggle
-                    options={['Overall', 'Easy', 'Medium', 'Hard', 'Expert'] as const}
-                    value={dailyFilter}
-                    onChange={handleFilterChange}
-                />
+        <div className="card !min-h-[500px] md:!min-h-[450px] lg:!min-h-[400px] flex flex-col col-span-2 relative">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                <h3 className="text-lg font-bold">Daily Guess Distribution <br className="sm:hidden"></br>(Last 90 Days)</h3>
+                <div className="w-full sm:w-auto overflow-x-auto">
+                    <FilterToggle
+                        options={['Overall', 'Easy', 'Medium', 'Hard', 'Expert'] as const}
+                        value={dailyFilter}
+                        onChange={handleFilterChange}
+                        className="min-w-max"
+                    />
+                </div>
             </div>
 
             <div className="flex-grow relative">

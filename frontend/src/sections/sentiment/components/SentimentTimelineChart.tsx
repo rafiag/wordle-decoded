@@ -13,7 +13,7 @@ interface SentimentTimelineChartProps {
 
 export const SentimentTimelineChart = memo(function SentimentTimelineChart({ data }: SentimentTimelineChartProps) {
     return (
-        <div className="card flex flex-col relative !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px]">
+        <div className="card flex flex-col relative !min-h-[500px] md:!min-h-[450px] lg:!min-h-[400px]">
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="text-lg font-bold">Daily Sentiment Trend (Last 90 Days)</h3>

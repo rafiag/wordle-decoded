@@ -26,23 +26,23 @@ export function FrustrationMeter({ avgFrustration, frustrationBreakdown }: Frust
             </p>
 
             <div className="mt-8 pt-8 border-t border-[var(--border-color)]">
-                <div className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider">Breakdown by Difficulty</div>
-                <div className="flex justify-around gap-6 px-2 pt-8">
+                <div className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider mb-4">Breakdown by Difficulty</div>
+                <div className="grid grid-cols-2 sm:flex sm:justify-around gap-4 sm:gap-6 px-2 pt-4">
                     <div>
                         <div className="text-xs text-[var(--text-secondary)] mb-1">Easy</div>
-                        <div className="text-xl font-mono font-bold text-[var(--accent-lime)]">{frustrationBreakdown.Easy}%</div>
+                        <div className="text-lg sm:text-xl font-mono font-bold text-[var(--accent-lime)]">{frustrationBreakdown.Easy}%</div>
                     </div>
                     <div>
                         <div className="text-xs text-[var(--text-secondary)] mb-1">Medium</div>
-                        <div className="text-xl font-mono font-bold text-[var(--accent-orange)]">{frustrationBreakdown.Medium}%</div>
+                        <div className="text-lg sm:text-xl font-mono font-bold text-[var(--accent-orange)]">{frustrationBreakdown.Medium}%</div>
                     </div>
                     <div>
                         <div className="text-xs text-[var(--text-secondary)] mb-1">Hard</div>
-                        <div className="text-xl font-mono font-bold text-[var(--accent-coral)]">{frustrationBreakdown.Hard}%</div>
+                        <div className="text-lg sm:text-xl font-mono font-bold text-[var(--accent-coral)]">{frustrationBreakdown.Hard}%</div>
                     </div>
                     <div>
                         <div className="text-xs text-[var(--text-secondary)] mb-1">Expert</div>
-                        <div className="text-xl font-mono font-bold text-[var(--accent-purple)]">{frustrationBreakdown.Expert}%</div>
+                        <div className="text-lg sm:text-xl font-mono font-bold text-[var(--accent-purple)]">{frustrationBreakdown.Expert}%</div>
                     </div>
                 </div>
             </div>

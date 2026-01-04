@@ -37,20 +37,20 @@ const StreakTooltip = memo(function StreakTooltip({ active, payload, label }: To
 
 export const StreakChart = memo(function StreakChart({ data, maxEasyStreak, maxHardStreak }: StreakChartProps) {
     return (
-        <div className="card mb-8 flex flex-col !h-[280px] md:!h-[350px] lg:!h-[400px] relative">
-            <div className="flex justify-between items-start mb-4">
-                <div>
+        <div className="card mb-8 flex flex-col !min-h-[550px] md:!min-h-[450px] lg:!min-h-[400px] relative">
+            <div className="flex flex-col lg:flex-row justify-between items-start mb-4 gap-4">
+                <div className="flex-1">
                     <h3 className="text-lg font-bold">Difficulty Streaks (Last 90 Days)</h3>
                     <p className="text-sm text-[var(--text-secondary)]">Visualize the momentum of consecutive Easy vs. Hard days.</p>
                 </div>
-                <div className="flex gap-6 mt-1">
-                    <div className="text-right">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full lg:w-auto">
+                    <div className="text-left sm:text-right">
                         <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider">Longest Hard Streak</div>
-                        <div className="text-2xl font-bold text-[var(--accent-coral)]">{maxHardStreak} Days</div>
+                        <div className="text-xl sm:text-2xl font-bold text-[var(--accent-coral)]">{maxHardStreak} Days</div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                         <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider">Longest Easy Streak</div>
-                        <div className="text-2xl font-bold text-[var(--accent-lime)]">{maxEasyStreak} Days</div>
+                        <div className="text-xl sm:text-2xl font-bold text-[var(--accent-lime)]">{maxEasyStreak} Days</div>
                     </div>
                 </div>
             </div>
