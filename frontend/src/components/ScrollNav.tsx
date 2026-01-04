@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { trackClickScrollNav } from '../analytics/events';
 
 // Sections definition matches the migration plan
 const SECTIONS = [
@@ -63,6 +64,13 @@ export default function ScrollNav({ containerId }: { containerId?: string }) {
     const scrollToSection = (id: string) => {
         const element = document.getElementById(id);
         const container = containerId ? document.getElementById(containerId) : window;
+
+        // Track scroll navigation click - use section IDs directly
+        trackClickScrollNav({
+            target_section: id as any,
+            current_section: (activeSection || 'hero') as any,
+            navigation_method: 'scroll_nav',
+        });
 
         if (element && container) {
             if (containerId) {

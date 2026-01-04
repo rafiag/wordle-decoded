@@ -8,6 +8,7 @@ import { useDailyChartData } from './hooks/useDailyChartData';
 import { useStreakData } from './hooks/useStreakData';
 import { TopWordsTable } from './components/TopWordsTable';
 import { TooltipTerm } from '../../components/shared/Tooltip';
+import { useSectionTracking } from '../../analytics/hooks/useSectionTracking';
 
 // Lazy load chart components to reduce initial bundle size
 const AggregateDistributionChart = lazy(() => import('./components/AggregateDistributionChart').then(m => ({ default: m.AggregateDistributionChart })));
@@ -15,6 +16,9 @@ const DailyDistributionChart = lazy(() => import('./components/DailyDistribution
 const StreakChart = lazy(() => import('./components/StreakChart').then(m => ({ default: m.StreakChart })));
 
 export default function BoldDifficultySection() {
+    // Analytics tracking
+    useSectionTracking({ sectionName: 'difficulty' });
+
     // Fetch Data
     const { data: difficultyStats, isLoading: statsLoading } = useQuery<DifficultyStat[]>({
         queryKey: ['difficultyStats'],
@@ -49,10 +53,6 @@ export default function BoldDifficultySection() {
     // Top Words Data
     const topWords = rankingMode === 'hardest' ? (topHardest || []) : (topEasiest || []);
 
-    if (statsLoading || distLoading) {
-        return <div className="p-8 text-center text-[var(--text-secondary)]">Loading difficulty data...</div>;
-    }
-
     return (
         <section id="difficulty" className="mb-20 pt-10">
             <div className="section-header">
@@ -64,43 +64,49 @@ export default function BoldDifficultySection() {
                 </p>
             </div>
 
-            {/* Row 1: Charts (1/3 and 2/3 split) */}
-            <div className="grid-3-col mb-8">
-                <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
-                    <AggregateDistributionChart data={aggregateData} />
-                </Suspense>
-                <Suspense fallback={<div className="card col-span-2 animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
-                    <DailyDistributionChart
-                        data={dailyChartData}
-                        dailyFilter={dailyFilter}
-                        onFilterChange={(newFilter) => {
+            {(statsLoading || distLoading) ? (
+                <div className="p-8 text-center text-[var(--text-secondary)]">Loading difficulty data...</div>
+            ) : (
+                <>
+                    {/* Row 1: Charts (1/3 and 2/3 split) */}
+                    <div className="grid-3-col mb-8">
+                        <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                            <AggregateDistributionChart data={aggregateData} />
+                        </Suspense>
+                        <Suspense fallback={<div className="card col-span-2 animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                            <DailyDistributionChart
+                                data={dailyChartData}
+                                dailyFilter={dailyFilter}
+                                onFilterChange={(newFilter) => {
+                                    startTransition(() => {
+                                        setDailyFilter(newFilter);
+                                    });
+                                }}
+                            />
+                        </Suspense>
+                    </div>
+
+                    {/* Row 2: Streak Chart (Full width) */}
+                    <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                        <StreakChart
+                            data={streakChartData}
+                            maxEasyStreak={maxEasyStreak}
+                            maxHardStreak={maxHardStreak}
+                        />
+                    </Suspense>
+
+                    {/* Row 3: Top Words Table (Full width) */}
+                    <TopWordsTable
+                        words={topWords}
+                        rankingMode={rankingMode}
+                        onRankingModeChange={(newMode) => {
                             startTransition(() => {
-                                setDailyFilter(newFilter);
+                                setRankingMode(newMode);
                             });
                         }}
                     />
-                </Suspense>
-            </div>
-
-            {/* Row 2: Streak Chart (Full width) */}
-            <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
-                <StreakChart
-                    data={streakChartData}
-                    maxEasyStreak={maxEasyStreak}
-                    maxHardStreak={maxHardStreak}
-                />
-            </Suspense>
-
-            {/* Row 3: Top Words Table (Full width) */}
-            <TopWordsTable
-                words={topWords}
-                rankingMode={rankingMode}
-                onRankingModeChange={(newMode) => {
-                    startTransition(() => {
-                        setRankingMode(newMode);
-                    });
-                }}
-            />
+                </>
+            )}
         </section>
     );
 }

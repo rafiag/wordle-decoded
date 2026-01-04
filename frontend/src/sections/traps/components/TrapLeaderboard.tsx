@@ -3,6 +3,7 @@ import { Info } from 'lucide-react';
 import { THEME_COLORS } from '../../../theme/colors';
 import { TrapTooltip } from '../../../components/charts/ChartTooltip';
 import { Trap } from '../../../types';
+import { trackClickTrapWord } from '../../../analytics/events';
 
 interface TrapLeaderboardProps {
     traps: Trap[];
@@ -11,6 +12,22 @@ interface TrapLeaderboardProps {
 }
 
 export function TrapLeaderboard({ traps, selectedWord, onSelectWord }: TrapLeaderboardProps) {
+    const handleBarClick = (data: any) => {
+        if (data && data.payload) {
+            const trap = data.payload as Trap;
+            const selectionRank = traps.findIndex(t => t.word === trap.word) + 1;
+
+            // Track trap word selection
+            trackClickTrapWord({
+                word: trap.word,
+                trap_score: trap.trap_score,
+                neighbor_count: trap.neighbor_count,
+                selection_rank: selectionRank,
+            });
+
+            onSelectWord(trap.word);
+        }
+    };
     return (
         <div className="card trap-leaderboard">
             <div className="trap-leaderboard-header">
@@ -43,11 +60,7 @@ export function TrapLeaderboard({ traps, selectedWord, onSelectWord }: TrapLeade
                             dataKey="neighbor_count"
                             radius={[0, 6, 6, 0]}
                             activeBar={false}
-                            onClick={(data: any) => {
-                                if (data && data.payload) {
-                                    onSelectWord(data.payload.word);
-                                }
-                            }}
+                            onClick={handleBarClick}
                             className="cursor-pointer transition-all duration-300"
                         >
                             {traps.map((entry: Trap, index: number) => (

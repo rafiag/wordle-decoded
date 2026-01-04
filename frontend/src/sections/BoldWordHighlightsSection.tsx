@@ -1,6 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { statsApi } from '../services/api';
 import type { WordDetails } from '../types';
+import { useSectionTracking } from '../analytics/hooks/useSectionTracking';
+import {
+    trackStartWordSearch,
+    trackSearchWord,
+    trackViewWordResults,
+    trackWordSearchError
+} from '../analytics/events';
 
 // Highlight card data (static, computed from database analysis)
 const HIGHLIGHT_CARDS = [
@@ -45,40 +52,95 @@ const HIGHLIGHT_CARDS = [
  * 2. Word Explorer (search for any word's comprehensive stats)
  */
 export default function BoldWordHighlightsSection() {
+    useSectionTracking({ sectionName: 'word-highlights' });
     const [searchWord, setSearchWord] = useState('');
     const [wordDetails, setWordDetails] = useState<WordDetails | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasSearched, setHasSearched] = useState(false);
+    const searchStartTimeRef = useRef(0);
 
     const isValidWord = searchWord.length === 5 && /^[a-zA-Z]+$/.test(searchWord);
 
-    const handleSearch = async () => {
-        if (!isValidWord) return;
+    const handleInputFocus = (interactionMethod: 'click' | 'tab') => {
+        trackStartWordSearch({ interaction_method: interactionMethod });
+    };
+
+    const handleSearch = async (searchMethod: 'enter_key' | 'button_click') => {
+        if (!isValidWord) {
+            // Track validation error
+            let errorType: 'invalid_length' | 'invalid_characters' = 'invalid_length';
+            if (searchWord.length !== 5) {
+                errorType = 'invalid_length';
+            } else if (!/^[a-zA-Z]+$/.test(searchWord)) {
+                errorType = 'invalid_characters';
+            }
+
+            trackWordSearchError({
+                error_type: errorType,
+                input_value: searchWord.slice(0, 10), // Max 10 chars for privacy
+                error_message: 'Invalid word format',
+            });
+            return;
+        }
+
+        // Track search event
+        const isUppercase = searchWord === searchWord.toUpperCase();
+        trackSearchWord({
+            word_length: searchWord.length,
+            search_method: searchMethod,
+            is_uppercase: isUppercase,
+        });
 
         setIsLoading(true);
         setError(null);
         setHasSearched(true);
+        searchStartTimeRef.current = Date.now();
 
         try {
             const details = await statsApi.getWordDetails(searchWord);
+            const timeToResults = Date.now() - searchStartTimeRef.current;
+
+            // Track successful results
+            trackViewWordResults({
+                word: details.word,
+                difficulty_rating: details.difficulty_rating || 0,
+                success_rate: (details.success_rate || 0) * 100,
+                avg_guesses: details.avg_guess_count || 0,
+                is_trap_word: details.trap_score !== null,
+                trap_score: details.trap_score,
+                time_to_results: timeToResults,
+            });
+
             setWordDetails(details);
         } catch (err: unknown) {
-            setWordDetails(null);
             const apiError = err as { status?: number };
+            let errorType: 'not_found' | 'api_error' = 'api_error';
+            let errorMessage = 'Failed to fetch word details. Please try again.';
+
             if (apiError.status === 404) {
-                setError('Word not found in database. Try a different Wordle answer.');
-            } else {
-                setError('Failed to fetch word details. Please try again.');
+                errorType = 'not_found';
+                errorMessage = 'Word not found in database. Try a different Wordle answer.';
             }
+
+            // Track error
+            trackWordSearchError({
+                error_type: errorType,
+                input_value: searchWord.slice(0, 10),
+                error_message: errorMessage,
+            });
+
+            setWordDetails(null);
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
+            searchStartTimeRef.current = 0;
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && isValidWord) {
-            handleSearch();
+            handleSearch('enter_key');
         }
     };
 
@@ -132,6 +194,10 @@ export default function BoldWordHighlightsSection() {
                                         value={searchWord}
                                         onChange={(e) => setSearchWord(e.target.value.toUpperCase().slice(0, 5))}
                                         onKeyDown={handleKeyDown}
+                                        onFocus={(e) => {
+                                            const method = e.nativeEvent instanceof FocusEvent && e.nativeEvent.relatedTarget === null ? 'click' : 'tab';
+                                            handleInputFocus(method);
+                                        }}
                                         placeholder="ENTER"
                                         maxLength={5}
                                         className="word-explorer-input"
@@ -140,7 +206,7 @@ export default function BoldWordHighlightsSection() {
                                 </div>
                                 <button
                                     className="btn btn-primary"
-                                    onClick={handleSearch}
+                                    onClick={() => handleSearch('button_click')}
                                     disabled={!isValidWord || isLoading}
                                 >
                                     {isLoading ? 'Searching...' : 'Search Word'}

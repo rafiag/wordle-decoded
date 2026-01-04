@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 import { THEME_COLORS } from '../../../theme/colors';
 import { FilterToggle } from '../../../components/shared/FilterToggle';
 import { SentimentTopWord } from '../../../types';
+import { trackToggleRanking } from '../../../analytics/events';
 
 const TableRow = memo(({ item, idx }: { item: SentimentTopWord; idx: number }) => (
     <tr className="border-b border-[var(--border-color)] hover:bg-[rgba(255,255,255,0.02)] transition-colors">
@@ -41,6 +42,22 @@ interface SentimentTableProps {
 }
 
 export function SentimentTable({ words, rankingMode, onRankingModeChange }: SentimentTableProps) {
+    const previousModeRef = useRef<'hated' | 'loved'>(rankingMode);
+
+    const handleRankingChange = (newMode: 'hated' | 'loved') => {
+        const previousValue = previousModeRef.current;
+
+        // Track the ranking toggle
+        trackToggleRanking({
+            table_name: 'sentiment_words',
+            toggle_value: newMode,
+            previous_value: previousValue,
+        });
+
+        previousModeRef.current = newMode;
+        onRankingModeChange(newMode);
+    };
+
     return (
         <div className="card overflow-hidden">
             <div className="flex justify-between items-center mb-6">
@@ -50,7 +67,7 @@ export function SentimentTable({ words, rankingMode, onRankingModeChange }: Sent
                 <FilterToggle
                     options={['hated', 'loved'] as const}
                     value={rankingMode}
-                    onChange={onRankingModeChange}
+                    onChange={handleRankingChange}
                     activeColor={rankingMode === 'hated' ? 'var(--accent-coral)' : 'var(--accent-lime)'}
                 />
             </div>

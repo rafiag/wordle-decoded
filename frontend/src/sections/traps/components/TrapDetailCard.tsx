@@ -1,14 +1,39 @@
+import { useEffect, useRef } from 'react';
 import { Target } from 'lucide-react';
 import InsightCard from '../../../components/shared/InsightCard';
 import { Trap } from '../../../types';
 import { TrapPatternLock } from './TrapPatternLock';
 import { getPatternMask } from '../utils/patternUtils';
+import { trackViewTrapDetail } from '../../../analytics/events';
 
 interface TrapDetailCardProps {
     trap: Trap;
+    shouldTrack?: boolean;
 }
 
-export function TrapDetailCard({ trap }: TrapDetailCardProps) {
+export function TrapDetailCard({ trap, shouldTrack = false }: TrapDetailCardProps) {
+    const lastTrackedWordRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        // Track trap detail view only if caused by user interaction
+        if (!shouldTrack) return;
+
+        // Prevent double tracking/re-tracking of the same word (handles Strict Mode and re-renders)
+        if (lastTrackedWordRef.current === trap.word) return;
+
+        const deadlyNeighborsShown = trap.deadly_neighbors?.length || 0;
+        const hasPatternLock = deadlyNeighborsShown > 0;
+
+        trackViewTrapDetail({
+            word: trap.word,
+            date: trap.date || 'Unknown',
+            deadly_neighbors_shown: Math.min(deadlyNeighborsShown, 10), // Max 10 shown
+            has_pattern_lock: hasPatternLock,
+        });
+
+        lastTrackedWordRef.current = trap.word;
+    }, [trap.word, trap.date, trap.deadly_neighbors, shouldTrack]);
+
     return (
         <div className="trap-detail-card">
 

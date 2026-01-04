@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { THEME_COLORS } from '../../../theme/colors';
 import { GuessDistributionTooltip } from '../../../components/charts/ChartTooltip';
@@ -6,6 +6,7 @@ import { FilterToggle } from '../../../components/shared/FilterToggle';
 import InsightCard from '../../../components/shared/InsightCard';
 import { DailyChartDataItem } from '../hooks/useDailyChartData';
 import { DifficultyLabel } from '../../../types';
+import { trackFilterDifficulty } from '../../../analytics/events';
 
 const GUESS_COLORS = THEME_COLORS.guess;
 
@@ -16,6 +17,22 @@ interface DailyDistributionChartProps {
 }
 
 export const DailyDistributionChart = memo(function DailyDistributionChart({ data, dailyFilter, onFilterChange }: DailyDistributionChartProps) {
+    const previousFilterRef = useRef<'Overall' | DifficultyLabel>(dailyFilter);
+
+    const handleFilterChange = (newFilter: 'Overall' | DifficultyLabel) => {
+        const previousValue = previousFilterRef.current;
+
+        // Track the filter change
+        trackFilterDifficulty({
+            chart_name: 'daily_distribution',
+            filter_value: newFilter.toLowerCase() as 'easy' | 'medium' | 'hard' | 'expert' | 'overall',
+            previous_value: previousValue.toLowerCase() as 'easy' | 'medium' | 'hard' | 'expert' | 'overall',
+        });
+
+        previousFilterRef.current = newFilter;
+        onFilterChange(newFilter);
+    };
+
     return (
         <div className="card !min-h-[280px] md:!min-h-[350px] lg:!min-h-[400px] flex flex-col col-span-2 relative">
             <div className="flex justify-between items-center mb-4">
@@ -23,7 +40,7 @@ export const DailyDistributionChart = memo(function DailyDistributionChart({ dat
                 <FilterToggle
                     options={['Overall', 'Easy', 'Medium', 'Hard', 'Expert'] as const}
                     value={dailyFilter}
-                    onChange={onFilterChange}
+                    onChange={handleFilterChange}
                 />
             </div>
 

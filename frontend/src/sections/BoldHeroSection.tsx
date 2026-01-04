@@ -1,17 +1,20 @@
 import React from 'react';
+import { useSectionTracking } from '../analytics/hooks/useSectionTracking';
 
 /**
  * BoldHeroSection - A strictly presentational component for the V2 'Bold' design.
- * 
+ *
  * Features:
  * - Data Noir styling (gradients, glows, typography)
  * - Animated background elements (via CSS pseudo-elements)
  * - Clean layout (no stat cards, just landing focus)
  * - Scroll Nudge indicator
- * 
+ *
  * Note: Styles are defined in bold-theme.css under .hero, .hero-title, etc.
  */
 const BoldHeroSection: React.FC = () => {
+    useSectionTracking({ sectionName: 'hero' });
+
     return (
         <section id="hero" className="hero">
             <div className="container-v2">

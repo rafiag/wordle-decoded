@@ -3,8 +3,10 @@ import { statsApi } from '../../services/api';
 import InsightCard from '../../components/shared/InsightCard';
 import { NYTMetricsTable } from './components/NYTMetricsTable';
 import { formatValue } from './utils/formatters';
+import { useSectionTracking } from '../../analytics/hooks/useSectionTracking';
 
 export default function BoldNYTEffectSection() {
+    useSectionTracking({ sectionName: 'nyt-effect' });
     const { data: periodData, isLoading } = useQuery({
         queryKey: ['nytPeriods'],
         queryFn: statsApi.getNYTPeriods,

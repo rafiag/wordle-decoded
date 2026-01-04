@@ -4,12 +4,15 @@ import { GitMerge } from 'lucide-react';
 import { statsApi } from '../../services/api';
 import { TrapDetailCard } from './components/TrapDetailCard';
 import { TooltipTerm } from '../../components/shared/Tooltip';
+import { useSectionTracking } from '../../analytics/hooks/useSectionTracking';
 
 // Lazy load TrapLeaderboard (contains Recharts)
 const TrapLeaderboard = lazy(() => import('./components/TrapLeaderboard').then(m => ({ default: m.TrapLeaderboard })));
 
 export default function BoldTrapsSection() {
+    useSectionTracking({ sectionName: 'trap-words' });
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
+    const [isUserInteraction, setIsUserInteraction] = useState(false);
 
     // Fetch Top Traps for Leaderboard
     const { data: topTraps, isLoading: isLoadingTop, isError: isErrorTop, error: errorTop } = useQuery({
@@ -32,7 +35,7 @@ export default function BoldTrapsSection() {
         refetchOnWindowFocus: false
     });
 
-    // Auto-select the first trap when topTraps loads
+    // Auto-select the first trap when topTraps loads (no user interaction flag)
     useEffect(() => {
         if (topTraps && topTraps.length > 0 && !selectedWord) {
             const timer = setTimeout(() => {
@@ -42,8 +45,26 @@ export default function BoldTrapsSection() {
         }
     }, [topTraps, selectedWord]);
 
-    if (isLoadingTop) return <div className="p-12 text-center text-[var(--text-secondary)]">Loading Trap Data...</div>;
-    if (isErrorTop) return <div className="p-12 text-center text-[var(--accent-coral)]">Error loading traps: {(errorTop as Error).message}</div>;
+    const handleWordSelect = (word: string) => {
+        setIsUserInteraction(true);
+        setSelectedWord(word);
+    };
+
+    if (isLoadingTop) {
+        return (
+            <section id="trap-words" className="section-container py-24">
+                <div className="p-12 text-center text-[var(--text-secondary)]">Loading Trap Data...</div>
+            </section>
+        );
+    }
+
+    if (isErrorTop) {
+        return (
+            <section id="trap-words" className="section-container py-24">
+                <div className="p-12 text-center text-[var(--accent-coral)]">Error loading traps: {(errorTop as Error).message}</div>
+            </section>
+        );
+    }
 
     return (
         <section id="trap-words" className="section-container py-24">
@@ -66,12 +87,15 @@ export default function BoldTrapsSection() {
                         <TrapLeaderboard
                             traps={topTraps || []}
                             selectedWord={selectedWord}
-                            onSelectWord={setSelectedWord}
+                            onSelectWord={handleWordSelect}
                         />
                     </Suspense>
 
                     {selectedTrapData ? (
-                        <TrapDetailCard trap={selectedTrapData} />
+                        <TrapDetailCard
+                            trap={selectedTrapData}
+                            shouldTrack={isUserInteraction}
+                        />
                     ) : (
                         <div className="card trap-empty-state border-dashed">
                             <GitMerge className="w-12 h-12" />

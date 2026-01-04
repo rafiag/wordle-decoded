@@ -1,6 +1,8 @@
+import { useRef } from 'react';
 import { THEME_COLORS } from '../../../theme/colors';
 import { FilterToggle } from '../../../components/shared/FilterToggle';
 import type { WordRanking } from '../../../types';
+import { trackToggleRanking } from '../../../analytics/events';
 
 interface TopWordsTableProps {
     words: WordRanking[];
@@ -9,6 +11,22 @@ interface TopWordsTableProps {
 }
 
 export function TopWordsTable({ words, rankingMode, onRankingModeChange }: TopWordsTableProps) {
+    const previousModeRef = useRef<'easiest' | 'hardest'>(rankingMode);
+
+    const handleRankingChange = (newMode: 'easiest' | 'hardest') => {
+        const previousValue = previousModeRef.current;
+
+        // Track the ranking toggle
+        trackToggleRanking({
+            table_name: 'top_words',
+            toggle_value: newMode,
+            previous_value: previousValue,
+        });
+
+        previousModeRef.current = newMode;
+        onRankingModeChange(newMode);
+    };
+
     return (
         <div className="card overflow-hidden">
             <div className="flex justify-between items-center mb-6">
@@ -18,7 +36,7 @@ export function TopWordsTable({ words, rankingMode, onRankingModeChange }: TopWo
                 <FilterToggle
                     options={['hardest', 'easiest'] as const}
                     value={rankingMode}
-                    onChange={onRankingModeChange}
+                    onChange={handleRankingChange}
                     activeColor={rankingMode === 'hardest' ? 'var(--accent-cyan)' : 'var(--accent-lime)'}
                 />
             </div>

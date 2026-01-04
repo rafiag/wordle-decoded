@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import StatCard from '../components/shared/StatCard';
 import { statsApi } from '../services/api';
 import type { AtAGlanceStats } from '../types';
+import { useSectionTracking } from '../analytics/hooks/useSectionTracking';
 
 /**
  * BoldAtAGlanceSection - V2 landing section.
@@ -10,6 +11,7 @@ import type { AtAGlanceStats } from '../types';
  * - Overview Navigation Links
  */
 export default function BoldAtAGlanceSection() {
+    useSectionTracking({ sectionName: 'at-a-glance' });
     const [stats, setStats] = useState<AtAGlanceStats | null>(null);
     const [loading, setLoading] = useState(true);
 

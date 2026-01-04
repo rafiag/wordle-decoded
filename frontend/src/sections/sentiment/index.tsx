@@ -7,12 +7,14 @@ import { useSentimentTopWords } from './hooks/useSentimentTopWords';
 import { FrustrationMeter } from './components/FrustrationMeter';
 import { SentimentTable } from './components/SentimentTable';
 import { TooltipTerm } from '../../components/shared/Tooltip';
+import { useSectionTracking } from '../../analytics/hooks/useSectionTracking';
 
 // Lazy load chart components
 const SentimentPieChart = lazy(() => import('./components/SentimentPieChart').then(m => ({ default: m.SentimentPieChart })));
 const SentimentTimelineChart = lazy(() => import('./components/SentimentTimelineChart').then(m => ({ default: m.SentimentTimelineChart })));
 
 export default function BoldSentimentSection() {
+    useSectionTracking({ sectionName: 'sentiment' });
     const { data: sentimentData, isLoading } = useQuery<SentimentResponse>({
         queryKey: ['sentimentData'],
         queryFn: statsApi.getSentimentData,
@@ -27,8 +29,6 @@ export default function BoldSentimentSection() {
     const avgFrustration = sentimentData?.aggregates?.avg_frustration || 0;
     const frustrationBreakdown = (sentimentData?.aggregates?.frustration_by_difficulty as { Easy: number; Medium: number; Hard: number; Expert: number }) || { Easy: 0, Medium: 0, Hard: 0, Expert: 0 };
 
-    if (isLoading) return <div className="py-20 text-center text-[var(--text-secondary)]">Loading sentiment data...</div>;
-
     return (
         <section id="sentiment" className="mb-20 pt-10">
             <div className="section-header">
@@ -40,19 +40,25 @@ export default function BoldSentimentSection() {
                 </p>
             </div>
 
-            <div className="grid-2-col mb-8">
-                <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
-                    <SentimentPieChart data={sentimentDistribution} />
-                </Suspense>
-                <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
-                    <SentimentTimelineChart data={sentimentData?.timeline || []} />
-                </Suspense>
-            </div>
+            {isLoading ? (
+                <div className="py-20 text-center text-[var(--text-secondary)]">Loading sentiment data...</div>
+            ) : (
+                <>
+                    <div className="grid-2-col mb-8">
+                        <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                            <SentimentPieChart data={sentimentDistribution} />
+                        </Suspense>
+                        <Suspense fallback={<div className="card animate-pulse bg-[var(--card-bg)]" style={{ minHeight: '350px' }} />}>
+                            <SentimentTimelineChart data={sentimentData?.timeline || []} />
+                        </Suspense>
+                    </div>
 
-            <div className="grid-2-col">
-                <FrustrationMeter avgFrustration={avgFrustration} frustrationBreakdown={frustrationBreakdown} />
-                <SentimentTable words={topWords} rankingMode={rankingMode} onRankingModeChange={setRankingMode} />
-            </div>
+                    <div className="grid-2-col">
+                        <FrustrationMeter avgFrustration={avgFrustration} frustrationBreakdown={frustrationBreakdown} />
+                        <SentimentTable words={topWords} rankingMode={rankingMode} onRankingModeChange={setRankingMode} />
+                    </div>
+                </>
+            )}
         </section>
     );
 }

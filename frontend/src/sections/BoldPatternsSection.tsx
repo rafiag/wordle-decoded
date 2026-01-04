@@ -1,19 +1,30 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PatternFlow } from '../types';
 import { statsApi } from '../services/api';
+import { useSectionTracking } from '../analytics/hooks/useSectionTracking';
+import {
+    trackClickPatternBlock,
+    trackAnalyzePattern,
+    trackViewPatternResults,
+    trackPatternAnalysisError
+} from '../analytics/events';
 
 const STATES = ['⬜', '🟨', '🟩'] as const;
 type BlockState = typeof STATES[number];
+const DEFAULT_PATTERN: BlockState[] = ['⬜', '🟨', '⬜', '⬜', '🟩'];
 
 /**
  * Bold Pattern Section - Interactive pattern analysis with Data Noir theme.
  * Users can input their first guess pattern and see success rates and likely next steps.
  */
 export default function BoldPatternsSection() {
-    const [pattern, setPattern] = useState<BlockState[]>(['⬜', '🟨', '⬜', '⬜', '🟩']);
+    useSectionTracking({ sectionName: 'pattern' });
+    const [pattern, setPattern] = useState<BlockState[]>([...DEFAULT_PATTERN]);
     const [analyzedPattern, setAnalyzedPattern] = useState<string | null>(null);
     const patternString = pattern.join('');
+    const totalClicksRef = useRef(0);
+    const analyzeStartTimeRef = useRef(0);
 
     // Only fetch when analyzedPattern is set (after button click)
     const { data: patternStats, isLoading: statsLoading } = useQuery({
@@ -28,16 +39,82 @@ export default function BoldPatternsSection() {
         enabled: analyzedPattern !== null,
     });
 
+    const getBlockState = (block: BlockState): 'wrong' | 'wrong_position' | 'correct' => {
+        if (block === '🟩') return 'correct';
+        if (block === '🟨') return 'wrong_position';
+        return 'wrong';
+    };
+
     const cycleBlock = (index: number) => {
         const newPattern = [...pattern];
+        const oldBlock = newPattern[index];
         const currentIndex = STATES.indexOf(newPattern[index]);
         newPattern[index] = STATES[(currentIndex + 1) % STATES.length];
+
+        totalClicksRef.current += 1;
+
+        // Track pattern block click
+        trackClickPatternBlock({
+            block_position: index + 1,
+            old_state: getBlockState(oldBlock),
+            new_state: getBlockState(newPattern[index]),
+            total_clicks: totalClicksRef.current,
+        });
+
         setPattern(newPattern);
     };
 
     const handleAnalyze = () => {
+        const numCorrect = pattern.filter(b => b === '🟩').length;
+        const numWrongPosition = pattern.filter(b => b === '🟨').length;
+        const numWrong = pattern.filter(b => b === '⬜').length;
+        const isDefaultPattern = pattern.every((b, i) => b === DEFAULT_PATTERN[i]);
+
+        // Track analyze pattern event
+        trackAnalyzePattern({
+            pattern: patternString,
+            num_correct: numCorrect,
+            num_wrong_position: numWrongPosition,
+            num_wrong: numWrong,
+            is_default_pattern: isDefaultPattern,
+        });
+
+        analyzeStartTimeRef.current = Date.now();
         setAnalyzedPattern(patternString);
     };
+
+    // Track successful results
+    useEffect(() => {
+        if (patternStats && !statsLoading && analyzedPattern && analyzeStartTimeRef.current > 0) {
+            const timeToResults = Date.now() - analyzeStartTimeRef.current;
+
+            trackViewPatternResults({
+                success_rate: patternStats.success_rate * 100,
+                sample_size: patternStats.count,
+                avg_guesses: patternStats.avg_guesses || 0,
+                has_next_steps: nextSteps ? nextSteps.length > 0 : false,
+                time_to_results: timeToResults,
+            });
+
+            // Reset start time
+            analyzeStartTimeRef.current = 0;
+        }
+    }, [patternStats, statsLoading, analyzedPattern, nextSteps]);
+
+    // Track errors (React Query doesn't expose error state directly, so we check for empty results)
+    useEffect(() => {
+        if (analyzedPattern && !statsLoading && !flowLoading && analyzeStartTimeRef.current > 0) {
+            if (!patternStats || patternStats.count === 0) {
+                trackPatternAnalysisError({
+                    error_type: 'no_results',
+                    pattern: analyzedPattern,
+                    error_message: 'No matching patterns found in our dataset',
+                });
+
+                analyzeStartTimeRef.current = 0;
+            }
+        }
+    }, [patternStats, analyzedPattern, statsLoading, flowLoading]);
 
     const isLoading = statsLoading || flowLoading;
     const hasResults = analyzedPattern !== null;
